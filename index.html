@@ -8,35 +8,41 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#4dabf7">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3502/3502688.png">
-
+  
   <style>
     :root { --primary: #4dabf7; --bg: #f8f9fa; --radius: 12px; --card-w: 135px; }
     body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding-top: calc(80px + env(safe-area-inset-top)); padding-bottom: calc(100px + env(safe-area-inset-bottom)); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+    
+    /* 검색 제스처 방지를 위한 설정 */
+    * { -webkit-user-select: none; -webkit-touch-callout: none; }
+    input, textarea { -webkit-user-select: text; }
+
     .header { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 5000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); padding-top: env(safe-area-inset-top); }
     .timeline { position: relative; width: 100%; max-width: 500px; margin: 0 auto; z-index: 100; padding: 20px 0; min-height: 400px; }
     .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #adb5bd; transform: translateX(-50%); z-index: 1; }
     .year-marker { display: block; width: fit-content; background: #495057; color: #fff; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; margin: 40px auto 20px; position: relative; z-index: 10; }
     .month-row { display: flex; justify-content: center; align-items: flex-start; gap: 40px; margin-bottom: 30px; position: relative; min-height: 80px; }
     .center-node { position: absolute; left: 50%; transform: translateX(-50%); background: #adb5bd; width: 8px; height: 8px; border-radius: 50%; z-index: 10; top: 24px; border: 2px solid white; }
-    .scene-dropzone { width: var(--card-w); min-height: 60px; display: flex; flex-direction: column; gap: 15px; }
     
     .card { background: white; border-radius: var(--radius); width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; flex-direction: column; cursor: pointer; overflow: hidden; position: relative; touch-action: none; }
     .card-month-tag { position: absolute; top: 0; left: 0; padding: 2px 8px; font-size: 9px; font-weight: 800; color: white; border-bottom-right-radius: 8px; }
     .card-body { padding: 22px 10px 10px 10px; }
     .card-text { font-size: 12px; line-height: 1.4; color: #212529; font-weight: 500; word-break: break-all; }
-    
+    .card-footer { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 10px 10px; }
+    .char-mini-icon { width: 18px; height: 18px; border-radius: 50%; background: #eee; border: 1px solid white; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: white; display: flex; justify-content: space-around; align-items: center; z-index: 999999; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); padding-bottom: env(safe-area-inset-bottom); }
-    .nav-item { cursor: pointer; text-align: center; font-size: 10px; flex: 1; color: #495057; font-weight: bold; }
+    .nav-item { cursor: pointer; text-align: center; font-size: 10px; flex: 1; color: #495057; font-weight: bold; padding: 10px 0; }
     .add-btn { width: 55px; height: 55px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; position: absolute; top: -25px; border: none; box-shadow: 0 5px 15px rgba(77,171,247,0.4); left: 50%; transform: translateX(-50%); }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000000; justify-content: center; align-items: center; }
     .modal-content { background: white; width: 88%; max-width: 350px; padding: 25px; border-radius: 20px; max-height: 85vh; overflow-y: auto; }
     input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #dee2e6; font-size: 16px; box-sizing: border-box; }
     
-    /* 색상 버튼 스타일 및 선택 효과 */
-    .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; transition: transform 0.2s; }
-    .color-dot.active { transform: scale(1.2); box-shadow: 0 0 0 2px var(--primary); }
+    .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; }
+    .color-dot.active { border: 3px solid var(--primary); transform: scale(1.1); }
+    .char-tag { padding: 6px 12px; border-radius: 20px; border: 1px solid #eee; font-size: 11px; cursor: pointer; background: #f1f3f5; margin-bottom: 5px; }
+    .char-tag.active { background: var(--primary); color: white; }
     
     #toast { visibility: hidden; min-width: 200px; background-color: #333; color: #fff; text-align: center; border-radius: 30px; padding: 12px; position: fixed; z-index: 2000000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 14px; }
     #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -55,9 +61,7 @@
   </div>
 </div>
 
-<div id="timeline" class="timeline">
-  <div class="center-line"></div>
-</div>
+<div id="timeline" class="timeline"><div class="center-line"></div></div>
 
 <div class="bottom-nav">
   <div class="nav-item" onclick="openLoadModal()">📂<br>목록</div>
@@ -67,9 +71,21 @@
   <div class="nav-item" onclick="location.reload()">🔄<br>새로고침</div>
 </div>
 
+<div id="charModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 style="text-align:center;">인물 관리</h3>
+    <div style="background:#f8f9fa; padding:15px; border-radius:15px; margin-bottom:20px;">
+      <input type="text" id="newCharName" placeholder="이름 입력">
+      <button onclick="addNewCharacter()" style="width:100%; background:var(--primary); color:white; border:none; padding:12px; border-radius:10px; font-weight:bold;">인물 등록</button>
+    </div>
+    <div id="charListContainer" style="max-height:200px; overflow-y:auto;"></div>
+    <button onclick="closeModal('charModal')" style="width:100%; margin-top:20px; padding:12px; border:none; border-radius:10px; background:#eee;">닫기</button>
+  </div>
+</div>
+
 <div id="eraManagerModal" class="modal-overlay">
   <div class="modal-content">
-    <h3 style="text-align:center;">시대(역법) 순서</h3>
+    <h3 style="text-align:center;">시대(역법) 관리</h3>
     <div style="display:flex; gap:5px; margin-bottom:15px;">
       <input type="text" id="newEraInput" placeholder="예: 제국력" style="margin:0; flex:1;">
       <button onclick="addNewEra()" style="background:var(--primary); color:white; border:none; border-radius:8px; padding:0 15px;">추가</button>
@@ -82,7 +98,7 @@
 <div id="editModal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modalTitle" style="text-align:center; margin-top:0;">사건 기록</h3>
-    <div id="colorPicker" style="display:flex; gap:12px; justify-content:center; margin-bottom:20px;">
+    <div id="colorPicker" style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
       <div class="color-dot" style="background:#4dabf7;" data-color="#4dabf7"></div>
       <div class="color-dot" style="background:#ff8787;" data-color="#ff8787"></div>
       <div class="color-dot" style="background:#63e6be;" data-color="#63e6be"></div>
@@ -91,19 +107,21 @@
     </div>
     <select id="eraType"></select>
     <div style="display:flex; gap:8px;">
-      <input type="number" id="editYear" placeholder="연도" style="flex:1;">
-      <select id="editMonth" style="flex:1;"><script>for(let i=1;i<=12;i++) document.write(`<option value="${i}">${i}월</option>`);</script></select>
+      <input type="number" id="editYear" placeholder="연도">
+      <select id="editMonth"><script>for(let i=1;i<=12;i++) document.write(`<option value="${i}">${i}월</option>`);</script></select>
     </div>
-    <textarea id="editContent" rows="4" placeholder="내용을 입력하세요."></textarea>
-    <div style="display:flex; gap:10px; margin-top:10px;">
-      <button id="delBtn" onclick="handleDelete()" style="flex:1; background:#ff6b6b; color:white; border:none; padding:14px; border-radius:10px; font-weight:bold;">삭제</button>
+    <textarea id="editContent" rows="4" placeholder="내용 입력"></textarea>
+    <p style="font-size:11px; font-weight:bold; margin-bottom:8px;">참여 인물 선택</p>
+    <div id="charSelectionPool" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;"></div>
+    <div style="display:flex; gap:10px;">
+      <button id="delBtn" onclick="handleDelete()" style="flex:1; background:#ff6b6b; color:white; border:none; padding:14px; border-radius:10px;">삭제</button>
       <button onclick="handleSaveScene()" style="flex:2; background:var(--primary); color:white; border:none; padding:14px; border-radius:10px; font-weight:bold;">저장</button>
-      <button onclick="closeModal('editModal')" style="flex:1; background:#eee; border:none; padding:14px; border-radius:10px;">취소</button>
     </div>
+    <button onclick="closeModal('editModal')" style="width:100%; margin-top:10px; padding:10px; border:none; background:none; color:#999;">취소</button>
   </div>
 </div>
 
-<div id="saveModal" class="modal-overlay"><div class="modal-content"><h3>저장하기</h3><input type="text" id="saveProjectName" placeholder="프로젝트 이름"><button onclick="handleCloudSave()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">저장</button></div></div>
+<div id="saveModal" class="modal-overlay"><div class="modal-content"><h3>저장하기</h3><input type="text" id="saveProjectName" placeholder="프로젝트명"><button onclick="handleCloudSave()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">확인</button></div></div>
 <div id="loadModal" class="modal-overlay"><div class="modal-content"><h3>불러오기</h3><div id="saveList"></div><button onclick="closeModal('loadModal')" style="width:100%; margin-top:15px; padding:12px; background:#eee; border:none; border-radius:10px;">닫기</button></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -130,6 +148,7 @@
   let currentSaveName = null;
   let currentEditingId = null;
   let selectedColor = "#4dabf7";
+  let selectedCharsForScene = [];
 
   const showToast = (msg) => {
     const t = document.getElementById("toast");
@@ -139,29 +158,41 @@
 
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
-  // --- 색상 선택기 로직 (수정됨) ---
-  const initColorPicker = () => {
-    const dots = document.querySelectorAll('.color-dot');
-    dots.forEach(dot => {
-      dot.onclick = (e) => {
-        e.preventDefault();
-        selectedColor = dot.dataset.color;
-        updateColorUI();
-      };
-    });
+  // --- 인물 관리 기능 ---
+  window.openCharManager = () => {
+    renderCharList();
+    document.getElementById('charModal').style.display = 'flex';
   };
 
-  const updateColorUI = () => {
-    document.querySelectorAll('.color-dot').forEach(dot => {
-      if(dot.dataset.color === selectedColor) {
-        dot.classList.add('active');
-      } else {
-        dot.classList.remove('active');
-      }
-    });
+  window.addNewCharacter = () => {
+    const name = document.getElementById('newCharName').value.trim();
+    if(name && !characters.find(c => c.name === name)) {
+      characters.push({ name: name });
+      document.getElementById('newCharName').value = "";
+      renderCharList();
+      syncData();
+    }
   };
 
-  // --- 타임라인 렌더링 ---
+  const renderCharList = () => {
+    const container = document.getElementById('charListContainer');
+    container.innerHTML = characters.map(c => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;">
+        <span style="font-weight:bold;">${c.name}</span>
+        <button onclick="deleteChar('${c.name}')" style="color:red; border:none; background:none; font-size:12px;">삭제</button>
+      </div>
+    `).join('') || '<p style="text-align:center; color:#999; padding:20px;">인물을 등록해주세요.</p>';
+  };
+
+  window.deleteChar = (name) => {
+    if(confirm(`${name}을(를) 삭제하시겠습니까?`)) {
+      characters = characters.filter(c => c.name !== name);
+      renderCharList();
+      syncData();
+    }
+  };
+
+  // --- 타임라인 및 사건 관리 ---
   window.renderTimeline = () => {
     const container = document.getElementById('timeline');
     container.innerHTML = '<div class="center-line"></div>';
@@ -184,8 +215,7 @@
       container.appendChild(marker);
 
       Object.keys(groups[key]).sort((a,b)=>a-b).forEach(m => {
-        const row = document.createElement('div');
-        row.className = 'month-row';
+        const row = document.createElement('div'); row.className = 'month-row';
         row.innerHTML = `<div class="center-node"></div>`;
 
         ['left', 'right'].forEach(side => {
@@ -196,19 +226,22 @@
           groups[key][m][side].forEach(scene => {
             const card = document.createElement('div');
             card.className = 'card';
-            card.dataset.id = scene.id;
             card.style.borderLeft = `5px solid ${scene.color}`;
-            card.innerHTML = `<div class="card-month-tag" style="background:${scene.color}">${m}월</div><div class="card-body"><div class="card-text">${scene.text}</div></div>`;
             
-            card.addEventListener('click', () => window.openEditModal(scene.id));
+            const icons = (scene.chars || []).map(name => `<div class="char-mini-icon">${name[0]}</div>`).join('');
+            
+            card.innerHTML = `
+              <div class="card-month-tag" style="background:${scene.color}">${m}월</div>
+              <div class="card-body"><div class="card-text">${scene.text}</div></div>
+              <div class="card-footer">${icons}</div>
+            `;
+            card.onclick = () => window.openEditModal(scene.id);
             zone.appendChild(card);
           });
           row.appendChild(zone);
 
           new Sortable(zone, {
-            group: 'timeline',
-            animation: 150,
-            delay: 150,
+            group: 'timeline', animation: 150, delay: 150,
             onEnd: (evt) => {
               const id = evt.item.dataset.id;
               const to = evt.to.dataset;
@@ -230,12 +263,12 @@
     });
   };
 
-  // --- 사건 수정창 열기 ---
   window.openEditModal = (id) => {
     const s = storyboard.find(x => x.id == id);
     if(!s) return;
     currentEditingId = id;
     selectedColor = s.color || "#4dabf7";
+    selectedCharsForScene = [...(s.chars || [])];
     
     document.getElementById('modalTitle').innerText = "사건 수정";
     document.getElementById('editContent').value = s.text;
@@ -243,13 +276,24 @@
     document.getElementById('editMonth').value = s.month;
     
     updateEraSelect();
-    setTimeout(() => { 
-        document.getElementById('eraType').value = s.era;
-        updateColorUI(); // 기존 색상 선택 표시
-    }, 50);
+    setTimeout(() => { document.getElementById('eraType').value = s.era; updateColorUI(); renderCharPool(); }, 50);
     
     document.getElementById('delBtn').style.display = 'block';
     document.getElementById('editModal').style.display = 'flex';
+  };
+
+  const renderCharPool = () => {
+    const pool = document.getElementById('charSelectionPool');
+    pool.innerHTML = characters.map(c => `
+      <div class="char-tag ${selectedCharsForScene.includes(c.name) ? 'active' : ''}" onclick="toggleCharSelect('${c.name}')">${c.name}</div>
+    `).join('') || '<p style="font-size:11px; color:#999;">등록된 인물이 없습니다.</p>';
+  };
+
+  window.toggleCharSelect = (name) => {
+    const idx = selectedCharsForScene.indexOf(name);
+    if(idx > -1) selectedCharsForScene.splice(idx, 1);
+    else selectedCharsForScene.push(name);
+    renderCharPool();
   };
 
   window.handleSaveScene = () => {
@@ -264,49 +308,33 @@
       month: parseInt(document.getElementById('editMonth').value),
       text: text,
       color: selectedColor,
+      chars: [...selectedCharsForScene],
       side: currentEditingId ? storyboard.find(x => x.id == currentEditingId).side : 'left'
     };
 
-    if(currentEditingId) {
-      storyboard = storyboard.map(s => s.id == currentEditingId ? sceneData : s);
-    } else {
-      storyboard.push(sceneData);
-    }
+    if(currentEditingId) storyboard = storyboard.map(s => s.id == currentEditingId ? sceneData : s);
+    else storyboard.push(sceneData);
 
     closeModal('editModal');
     syncData();
-    showToast("저장되었습니다.");
   };
 
-  const syncData = () => { 
-    if (currentSaveName) set(ref(database, `projects/${currentSaveName}`), { title: currentSaveName, data: storyboard, characters, eras }); 
-    renderTimeline(); 
-  };
-
-  window.addScene = () => {
-    if(eras.length === 0) { alert('시대를 먼저 추가하세요!'); return; }
-    currentEditingId = null;
-    selectedColor = "#4dabf7"; // 기본색 초기화
-    document.getElementById('editContent').value = "";
-    document.getElementById('editYear').value = "";
-    updateEraSelect();
-    updateColorUI();
-    document.getElementById('delBtn').style.display = 'none';
-    document.getElementById('editModal').style.display = 'flex';
-  };
-
+  // --- 기타 관리 로직 ---
+  const syncData = () => { if (currentSaveName) set(ref(database, `projects/${currentSaveName}`), { title: currentSaveName, data: storyboard, characters, eras }); renderTimeline(); };
+  window.addScene = () => { if(eras.length === 0) { alert('시대를 먼저 추가하세요!'); return; } currentEditingId = null; selectedCharsForScene = []; document.getElementById('editContent').value = ""; document.getElementById('editYear').value = ""; updateEraSelect(); updateColorUI(); renderCharPool(); document.getElementById('delBtn').style.display = 'none'; document.getElementById('editModal').style.display = 'flex'; };
   window.openEraManager = () => { renderEraList(); document.getElementById('eraManagerModal').style.display = 'flex'; };
   window.addNewEra = () => { const v = document.getElementById('newEraInput').value.trim(); if(v && !eras.includes(v)) { eras.push(v); renderEraList(); syncData(); document.getElementById('newEraInput').value=""; } };
-  const renderEraList = () => { document.getElementById('eraListContainer').innerHTML = eras.map(e => `<div style="padding:12px; border-bottom:1px solid #eee; font-weight:bold;">${e}</div>`).join('') || '<p style="text-align:center; color:#999;">추가된 시대가 없습니다.</p>'; };
+  const renderEraList = () => { document.getElementById('eraListContainer').innerHTML = eras.map(e => `<div style="padding:12px; border-bottom:1px solid #eee; font-weight:bold;">${e}</div>`).join(''); };
   window.updateEraSelect = () => { document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); };
+  const updateColorUI = () => { document.querySelectorAll('.color-dot').forEach(dot => { dot.classList.toggle('active', dot.dataset.color === selectedColor); }); };
   window.saveToCloud = () => { document.getElementById('saveModal').style.display = 'flex'; };
-  window.handleCloudSave = () => { const n = document.getElementById('saveProjectName').value.trim(); if(n) { currentSaveName = n; syncData(); closeModal('saveModal'); showToast("프로젝트 저장 완료"); } };
-  window.openLoadModal = () => { get(ref(database, 'projects')).then(snap => { const d = snap.val(); document.getElementById('saveList').innerHTML = d ? Object.keys(d).map(n => `<button onclick="window.loadProject('${n}')" style="width:100%; padding:15px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px; background:white; font-weight:bold;">${n}</button>`).join('') : '저장된 프로젝트 없음'; document.getElementById('loadModal').style.display = 'flex'; }); };
+  window.handleCloudSave = () => { const n = document.getElementById('saveProjectName').value.trim(); if(n) { currentSaveName = n; syncData(); closeModal('saveModal'); showToast("저장 완료"); } };
+  window.openLoadModal = () => { get(ref(database, 'projects')).then(snap => { const d = snap.val(); document.getElementById('saveList').innerHTML = d ? Object.keys(d).map(n => `<button onclick="window.loadProject('${n}')" style="width:100%; padding:15px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px; background:white; font-weight:bold;">${n}</button>`).join('') : ''; document.getElementById('loadModal').style.display = 'flex'; }); };
   window.loadProject = (n) => { currentSaveName = n; onValue(ref(database, `projects/${n}`), (snap) => { const d = snap.val(); if(d) { storyboard = d.data || []; characters = d.characters || []; eras = d.eras || []; renderTimeline(); } }, { onlyOnce: true }); closeModal('loadModal'); };
-  window.handleDelete = () => { if(confirm("정말 삭제할까요?")) { storyboard = storyboard.filter(s => s.id != currentEditingId); closeModal('editModal'); syncData(); } };
+  window.handleDelete = () => { if(confirm("삭제하시겠습니까?")) { storyboard = storyboard.filter(s => s.id != currentEditingId); closeModal('editModal'); syncData(); } };
 
   // 초기화
-  initColorPicker();
+  document.querySelectorAll('.color-dot').forEach(dot => { dot.onclick = () => { selectedColor = dot.dataset.color; updateColorUI(); }; });
   renderTimeline();
 </script>
 </body>
