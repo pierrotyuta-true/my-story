@@ -2,42 +2,47 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>스토리마스터 Pro</title>
   <style>
     :root { --primary: #4dabf7; --bg: #f8f9fa; --card-bg: #ffffff; --text: #212529; --line: #dee2e6; }
-    * { -webkit-user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: var(--text); overflow-x: hidden; }
 
-    /* 레이아웃 */
+    /* 헤더 */
     .header { position: fixed; top: 0; width: 100%; background: white; z-index: 1000; padding: 15px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; }
+    
+    /* 타임라인 레이아웃 */
     .timeline-container { position: relative; width: 100%; max-width: 900px; margin: 80px auto 0; padding: 0 10px; min-height: 80vh; }
     .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 0; }
     .year-marker { position: relative; width: fit-content; margin: 50px auto; padding: 8px 20px; background: #495057; color: white; border-radius: 20px; font-size: 13px; font-weight: 700; z-index: 10; margin-left: auto; margin-right: auto; }
-    .row { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: start; margin-bottom: 40px; position: relative; }
     
-    /* 가로선 (박스 상단에 맞춤) */
-    .node-line { position: absolute; top: 35px; height: 1.5px; background: var(--line); z-index: 1; }
+    .row { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: start; margin-bottom: 40px; position: relative; }
+    .node-line { position: absolute; top: 35px; height: 2px; background: var(--line); z-index: 1; pointer-events: none; }
     .left-line { left: 10%; right: 50%; }
     .right-line { left: 50%; right: 10%; }
-
     .node-container { display: flex; justify-content: center; padding-top: 28px; z-index: 5; position: relative; }
-    .node { width: 14px; height: 14px; background: white; border: 3px solid var(--primary); border-radius: 50%; }
+    .node { width: 16px; height: 16px; background: white; border: 4px solid var(--primary); border-radius: 50%; }
 
-    .scene-dropzone { min-height: 80px; width: 100%; display: flex; flex-direction: column; gap: 20px; z-index: 2; }
-    .left .scene-dropzone { align-items: flex-end; }
-    .right .scene-dropzone { align-items: flex-start; }
+    /* 드롭존 및 카드 */
+    .dropzone { min-height: 100px; width: 100%; display: flex; flex-direction: column; gap: 20px; z-index: 2; padding: 10px; border: 2px dashed transparent; }
+    .dropzone.drag-over { border-color: var(--primary); background: rgba(77,171,247,0.05); }
+    .left .dropzone { align-items: flex-end; }
+    .right .dropzone { align-items: flex-start; }
 
-    /* 카드 및 드래그 핸들 */
-    .card { background: var(--card-bg); width: 95%; max-width: 300px; border-radius: 12px; position: relative; padding: 15px 15px 15px 35px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #eee; z-index: 3; overflow: hidden; }
-    .drag-handle { position: absolute; left: 0; top: 0; bottom: 0; width: 30px; background: #f1f3f5; color: #adb5bd; display: flex; align-items: center; justify-content: center; cursor: grab; font-size: 18px; }
-    .card-color-bar { position: absolute; top: 0; left: 30px; width: 5px; height: 100%; }
+    .card { 
+      background: var(--card-bg); width: 95%; max-width: 280px; border-radius: 12px; 
+      position: relative; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+      border: 1px solid #eee; z-index: 10; cursor: move;
+    }
+    .card-color-bar { position: absolute; top: 0; left: 0; width: 6px; height: 100%; border-radius: 12px 0 0 12px; }
+    .edit-btn { position: absolute; top: 10px; right: 10px; background: #f1f3f5; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; color: #666; font-weight: bold; }
     .card-month { font-size: 11px; font-weight: 800; color: #adb5bd; margin-bottom: 5px; display: block; }
-    .card-content { font-size: 14px; line-height: 1.5; color: #343a40; word-break: break-all; }
+    .card-content { font-size: 14px; line-height: 1.5; color: #343a40; pointer-events: none; }
 
     /* 네비게이션 */
     .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 1000; }
-    .nav-btn { flex: 1; border: none; background: none; font-size: 11px; font-weight: 700; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .nav-btn { border: none; background: none; font-size: 11px; font-weight: 700; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .add-btn-main { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; position: absolute; top: -30px; border: 4px solid white; box-shadow: 0 5px 15px rgba(77,171,247,0.4); }
 
     /* 모달 */
@@ -51,20 +56,20 @@
 <body>
 
 <div class="header">
-  <h1 id="projectTitle" style="margin:0; font-size:16px; font-weight:900; color:var(--primary);">연력을 선택하세요</h1>
-  <button onclick="saveToCloud()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:15px; font-weight:700;">저장</button>
+  <h1 id="projectTitle" style="margin:0; font-size:16px; font-weight:900; color:var(--primary);">📂 연력을 불러오세요</h1>
+  <button onclick="saveToCloud()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:15px; font-weight:700;">전체 저장</button>
 </div>
 
 <div class="timeline-container" id="timeline">
   <div class="center-line"></div>
-  <div style="text-align:center; padding-top:100px; color:#adb5bd;">아래 📂목록을 눌러 연력을 시작하세요.</div>
+  <div style="text-align:center; padding-top:150px; color:#adb5bd;">[목록]에서 새 연력을 만들면 시작됩니다.</div>
 </div>
 
 <div class="nav">
   <button class="nav-btn" onclick="openLoadModal()">📂<span>목록</span></button>
   <button class="nav-btn" style="margin-right:30px;" onclick="openEraModal()">⏳<span>시대</span></button>
   <div style="position:relative; width:60px;"><button class="add-btn-main" onclick="addScene()">+</button></div>
-  <button class="nav-btn" style="margin-left:30px;" onclick="openCharModal()">👥<span>인물</span></button>
+  <button class="nav-btn" style="margin-left:30px;" onclick="alert('곧 업데이트됩니다!')">👥<span>인물</span></button>
   <button class="nav-btn" onclick="location.reload()">🔄<span>새로침</span></button>
 </div>
 
@@ -80,19 +85,18 @@
     </div>
     <select id="eraType"></select>
     <div style="display:flex; gap:5px;"><input type="number" id="eYear" placeholder="연도"><select id="eMonth"><script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}월</option>`)</script></select></div>
-    <textarea id="eContent" rows="5" placeholder="내용을 입력하세요"></textarea>
+    <textarea id="eContent" rows="5" placeholder="기록할 내용을 입력하세요"></textarea>
     <div style="display:flex; gap:10px;">
       <button onclick="handleDelete()" id="delBtn" style="flex:1; padding:12px; border:none; background:#eee; border-radius:10px;">삭제</button>
-      <button onclick="saveScene()" style="flex:2; padding:12px; border:none; background:var(--primary); color:white; border-radius:10px; font-weight:700;">저장</button>
+      <button onclick="saveScene()" style="flex:2; padding:12px; border:none; background:var(--primary); color:white; border-radius:10px; font-weight:700;">사건 저장</button>
     </div>
     <button onclick="closeModal('editModal')" style="width:100%; margin-top:10px; border:none; background:none; color:#999;">닫기</button>
   </div>
 </div>
 
-<div id="loadModal" class="modal"><div class="modal-content"><h3>프로젝트 목록</h3><div id="projectList"></div><button onclick="createNewProject()" style="width:100%; padding:12px; border:2px dashed var(--primary); background:none; color:var(--primary); border-radius:10px; margin-top:10px;">+ 새 연력 만들기</button><button onclick="closeModal('loadModal')" style="width:100%; margin-top:10px;">닫기</button></div></div>
+<div id="loadModal" class="modal"><div class="modal-content"><h3>연력 프로젝트</h3><div id="projectList"></div><button onclick="createNewProject()" style="width:100%; padding:15px; border:2px dashed var(--primary); background:none; color:var(--primary); border-radius:10px; margin-top:10px; font-weight:700;">+ 새 연력 만들기</button><button onclick="closeModal('loadModal')" style="width:100%; margin-top:10px;">닫기</button></div></div>
 <div id="eraModal" class="modal"><div class="modal-content"><h3>시대 설정</h3><div style="display:flex; gap:5px; margin-bottom:10px;"><input type="text" id="newEra"><button onclick="addEra()" style="background:var(--primary); color:white; border:none; border-radius:8px; padding:0 10px;">추가</button></div><div id="eraList"></div><button onclick="closeModal('eraModal')" style="width:100%; margin-top:10px;">닫기</button></div></div>
 
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
@@ -101,7 +105,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  let storyboard = [], eras = [], chars = [], currentProject = null, editingId = null, selectedColor = "#4dabf7";
+  let storyboard = [], eras = [], currentProject = null, editingId = null, selectedColor = "#4dabf7";
 
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
@@ -109,11 +113,12 @@
   window.selCol = (c) => {
     selectedColor = c;
     document.querySelectorAll('.color-dot').forEach(d => {
-      d.classList.toggle('active', rgbToHex(d.style.backgroundColor) === c.toLowerCase());
+      const dotColor = d.style.backgroundColor;
+      d.classList.toggle('active', rgbToHex(dotColor) === c.toLowerCase());
     });
   };
 
-  // 렌더링 (더블클릭 수정 + 핸들 드래그)
+  // 렌더링 및 드래그 앤 드롭 (표준 API)
   window.render = () => {
     const container = document.getElementById('timeline');
     if(!currentProject) return;
@@ -140,42 +145,41 @@
         const rBox = document.createElement('div'); rBox.className = 'right';
 
         ['left', 'right'].forEach(side => {
-          const zone = document.createElement('div'); zone.className = 'scene-dropzone';
+          const zone = document.createElement('div'); zone.className = 'dropzone';
           zone.dataset.gkey = key; zone.dataset.month = m; zone.dataset.side = side;
           
+          // 드롭존 이벤트
+          zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('drag-over'); };
+          zone.ondragleave = () => zone.classList.remove('drag-over');
+          zone.ondrop = (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const id = e.dataTransfer.getData("cardId");
+            const idx = storyboard.findIndex(s => s.id == id);
+            if(idx > -1) {
+              const p = zone.dataset.gkey.split(' ');
+              storyboard[idx].year = parseInt(p.pop().replace('년',''));
+              storyboard[idx].era = p.join(' ');
+              storyboard[idx].month = parseInt(zone.dataset.month);
+              storyboard[idx].side = zone.dataset.side;
+              sync();
+            }
+          };
+
           groups[key][m][side].forEach(sc => {
             const card = document.createElement('div'); card.className = 'card';
+            card.draggable = true;
             card.dataset.id = sc.id;
             card.innerHTML = `
-                <div class="drag-handle">≡</div>
                 <div class="card-color-bar" style="background:${sc.color}"></div>
+                <button class="edit-btn" onclick="openEdit('${sc.id}')">수정</button>
                 <span class="card-month">${m}월</span>
                 <div class="card-content">${sc.text}</div>`;
             
-            // 더블 클릭 시 수정 호출
-            card.ondblclick = (e) => { e.preventDefault(); openEdit(sc.id); };
+            card.ondragstart = (e) => { e.dataTransfer.setData("cardId", sc.id); };
             zone.appendChild(card);
           });
           (side === 'left' ? lBox : rBox).appendChild(zone);
-
-          // 드래그 설정 (핸들을 잡아야만 작동)
-          new Sortable(zone, { 
-            group: 'timeline', 
-            handle: '.drag-handle',
-            animation: 200, 
-            onEnd: (evt) => {
-              const id = evt.item.dataset.id; const to = evt.to.dataset;
-              const idx = storyboard.findIndex(s => s.id == id);
-              if(idx > -1 && to.gkey) {
-                const p = to.gkey.split(' '); 
-                storyboard[idx].year = parseInt(p.pop().replace('년',''));
-                storyboard[idx].era = p.join(' '); 
-                storyboard[idx].month = parseInt(to.month);
-                storyboard[idx].side = to.side; 
-                sync();
-              }
-            }
-          });
         });
         row.appendChild(lBox); row.appendChild(nBox); row.appendChild(rBox);
         container.appendChild(row);
@@ -183,7 +187,6 @@
     });
   };
 
-  // 사건 수정창 열기
   window.openEdit = (id) => {
     if(!eras.length) return alert('시대를 먼저 추가하세요.');
     const s = storyboard.find(x => x.id == id);
@@ -209,8 +212,7 @@
         era: document.getElementById('eraType').value, 
         year: parseInt(year), 
         month: parseInt(document.getElementById('eMonth').value), 
-        text, 
-        color: selectedColor, 
+        text, color: selectedColor, 
         side: editingId ? storyboard.find(x=>x.id==editingId).side : (storyboard.length % 2 === 0 ? 'left' : 'right') 
     };
     
@@ -219,9 +221,9 @@
     closeModal('editModal'); sync();
   };
 
-  // 프로젝트/시대 관리
   window.sync = () => { if(currentProject) set(ref(db, `projects/${currentProject}`), { data: storyboard, eras }); render(); };
-  window.saveToCloud = () => { sync(); alert("저장되었습니다."); };
+  window.saveToCloud = () => { sync(); alert("클라우드 저장 완료!"); };
+  
   window.openLoadModal = () => { 
     get(ref(db, 'projects')).then(s => { 
       const d = s.val(); 
@@ -229,6 +231,7 @@
       document.getElementById('loadModal').style.display = 'flex'; 
     }); 
   };
+
   window.loadP = (k) => { 
     currentProject = k; document.getElementById('projectTitle').innerText = k;
     onValue(ref(db, `projects/${k}`), s => { 
@@ -236,7 +239,15 @@
     }, {onlyOnce:true}); 
     closeModal('loadModal'); 
   };
-  window.createNewProject = () => { const n = prompt("새 연력 이름"); if(n) { currentProject = n; storyboard = []; eras = []; sync(); document.getElementById('projectTitle').innerText = n; closeModal('loadModal'); } };
+
+  window.createNewProject = () => { 
+    const n = prompt("새 연력 이름"); 
+    if(n) { 
+      currentProject = n; storyboard = []; eras = ["공통"]; // 기본 시대 자동 생성
+      sync(); document.getElementById('projectTitle').innerText = n; closeModal('loadModal'); 
+    } 
+  };
+
   window.addEra = () => { const v = document.getElementById('newEra').value.trim(); if(v){ eras.push(v); sync(); document.getElementById('newEra').value=""; updateEraList(); } };
   window.updateEraList = () => { document.getElementById('eraList').innerHTML = eras.map(e => `<div style="padding:10px; border-bottom:1px solid #eee;">${e}</div>`).join(''); };
   window.openEraModal = () => { if(!currentProject) return alert('연력을 먼저 선택하세요.'); updateEraList(); document.getElementById('eraModal').style.display = 'flex'; };
