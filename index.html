@@ -13,32 +13,37 @@
   <style>
     :root { --primary: #4dabf7; --bg: #f8f9fa; --radius: 12px; --card-w: 135px; }
     body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding-top: calc(80px + env(safe-area-inset-top)); padding-bottom: calc(100px + env(safe-area-inset-bottom)); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+    
     .header { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 5000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); padding-top: env(safe-area-inset-top); }
-    .timeline { position: relative; width: 100%; max-width: 500px; margin: 0 auto; z-index: 100; padding: 20px 0; min-height: 300px; }
+    .timeline { position: relative; width: 100%; max-width: 500px; margin: 0 auto; z-index: 100; padding: 20px 0; min-height: 400px; }
     .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #adb5bd; transform: translateX(-50%); z-index: 1; }
+    
     .year-marker { display: block; width: fit-content; background: #495057; color: #fff; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; margin: 40px auto 20px; position: relative; z-index: 10; }
-    .month-row { display: flex; justify-content: center; align-items: flex-start; gap: 40px; margin-bottom: 30px; position: relative; }
+    .month-row { display: flex; justify-content: center; align-items: flex-start; gap: 40px; margin-bottom: 30px; position: relative; min-height: 60px; }
     .center-node { position: absolute; left: 50%; transform: translateX(-50%); background: #adb5bd; width: 8px; height: 8px; border-radius: 50%; z-index: 10; top: 24px; border: 2px solid white; }
-    .branch-line { position: absolute; height: 2px; background: #dee2e6; top: 29px; z-index: 1; width: 22px; }
-    .branch-line.left { right: 50%; }
-    .branch-line.right { left: 50%; }
-    .scene-dropzone { width: var(--card-w); min-height: 80px; display: flex; flex-direction: column; gap: 15px; }
-    .card { background: white; border-radius: var(--radius); width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; flex-direction: column; cursor: pointer; overflow: hidden; position: relative; }
+    
+    .scene-dropzone { width: var(--card-w); min-height: 50px; display: flex; flex-direction: column; gap: 15px; }
+    .card { background: white; border-radius: var(--radius); width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; flex-direction: column; cursor: grab; overflow: hidden; position: relative; }
+    .card:active { cursor: grabbing; }
     .card-month-tag { position: absolute; top: 0; left: 0; padding: 2px 8px; font-size: 9px; font-weight: 800; color: white; border-bottom-right-radius: 8px; }
     .card-body { padding: 22px 10px 10px 10px; }
     .card-text { font-size: 12px; line-height: 1.4; color: #212529; font-weight: 500; word-break: break-all; }
     .card-footer { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 10px 10px; }
-    .char-mini-icon { width: 20px; height: 20px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; background: #eee; overflow: hidden; border: 1px solid white; }
+    .char-mini-icon { width: 20px; height: 20px; border-radius: 50%; background: #eee; overflow: hidden; border: 1px solid white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #666; }
     .char-mini-icon img { width: 100%; height: 100%; object-fit: cover; }
+    
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: white; display: flex; justify-content: space-around; align-items: center; z-index: 999999; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); padding-bottom: env(safe-area-inset-bottom); }
-    .nav-item { cursor: pointer; text-align: center; font-size: 11px; flex: 1; color: #495057; }
+    .nav-item { cursor: pointer; text-align: center; font-size: 10px; flex: 1; color: #495057; font-weight: bold; }
     .add-btn { width: 55px; height: 55px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; position: absolute; top: -25px; border: none; box-shadow: 0 5px 15px rgba(77,171,247,0.4); left: 50%; transform: translateX(-50%); }
+
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000000; justify-content: center; align-items: center; }
-    .modal-content { background: white; width: 88%; max-width: 350px; padding: 25px; border-radius: 20px; max-height: 80vh; overflow-y: auto; }
+    .modal-content { background: white; width: 88%; max-width: 350px; padding: 25px; border-radius: 20px; max-height: 85vh; overflow-y: auto; }
     input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #dee2e6; font-size: 16px; box-sizing: border-box; }
+    
+    .color-dot { width: 25px; height: 25px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; }
     .char-tag { padding: 6px 12px; border-radius: 20px; border: 1px solid #eee; font-size: 11px; cursor: pointer; background: #f1f3f5; }
     .char-tag.active { background: var(--primary); color: white; }
-    .color-dot { width: 25px; height: 25px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; }
+    
     #toast { visibility: hidden; min-width: 200px; background-color: #333; color: #fff; text-align: center; border-radius: 30px; padding: 12px; position: fixed; z-index: 2000000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 14px; }
     #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
     @keyframes fadein { from {bottom: 70px; opacity: 0;} to {bottom: 100px; opacity: 1;} }
@@ -61,20 +66,24 @@
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-item" onclick="openLoadModal()">📂<br>프로젝트</div>
+  <div class="nav-item" onclick="openLoadModal()">📂<br>목록</div>
+  <div class="nav-item" onclick="openEraManager()" style="margin-right:35px;">⏳<br>시대관리</div>
   <div style="position:relative; width:60px;"><button class="add-btn" onclick="addScene()">+</button></div>
-  <div class="nav-item" onclick="openCharManager()">👥<br>인물관리</div>
+  <div class="nav-item" onclick="openCharManager()" style="margin-left:35px;">👥<br>인물관리</div>
+  <div class="nav-item" onclick="location.reload()">🔄<br>새로고침</div>
 </div>
 
-<div id="saveModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="text-align:center; margin-top:0;">프로젝트 저장</h3>
-        <input type="text" id="saveProjectName" placeholder="프로젝트 이름">
-        <div style="display:flex; gap:10px;">
-            <button onclick="handleCloudSave()" style="flex:2; background:var(--primary); color:white; border:none; padding:14px; border-radius:10px; font-weight:bold;">확인</button>
-            <button onclick="closeModal('saveModal')" style="flex:1; background:#eee; border:none; padding:14px; border-radius:10px;">취소</button>
-        </div>
+<div id="eraManagerModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 style="text-align:center;">시대(역법) 관리</h3>
+    <p style="font-size:11px; color:#666; text-align:center;">순서대로 타임라인에 나타납니다.</p>
+    <div style="display:flex; gap:5px; margin-bottom:15px;">
+      <input type="text" id="newEraInput" placeholder="예: 제국력, 대한민국" style="margin:0; flex:1;">
+      <button onclick="addNewEra()" style="background:var(--primary); color:white; border:none; border-radius:8px; padding:0 15px; font-weight:bold;">추가</button>
     </div>
+    <div id="eraListContainer" style="max-height:200px; overflow-y:auto; border:1px solid #eee; border-radius:10px;"></div>
+    <button onclick="closeModal('eraManagerModal')" style="width:100%; margin-top:20px; padding:14px; border:none; border-radius:10px; background:#f1f3f5; font-weight:bold;">닫기</button>
+  </div>
 </div>
 
 <div id="editModal" class="modal-overlay">
@@ -87,15 +96,13 @@
       <div class="color-dot" style="background:#ffd43b;" data-color="#ffd43b"></div>
       <div class="color-dot" style="background:#b197fc;" data-color="#b197fc"></div>
     </div>
+    <label style="font-size:11px; font-weight:bold;">시대 선택</label>
+    <select id="eraType"></select>
     <div style="display:flex; gap:8px;">
-      <select id="eraType"></select>
-      <button onclick="addNewEra()" style="height:43px; background:#495057; color:white; border:none; border-radius:8px; padding:0 10px; font-size:11px;">시대+</button>
+      <div style="flex:1;"><label style="font-size:11px; font-weight:bold;">연도</label><input type="number" id="editYear"></div>
+      <div style="flex:1;"><label style="font-size:11px; font-weight:bold;">월</label><select id="editMonth"><script>for(let i=1;i<=12;i++) document.write(`<option value="${i}">${i}월</option>`);</script></select></div>
     </div>
-    <div style="display:flex; gap:8px;">
-      <input type="number" id="editYear" placeholder="연도" style="flex:1;">
-      <select id="editMonth" style="flex:1;"><script>for(let i=1;i<=12;i++) document.write(`<option value="${i}">${i}월</option>`);</script></select>
-    </div>
-    <textarea id="editContent" rows="4" placeholder="내용을 입력하세요."></textarea>
+    <textarea id="editContent" rows="4" placeholder="무슨 일이 있었나요?"></textarea>
     <p style="font-size:11px; font-weight:800; margin-bottom:8px;">참여 인물</p>
     <div id="charSelectionPool" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;"></div>
     <div style="display:flex; gap:10px;">
@@ -106,8 +113,9 @@
   </div>
 </div>
 
-<div id="charModal" class="modal-overlay"><div class="modal-content"><h3 style="text-align:center;">인물 도감</h3><div style="background:#f8f9fa; padding:15px; border-radius:15px; margin-bottom:20px;"><input type="text" id="newCharName" placeholder="인물 이름" style="margin-bottom:10px;"><div style="display:flex; align-items:center; gap:10px;"><label style="font-size:11px; background:#495057; color:white; padding:7px 12px; border-radius:6px; cursor:pointer;">사진 업로드 <input type="file" id="charImgInput" accept="image/*" style="display:none;" onchange="previewCharImg(this)"></label><div id="charImgPreview" style="width:35px; height:35px; border-radius:50%; background:#ddd; overflow:hidden; display:flex; align-items:center; justify-content:center;">?</div><button onclick="addNewCharacter()" style="margin-left:auto; background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold;">등록</button></div></div><div id="charListContainer" style="max-height:250px; overflow-y:auto;"></div><button onclick="closeModal('charModal')" style="width:100%; margin-top:20px; padding:14px; border:none; border-radius:10px; background:#f1f3f5; font-weight:bold;">닫기</button></div></div>
-<div id="loadModal" class="modal-overlay"><div class="modal-content"><h3>프로젝트 목록</h3><div id="saveList"></div><button onclick="closeModal('loadModal')" style="width:100%; margin-top:15px; padding:12px; border:none; border-radius:10px; background:#eee;">닫기</button></div></div>
+<div id="saveModal" class="modal-overlay"><div class="modal-content"><h3 style="text-align:center;">프로젝트 저장</h3><input type="text" id="saveProjectName" placeholder="저장할 이름"><button onclick="handleCloudSave()" style="width:100%; background:var(--primary); color:white; border:none; padding:14px; border-radius:10px; font-weight:bold;">저장하기</button><button onclick="closeModal('saveModal')" style="width:100%; margin-top:10px; background:#eee; border:none; padding:10px; border-radius:10px;">취소</button></div></div>
+<div id="charModal" class="modal-overlay"><div class="modal-content"><h3 style="text-align:center;">인물 도감</h3><div style="background:#f8f9fa; padding:15px; border-radius:15px; margin-bottom:20px;"><input type="text" id="newCharName" placeholder="인물 이름" style="margin-bottom:10px;"><div style="display:flex; align-items:center; gap:10px;"><label style="font-size:11px; background:#495057; color:white; padding:7px 12px; border-radius:6px; cursor:pointer;">사진 <input type="file" id="charImgInput" accept="image/*" style="display:none;" onchange="previewCharImg(this)"></label><div id="charImgPreview" style="width:35px; height:35px; border-radius:50%; background:#ddd; overflow:hidden; display:flex; align-items:center; justify-content:center;">?</div><button onclick="addNewCharacter()" style="margin-left:auto; background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold;">등록</button></div></div><div id="charListContainer" style="max-height:250px; overflow-y:auto;"></div><button onclick="closeModal('charModal')" style="width:100%; margin-top:20px; padding:14px; border:none; border-radius:10px; background:#f1f3f5; font-weight:bold;">닫기</button></div></div>
+<div id="loadModal" class="modal-overlay"><div class="modal-content"><h3>불러오기</h3><div id="saveList"></div><button onclick="closeModal('loadModal')" style="width:100%; margin-top:15px; padding:12px; border:none; border-radius:10px; background:#eee;">닫기</button></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script type="module">
@@ -116,7 +124,7 @@
 
   const firebaseConfig = {
     apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc",
-    authDomain: "true-s.firebaseapp.app",
+    authDomain: "true-s.firebaseapp.com",
     databaseURL: "https://true-s-default-rtdb.firebaseio.com",
     projectId: "true-s",
     storageBucket: "true-s.firebasestorage.app",
@@ -129,28 +137,80 @@
 
   let storyboard = [];
   let characters = []; 
-  let eras = ["기원후", "기원전"];
+  let eras = []; // 처음엔 비워둠
   let currentSaveName = null;
   let currentEditingId = null;
   let selectedColor = "#4dabf7";
   let selectedCharsForScene = [];
   let tempCharImg = null;
 
-  window.closeModal = (id) => document.getElementById(id).style.display = 'none';
   const showToast = (msg) => {
     const t = document.getElementById("toast");
     t.innerText = msg; t.className = "show";
-    setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+    setTimeout(() => { t.className = ""; }, 3000);
   };
 
+  window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
+  // --- 시대 관리 (순서 고정 핵심) ---
+  window.openEraManager = () => {
+    renderEraList();
+    document.getElementById('eraManagerModal').style.display = 'flex';
+  };
+
+  window.addNewEra = () => {
+    const val = document.getElementById('newEraInput').value.trim();
+    if(val && !eras.includes(val)) {
+      eras.push(val);
+      document.getElementById('newEraInput').value = "";
+      renderEraList();
+      syncData();
+    }
+  };
+
+  const renderEraList = () => {
+    const container = document.getElementById('eraListContainer');
+    container.innerHTML = eras.map((e, i) => `
+      <div style="display:flex; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #eee;">
+        <span style="flex:1; font-weight:bold;">${e}</span>
+        <button onclick="moveEra(${i}, -1)" style="border:none; background:none;">▲</button>
+        <button onclick="moveEra(${i}, 1)" style="border:none; background:none;">▼</button>
+        <button onclick="deleteEra('${e}')" style="border:none; background:none; color:red; font-size:12px;">삭제</button>
+      </div>
+    `).join('') || '<p style="padding:20px; text-align:center; color:#999;">등록된 시대가 없습니다.</p>';
+  };
+
+  window.moveEra = (index, direction) => {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= eras.length) return;
+    const temp = eras[index];
+    eras[index] = eras[newIndex];
+    eras[newIndex] = temp;
+    renderEraList();
+    syncData();
+  };
+
+  window.deleteEra = (name) => {
+    if(confirm(`'${name}' 시대를 삭제하시겠습니까? 관련 사건들의 순서가 섞일 수 있습니다.`)) {
+      eras = eras.filter(e => e !== name);
+      renderEraList();
+      syncData();
+    }
+  };
+
+  // --- 타임라인 렌더링 ---
   window.renderTimeline = () => {
     const container = document.getElementById('timeline');
     container.innerHTML = '<div class="center-line"></div>';
     const groups = {};
-    
-    // 타임라인 정렬: 시대 -> 연도 -> 월
-    storyboard.sort((a,b) => eras.indexOf(a.era) - eras.indexOf(b.era) || a.year - b.year || a.month - b.month).forEach(item => {
-      const key = `${item.era} ${item.year}`;
+
+    // 사용자가 정한 eras 순서대로 정렬
+    storyboard.sort((a,b) => {
+      const eraDiff = eras.indexOf(a.era) - eras.indexOf(b.era);
+      if(eraDiff !== 0) return eraDiff;
+      return (a.year - b.year) || (a.month - b.month);
+    }).forEach(item => {
+      const key = `${item.era} ${item.year}년`;
       if (!groups[key]) groups[key] = {};
       if (!groups[key][item.month]) groups[key][item.month] = { left: [], right: [] };
       groups[key][item.month][item.side].push(item);
@@ -160,34 +220,78 @@
       const marker = document.createElement('div');
       marker.className = 'year-marker'; marker.innerText = key;
       container.appendChild(marker);
+
       Object.keys(groups[key]).sort((a,b)=>a-b).forEach(m => {
-        const row = document.createElement('div'); row.className = 'month-row';
+        const row = document.createElement('div');
+        row.className = 'month-row';
         row.innerHTML = `<div class="center-node"></div>`;
+
         ['left', 'right'].forEach(side => {
           const zone = document.createElement('div');
           zone.className = `scene-dropzone ${side}`;
-          zone.dataset.yearKey = key; zone.dataset.month = m; zone.dataset.side = side;
-          if(groups[key][m][side].length > 0) {
-            const line = document.createElement('div'); line.className = `branch-line ${side}`;
-            row.appendChild(line);
-          }
+          zone.dataset.eraYear = key; 
+          zone.dataset.month = m;
+          zone.dataset.side = side;
+
           groups[key][m][side].forEach(scene => {
             const card = document.createElement('div');
-            card.className = 'card'; card.dataset.id = scene.id;
+            card.className = 'card';
+            card.dataset.id = scene.id;
             card.style.borderLeft = `5px solid ${scene.color}`;
-            const iconsHtml = (scene.chars || []).map(name => {
-              const charData = characters.find(c => c.name === name);
-              return `<div class="char-mini-icon">${charData && charData.img ? `<img src="${charData.img}">` : name[0]}</div>`;
+            
+            const icons = (scene.chars || []).map(name => {
+              const char = characters.find(c => c.name === name);
+              return `<div class="char-mini-icon">${char && char.img ? `<img src="${char.img}">` : name[0]}</div>`;
             }).join('');
-            card.innerHTML = `<div class="card-month-tag" style="background:${scene.color}">${m}월</div><div class="card-body"><div class="card-text">${scene.text}</div></div><div class="card-footer">${iconsHtml}</div>`;
+
+            card.innerHTML = `
+              <div class="card-month-tag" style="background:${scene.color}">${m}월</div>
+              <div class="card-body"><div class="card-text">${scene.text}</div></div>
+              <div class="card-footer">${icons}</div>
+            `;
             card.onclick = (e) => { e.stopPropagation(); window.openEditModal(scene.id); };
             zone.appendChild(card);
           });
+
           row.appendChild(zone);
+
+          // 드래그 기능 (Sortable) 연결
+          new Sortable(zone, {
+            group: 'timeline',
+            animation: 150,
+            onEnd: (evt) => {
+              const id = evt.item.dataset.id;
+              const to = evt.to.dataset;
+              const idx = storyboard.findIndex(s => s.id == id);
+              if (idx > -1 && to.eraYear) {
+                const eraPart = to.eraYear.split(' ');
+                const yearVal = eraPart.pop().replace('년', '');
+                storyboard[idx].era = eraPart.join(' ');
+                storyboard[idx].year = parseInt(yearVal);
+                storyboard[idx].month = parseInt(to.month);
+                storyboard[idx].side = to.side;
+                syncData();
+              }
+            }
+          });
         });
         container.appendChild(row);
       });
     });
+  };
+
+  // --- 사건 편집 및 수정 ---
+  window.addScene = () => {
+    if(eras.length === 0) { alert('시대관리 메뉴에서 시대를 먼저 추가해주세요!'); return; }
+    currentEditingId = null;
+    selectedCharsForScene = [];
+    document.getElementById('modalTitle').innerText = "새 사건 기록";
+    document.getElementById('editContent').value = "";
+    document.getElementById('editYear').value = "";
+    document.getElementById('delBtn').style.display = 'none';
+    updateEraSelect();
+    updateCharUI();
+    document.getElementById('editModal').style.display = 'flex';
   };
 
   window.openEditModal = (id) => {
@@ -196,24 +300,28 @@
     currentEditingId = id;
     selectedCharsForScene = [...(s.chars || [])];
     selectedColor = s.color || "#4dabf7";
+    
     document.getElementById('modalTitle').innerText = "사건 수정";
     document.getElementById('editContent').value = s.text;
     document.getElementById('editYear').value = s.year;
     document.getElementById('editMonth').value = s.month;
-    document.getElementById('eraType').value = s.era;
+    
+    updateEraSelect();
+    document.getElementById('eraType').value = s.era; // 기존 시대 고정
     document.getElementById('delBtn').style.display = 'block';
-    updateCharUI(); updateEraSelect();
+    updateCharUI();
     document.getElementById('editModal').style.display = 'flex';
   };
 
   window.handleSaveScene = () => {
     const text = document.getElementById('editContent').value.trim();
-    if(!text) return;
+    const year = document.getElementById('editYear').value;
+    if(!text || !year) { alert("내용과 연도를 입력하세요!"); return; }
 
     const sceneData = {
       id: currentEditingId || Date.now().toString(),
       era: document.getElementById('eraType').value,
-      year: document.getElementById('editYear').value || "0",
+      year: parseInt(year),
       month: parseInt(document.getElementById('editMonth').value),
       text: text,
       chars: [...selectedCharsForScene],
@@ -222,48 +330,114 @@
     };
 
     if(currentEditingId) {
-      // 핵심 수정: 기존 배열에서 정확한 인덱스를 찾아 교체
       const idx = storyboard.findIndex(x => x.id == currentEditingId);
-      if(idx !== -1) storyboard[idx] = sceneData;
+      storyboard[idx] = sceneData;
     } else {
       storyboard.push(sceneData);
     }
 
     closeModal('editModal');
-    syncData(); // 저장 및 렌더링 호출
+    syncData();
   };
 
   window.handleDelete = () => {
-    if(confirm('삭제하시겠습니까?')) {
+    if(confirm('이 사건을 삭제할까요?')) {
       storyboard = storyboard.filter(s => s.id != currentEditingId);
       closeModal('editModal');
       syncData();
     }
   };
 
-  // 나머지 기능(저장/로드/인물)
-  window.saveToCloud = () => { document.getElementById('saveProjectName').value = currentSaveName || ""; document.getElementById('saveModal').style.display = 'flex'; };
-  window.handleCloudSave = () => { const n = document.getElementById('saveProjectName').value.trim(); if(!n) return; currentSaveName = n; syncData(); closeModal('saveModal'); showToast("저장 완료"); };
-  const syncData = () => { if (currentSaveName) set(ref(database, `projects/${currentSaveName}`), { title: currentSaveName, data: storyboard, characters, eras }); renderTimeline(); };
-  window.openLoadModal = () => { get(ref(database, 'projects')).then(snap => { const d = snap.val(); document.getElementById('saveList').innerHTML = d ? Object.keys(d).map(n => `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><strong>${n}</strong> <button onclick="window.loadProject('${n}')" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:5px;">열기</button></div>`).join('') : '비어있음'; document.getElementById('loadModal').style.display = 'flex'; }); };
-  window.loadProject = (n) => { currentSaveName = n; onValue(ref(database, `projects/${n}`), (snap) => { const d = snap.val(); if(d) { storyboard = d.data || []; characters = d.characters || []; eras = d.eras || ["기원후", "기원전"]; updateEraSelect(); renderTimeline(); } }, { onlyOnce: true }); closeModal('loadModal'); };
-  
-  // 인물/시대 관련 함수들...
-  window.updateEraSelect = () => { document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); };
-  window.addNewEra = () => { const n = prompt("새 시대 이름"); if(n && !eras.includes(n)) { eras.push(n); updateEraSelect(); syncData(); } };
-  window.addScene = () => { currentEditingId = null; selectedCharsForScene = []; document.getElementById('editContent').value = ""; document.getElementById('editYear').value = ""; document.getElementById('modalTitle').innerText = "새 사건"; document.getElementById('delBtn').style.display = 'none'; updateCharUI(); updateEraSelect(); document.getElementById('editModal').style.display = 'flex'; };
+  // --- 기타 유틸리티 ---
+  window.updateEraSelect = () => {
+    document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join('');
+  };
+
+  window.saveToCloud = () => {
+    document.getElementById('saveProjectName').value = currentSaveName || "";
+    document.getElementById('saveModal').style.display = 'flex';
+  };
+
+  window.handleCloudSave = () => {
+    const n = document.getElementById('saveProjectName').value.trim();
+    if(!n) return;
+    currentSaveName = n;
+    syncData();
+    closeModal('saveModal');
+    showToast("클라우드 저장 완료!");
+  };
+
+  const syncData = () => {
+    if (currentSaveName) {
+      set(ref(database, `projects/${currentSaveName}`), {
+        title: currentSaveName, data: storyboard, characters, eras
+      });
+    }
+    renderTimeline();
+  };
+
+  window.openLoadModal = () => {
+    get(ref(database, 'projects')).then(snap => {
+      const d = snap.val();
+      document.getElementById('saveList').innerHTML = d ? Object.keys(d).map(n => `
+        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+          <strong>${n}</strong>
+          <button onclick="window.loadProject('${n}')" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px;">불러오기</button>
+        </div>
+      `).join('') : '<p style="text-align:center; padding:20px;">저장된 프로젝트가 없습니다.</p>';
+      document.getElementById('loadModal').style.display = 'flex';
+    });
+  };
+
+  window.loadProject = (n) => {
+    currentSaveName = n;
+    onValue(ref(database, `projects/${n}`), (snap) => {
+      const d = snap.val();
+      if(d) {
+        storyboard = d.data || [];
+        characters = d.characters || [];
+        eras = d.eras || [];
+        renderTimeline();
+        showToast(`'${n}' 로드 완료`);
+      }
+    }, { onlyOnce: true });
+    closeModal('loadModal');
+  };
+
+  // --- 인물 관리 ---
   window.openCharManager = () => { updateCharUI(); document.getElementById('charModal').style.display = 'flex'; };
   window.updateCharUI = () => {
     const pool = document.getElementById('charSelectionPool');
-    pool.innerHTML = characters.map(c => `<div class="char-tag ${selectedCharsForScene.includes(c.name) ? 'active' : ''}" onclick="toggleCharSelection('${c.name}')">${c.name}</div>`).join('');
+    pool.innerHTML = characters.map(c => `<div class="char-tag ${selectedCharsForScene.includes(c.name) ? 'active' : ''}" onclick="toggleCharSelection('${c.name}')">${c.name}</div>`).join('') || '<span style="color:#999; font-size:11px;">인물을 먼저 등록하세요.</span>';
     const list = document.getElementById('charListContainer');
-    list.innerHTML = characters.map(c => `<div style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid #eee;"><div style="width:30px; height:30px; border-radius:50%; background:#eee; overflow:hidden;">${c.img ? `<img src="${c.img}" style="width:100%; height:100%; object-fit:cover;">` : ''}</div><span>${c.name}</span><button onclick="deleteChar('${c.name}')" style="margin-left:auto; color:red; border:none; background:none;">삭제</button></div>`).join('');
+    list.innerHTML = characters.map(c => `<div style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid #eee;"><div style="width:30px; height:30px; border-radius:50%; background:#eee; overflow:hidden;">${c.img ? `<img src="${c.img}" style="width:100%; height:100%; object-fit:cover;">` : ''}</div><span style="flex:1;">${c.name}</span><button onclick="deleteChar('${c.name}')" style="color:red; border:none; background:none;">삭제</button></div>`).join('');
   };
-  window.toggleCharSelection = (n) => { const i = selectedCharsForScene.indexOf(n); if(i>-1) selectedCharsForScene.splice(i,1); else selectedCharsForScene.push(n); updateCharUI(); };
-  window.addNewCharacter = () => { const n = document.getElementById('newCharName').value.trim(); if(n) { characters.push({name:n, img:tempCharImg}); document.getElementById('newCharName').value=""; tempCharImg=null; document.getElementById('charImgPreview').innerHTML="?"; updateCharUI(); syncData(); } };
-  window.previewCharImg = (i) => { const f=i.files[0]; if(f){ const r=new FileReader(); r.onload=(e)=>{tempCharImg=e.target.result; document.getElementById('charImgPreview').innerHTML=`<img src="${tempCharImg}" style="width:100%; height:100%; object-fit:cover;">`;}; r.readAsDataURL(f); } };
-  window.deleteChar = (n) => { characters=characters.filter(c=>c.name!==n); updateCharUI(); syncData(); };
+  window.toggleCharSelection = (n) => {
+    const idx = selectedCharsForScene.indexOf(n);
+    if(idx > -1) selectedCharsForScene.splice(idx, 1);
+    else selectedCharsForScene.push(n);
+    updateCharUI();
+  };
+  window.addNewCharacter = () => {
+    const n = document.getElementById('newCharName').value.trim();
+    if(n) {
+      characters.push({ name: n, img: tempCharImg });
+      document.getElementById('newCharName').value = "";
+      tempCharImg = null; document.getElementById('charImgPreview').innerHTML = "?";
+      updateCharUI(); syncData();
+    }
+  };
+  window.previewCharImg = (input) => {
+    const f = input.files[0];
+    if(f) {
+      const r = new FileReader();
+      r.onload = (e) => { tempCharImg = e.target.result; document.getElementById('charImgPreview').innerHTML = `<img src="${tempCharImg}" style="width:100%; height:100%; object-fit:cover;">`; };
+      r.readAsDataURL(f);
+    }
+  };
+  window.deleteChar = (n) => { characters = characters.filter(c => c.name !== n); updateCharUI(); syncData(); };
 
+  // 컬러 선택기 설정
   document.querySelectorAll('.color-dot').forEach(dot => {
     dot.onclick = () => {
       selectedColor = dot.dataset.color;
@@ -271,7 +445,9 @@
       dot.style.boxShadow = '0 0 0 3px ' + selectedColor;
     };
   });
-  updateEraSelect(); renderTimeline();
+
+  // 초기 렌더링
+  renderTimeline();
 </script>
 </body>
 </html>
