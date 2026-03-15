@@ -25,9 +25,6 @@
     .card-month-tag { position: absolute; top: 0; left: 0; padding: 2px 8px; font-size: 9px; font-weight: 800; color: white; border-bottom-right-radius: 8px; }
     .card-body { padding: 22px 10px 10px 10px; }
     .card-text { font-size: 12px; line-height: 1.4; color: #212529; font-weight: 500; word-break: break-all; }
-    .card-footer { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 10px 10px; }
-    .char-mini-icon { width: 20px; height: 20px; border-radius: 50%; background: #eee; border: 1px solid white; display: flex; align-items: center; justify-content: center; font-size: 10px; overflow: hidden; }
-    .char-mini-icon img { width: 100%; height: 100%; object-fit: cover; }
     
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: white; display: flex; justify-content: space-around; align-items: center; z-index: 999999; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); padding-bottom: env(safe-area-inset-bottom); }
     .nav-item { cursor: pointer; text-align: center; font-size: 10px; flex: 1; color: #495057; font-weight: bold; }
@@ -36,9 +33,10 @@
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000000; justify-content: center; align-items: center; }
     .modal-content { background: white; width: 88%; max-width: 350px; padding: 25px; border-radius: 20px; max-height: 85vh; overflow-y: auto; }
     input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #dee2e6; font-size: 16px; box-sizing: border-box; }
-    .color-dot { width: 25px; height: 25px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; }
-    .char-tag { padding: 6px 12px; border-radius: 20px; border: 1px solid #eee; font-size: 11px; cursor: pointer; background: #f1f3f5; }
-    .char-tag.active { background: var(--primary); color: white; }
+    
+    /* 색상 버튼 스타일 및 선택 효과 */
+    .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; transition: transform 0.2s; }
+    .color-dot.active { transform: scale(1.2); box-shadow: 0 0 0 2px var(--primary); }
     
     #toast { visibility: hidden; min-width: 200px; background-color: #333; color: #fff; text-align: center; border-radius: 30px; padding: 12px; position: fixed; z-index: 2000000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 14px; }
     #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -77,14 +75,14 @@
       <button onclick="addNewEra()" style="background:var(--primary); color:white; border:none; border-radius:8px; padding:0 15px;">추가</button>
     </div>
     <div id="eraListContainer"></div>
-    <button onclick="closeModal('eraManagerModal')" style="width:100%; margin-top:20px; padding:12px; border:none; border-radius:10px;">닫기</button>
+    <button onclick="closeModal('eraManagerModal')" style="width:100%; margin-top:20px; padding:12px; border:none; border-radius:10px; background:#eee;">닫기</button>
   </div>
 </div>
 
 <div id="editModal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modalTitle" style="text-align:center; margin-top:0;">사건 기록</h3>
-    <div id="colorPicker" style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
+    <div id="colorPicker" style="display:flex; gap:12px; justify-content:center; margin-bottom:20px;">
       <div class="color-dot" style="background:#4dabf7;" data-color="#4dabf7"></div>
       <div class="color-dot" style="background:#ff8787;" data-color="#ff8787"></div>
       <div class="color-dot" style="background:#63e6be;" data-color="#63e6be"></div>
@@ -96,19 +94,17 @@
       <input type="number" id="editYear" placeholder="연도" style="flex:1;">
       <select id="editMonth" style="flex:1;"><script>for(let i=1;i<=12;i++) document.write(`<option value="${i}">${i}월</option>`);</script></select>
     </div>
-    <textarea id="editContent" rows="4" placeholder="내용 입력"></textarea>
-    <div id="charSelectionPool" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;"></div>
-    <div style="display:flex; gap:10px;">
-      <button id="delBtn" onclick="handleDelete()" style="flex:1; background:#ff6b6b; color:white; border:none; padding:14px; border-radius:10px;">삭제</button>
+    <textarea id="editContent" rows="4" placeholder="내용을 입력하세요."></textarea>
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button id="delBtn" onclick="handleDelete()" style="flex:1; background:#ff6b6b; color:white; border:none; padding:14px; border-radius:10px; font-weight:bold;">삭제</button>
       <button onclick="handleSaveScene()" style="flex:2; background:var(--primary); color:white; border:none; padding:14px; border-radius:10px; font-weight:bold;">저장</button>
       <button onclick="closeModal('editModal')" style="flex:1; background:#eee; border:none; padding:14px; border-radius:10px;">취소</button>
     </div>
   </div>
 </div>
 
-<div id="saveModal" class="modal-overlay"><div class="modal-content"><h3>저장하기</h3><input type="text" id="saveProjectName"><button onclick="handleCloudSave()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px;">확인</button></div></div>
-<div id="charModal" class="modal-overlay"><div class="modal-content"><h3>인물 관리</h3><div id="charListContainer"></div><button onclick="closeModal('charModal')" style="width:100%; margin-top:20px; padding:12px;">닫기</button></div></div>
-<div id="loadModal" class="modal-overlay"><div class="modal-content"><h3>불러오기</h3><div id="saveList"></div><button onclick="closeModal('loadModal')" style="width:100%; margin-top:15px; padding:12px;">닫기</button></div></div>
+<div id="saveModal" class="modal-overlay"><div class="modal-content"><h3>저장하기</h3><input type="text" id="saveProjectName" placeholder="프로젝트 이름"><button onclick="handleCloudSave()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">저장</button></div></div>
+<div id="loadModal" class="modal-overlay"><div class="modal-content"><h3>불러오기</h3><div id="saveList"></div><button onclick="closeModal('loadModal')" style="width:100%; margin-top:15px; padding:12px; background:#eee; border:none; border-radius:10px;">닫기</button></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script type="module">
@@ -134,7 +130,6 @@
   let currentSaveName = null;
   let currentEditingId = null;
   let selectedColor = "#4dabf7";
-  let selectedCharsForScene = [];
 
   const showToast = (msg) => {
     const t = document.getElementById("toast");
@@ -144,7 +139,29 @@
 
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
-  // --- 타임라인 렌더링 (드래그 충돌 방지 버전) ---
+  // --- 색상 선택기 로직 (수정됨) ---
+  const initColorPicker = () => {
+    const dots = document.querySelectorAll('.color-dot');
+    dots.forEach(dot => {
+      dot.onclick = (e) => {
+        e.preventDefault();
+        selectedColor = dot.dataset.color;
+        updateColorUI();
+      };
+    });
+  };
+
+  const updateColorUI = () => {
+    document.querySelectorAll('.color-dot').forEach(dot => {
+      if(dot.dataset.color === selectedColor) {
+        dot.classList.add('active');
+      } else {
+        dot.classList.remove('active');
+      }
+    });
+  };
+
+  // --- 타임라인 렌더링 ---
   window.renderTimeline = () => {
     const container = document.getElementById('timeline');
     container.innerHTML = '<div class="center-line"></div>';
@@ -174,27 +191,16 @@
         ['left', 'right'].forEach(side => {
           const zone = document.createElement('div');
           zone.className = `scene-dropzone ${side}`;
-          zone.dataset.eraYear = key; 
-          zone.dataset.month = m;
-          zone.dataset.side = side;
+          zone.dataset.eraYear = key; zone.dataset.month = m; zone.dataset.side = side;
 
           groups[key][m][side].forEach(scene => {
             const card = document.createElement('div');
             card.className = 'card';
             card.dataset.id = scene.id;
             card.style.borderLeft = `5px solid ${scene.color}`;
+            card.innerHTML = `<div class="card-month-tag" style="background:${scene.color}">${m}월</div><div class="card-body"><div class="card-text">${scene.text}</div></div>`;
             
-            card.innerHTML = `
-              <div class="card-month-tag" style="background:${scene.color}">${m}월</div>
-              <div class="card-body"><div class="card-text">${scene.text}</div></div>
-            `;
-            
-            // 클릭 이벤트: 드래그와 충돌하지 않도록 설정
-            card.addEventListener('click', (e) => {
-              e.stopPropagation();
-              window.openEditModal(scene.id);
-            });
-            
+            card.addEventListener('click', () => window.openEditModal(scene.id));
             zone.appendChild(card);
           });
           row.appendChild(zone);
@@ -202,7 +208,7 @@
           new Sortable(zone, {
             group: 'timeline',
             animation: 150,
-            delay: 100, // 살짝 눌러야 드래그 시작 (클릭과 구분)
+            delay: 150,
             onEnd: (evt) => {
               const id = evt.item.dataset.id;
               const to = evt.to.dataset;
@@ -224,12 +230,11 @@
     });
   };
 
-  // --- 시대/사건 관리 핵심 (수정 버그 해결) ---
+  // --- 사건 수정창 열기 ---
   window.openEditModal = (id) => {
     const s = storyboard.find(x => x.id == id);
     if(!s) return;
     currentEditingId = id;
-    selectedCharsForScene = [...(s.chars || [])];
     selectedColor = s.color || "#4dabf7";
     
     document.getElementById('modalTitle').innerText = "사건 수정";
@@ -238,7 +243,10 @@
     document.getElementById('editMonth').value = s.month;
     
     updateEraSelect();
-    setTimeout(() => { document.getElementById('eraType').value = s.era; }, 10);
+    setTimeout(() => { 
+        document.getElementById('eraType').value = s.era;
+        updateColorUI(); // 기존 색상 선택 표시
+    }, 50);
     
     document.getElementById('delBtn').style.display = 'block';
     document.getElementById('editModal').style.display = 'flex';
@@ -255,13 +263,11 @@
       year: parseInt(year),
       month: parseInt(document.getElementById('editMonth').value),
       text: text,
-      chars: [...selectedCharsForScene],
       color: selectedColor,
       side: currentEditingId ? storyboard.find(x => x.id == currentEditingId).side : 'left'
     };
 
     if(currentEditingId) {
-      // 기존 데이터를 새 데이터로 교체 (확실한 업데이트)
       storyboard = storyboard.map(s => s.id == currentEditingId ? sceneData : s);
     } else {
       storyboard.push(sceneData);
@@ -269,10 +275,9 @@
 
     closeModal('editModal');
     syncData();
-    showToast("수정되었습니다.");
+    showToast("저장되었습니다.");
   };
 
-  // 나머지 기능 동기화
   const syncData = () => { 
     if (currentSaveName) set(ref(database, `projects/${currentSaveName}`), { title: currentSaveName, data: storyboard, characters, eras }); 
     renderTimeline(); 
@@ -281,23 +286,27 @@
   window.addScene = () => {
     if(eras.length === 0) { alert('시대를 먼저 추가하세요!'); return; }
     currentEditingId = null;
+    selectedColor = "#4dabf7"; // 기본색 초기화
     document.getElementById('editContent').value = "";
     document.getElementById('editYear').value = "";
     updateEraSelect();
+    updateColorUI();
     document.getElementById('delBtn').style.display = 'none';
     document.getElementById('editModal').style.display = 'flex';
   };
 
   window.openEraManager = () => { renderEraList(); document.getElementById('eraManagerModal').style.display = 'flex'; };
   window.addNewEra = () => { const v = document.getElementById('newEraInput').value.trim(); if(v && !eras.includes(v)) { eras.push(v); renderEraList(); syncData(); document.getElementById('newEraInput').value=""; } };
-  const renderEraList = () => { document.getElementById('eraListContainer').innerHTML = eras.map(e => `<div style="padding:10px; border-bottom:1px solid #eee;">${e}</div>`).join(''); };
+  const renderEraList = () => { document.getElementById('eraListContainer').innerHTML = eras.map(e => `<div style="padding:12px; border-bottom:1px solid #eee; font-weight:bold;">${e}</div>`).join('') || '<p style="text-align:center; color:#999;">추가된 시대가 없습니다.</p>'; };
   window.updateEraSelect = () => { document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); };
   window.saveToCloud = () => { document.getElementById('saveModal').style.display = 'flex'; };
-  window.handleCloudSave = () => { currentSaveName = document.getElementById('saveProjectName').value; syncData(); closeModal('saveModal'); };
-  window.openLoadModal = () => { get(ref(database, 'projects')).then(snap => { const d = snap.val(); document.getElementById('saveList').innerHTML = d ? Object.keys(d).map(n => `<button onclick="window.loadProject('${n}')">${n}</button>`).join('') : ''; document.getElementById('loadModal').style.display = 'flex'; }); };
+  window.handleCloudSave = () => { const n = document.getElementById('saveProjectName').value.trim(); if(n) { currentSaveName = n; syncData(); closeModal('saveModal'); showToast("프로젝트 저장 완료"); } };
+  window.openLoadModal = () => { get(ref(database, 'projects')).then(snap => { const d = snap.val(); document.getElementById('saveList').innerHTML = d ? Object.keys(d).map(n => `<button onclick="window.loadProject('${n}')" style="width:100%; padding:15px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px; background:white; font-weight:bold;">${n}</button>`).join('') : '저장된 프로젝트 없음'; document.getElementById('loadModal').style.display = 'flex'; }); };
   window.loadProject = (n) => { currentSaveName = n; onValue(ref(database, `projects/${n}`), (snap) => { const d = snap.val(); if(d) { storyboard = d.data || []; characters = d.characters || []; eras = d.eras || []; renderTimeline(); } }, { onlyOnce: true }); closeModal('loadModal'); };
-  window.handleDelete = () => { storyboard = storyboard.filter(s => s.id != currentEditingId); closeModal('editModal'); syncData(); };
+  window.handleDelete = () => { if(confirm("정말 삭제할까요?")) { storyboard = storyboard.filter(s => s.id != currentEditingId); closeModal('editModal'); syncData(); } };
 
+  // 초기화
+  initColorPicker();
   renderTimeline();
 </script>
 </body>
