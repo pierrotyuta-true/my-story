@@ -3,70 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>스토리마스터 Pro: 최종</title>
+  <title>스토리마스터 Pro</title>
   <style>
     :root { --primary: #4dabf7; --bg: #f8f9fa; --card-bg: #ffffff; --line: #dee2e6; --danger: #ff6b6b; }
-    body { font-family: 'Pretendard', -apple-system, sans-serif; margin: 0; background: var(--bg); touch-action: pan-y; overflow-x: hidden; padding-bottom: 90px; color: #333; }
+    body { font-family: 'Pretendard', sans-serif; margin: 0; background: var(--bg); touch-action: pan-y; overflow-x: hidden; padding-bottom: 80px; color: #333; }
     body.dragging-active { touch-action: none; overflow: hidden; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    /* 헤더 */
-    .header { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 1000; padding: 0 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; height: 55px; align-items: center; }
-    .project-name { font-size: 16px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
-
-    /* 타임라인 레이아웃 */
-    .timeline-container { position: relative; width: 100%; max-width: 800px; margin: 75px auto 0; padding: 0 15px; }
+    /* 레이아웃 */
+    .header { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 1000; padding: 0 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; height: 50px; align-items: center; }
+    .timeline-container { position: relative; width: 100%; max-width: 800px; margin: 65px auto 0; padding: 0 10px; }
     .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 0; }
     
-    .row { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; position: relative; margin-bottom: 30px; }
+    .row { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; position: relative; margin-bottom: 20px; }
     .node-container { display: flex; justify-content: center; align-items: center; z-index: 5; }
-    .node { width: 12px; height: 12px; background: white; border: 3px solid var(--primary); border-radius: 50%; box-shadow: 0 0 0 4px var(--bg); }
+    .node { width: 10px; height: 10px; background: white; border: 2.5px solid var(--primary); border-radius: 50%; box-shadow: 0 0 0 3px var(--bg); }
 
-    /* 곡선 연결선 스타일 */
-    .curve-line { position: absolute; top: 50%; width: 40px; height: 40px; border: 2px solid var(--line); pointer-events: none; display: none; }
+    /* 중앙 밀착 곡선 연결선 */
+    .curve-line { position: absolute; top: 50%; width: 50%; height: 30px; border: 1.5px solid var(--line); pointer-events: none; display: none; }
     .has-card .curve-line { display: block; }
-    .left .curve-line { right: -10px; border-left: 0; border-top: 0; border-radius: 0 0 20px 0; transform: translateY(-100%); }
-    .right .curve-line { left: -10px; border-right: 0; border-top: 0; border-radius: 0 0 0 20px; transform: translateY(-100%); }
+    .left .curve-line { right: 0; border-left: 0; border-top: 0; border-radius: 0 0 15px 0; transform: translateY(-100%); }
+    .right .curve-line { left: 0; border-right: 0; border-top: 0; border-radius: 0 0 0 15px; transform: translateY(-100%); }
 
-    .year-marker { position: relative; width: fit-content; margin: 50px auto 30px; padding: 7px 20px; background: #343a40; color: white; border-radius: 20px; font-size: 12px; font-weight: 800; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .year-marker { position: relative; width: fit-content; margin: 35px auto 20px; padding: 5px 15px; background: #495057; color: white; border-radius: 15px; font-size: 11px; font-weight: 800; z-index: 10; }
+    .dropzone { min-height: 70px; padding: 5px; display: flex; flex-direction: column; justify-content: center; gap: 8px; border-radius: 12px; }
+    .dropzone.over { background: rgba(77,171,247,0.1); border: 1.5px dashed var(--primary); }
+
+    /* 카드 */
+    .card { background: #fff; width: 100%; max-width: 230px; border-radius: 10px; padding: 12px 12px 12px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; z-index: 20; cursor: grab; border: 1px solid rgba(0,0,0,0.06); }
+    .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background-color: var(--card-accent, #eee); border-radius: 10px 0 0 10px; }
+    .card-month { font-size: 9px; font-weight: 900; color: #adb5bd; margin-bottom: 3px; }
+    .card-content { font-size: 11.5px; line-height: 1.4; font-weight: 600; color: #444; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* 네비게이션 */
+    .nav { position: fixed; bottom: 0; width: 100%; height: 60px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+    .nav-btn { border: none; background: none; font-size: 9px; font-weight: 800; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .nav-btn svg { width: 20px; height: 20px; stroke: #adb5bd; stroke-width: 2.5; fill: none; }
+    .add-btn { font-size: 30px; color: var(--primary); background: none; border: none; font-weight: 200; cursor: pointer; flex: 1; }
+
+    /* 콤팩트 모달 */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+    .modal-content { background: white; width: 85%; max-width: 320px; padding: 20px; border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
     
-    /* 드래그 드롭존 */
-    .dropzone { min-height: 90px; padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: 16px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .dropzone.over { background: rgba(77,171,247,0.1); border: 2px dashed var(--primary); transform: scale(1.02); }
+    label { font-size: 10px; font-weight: 800; color: #adb5bd; margin-bottom: 4px; display: block; }
+    input, textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #f1f1f1; background: #f8f9fa; font-size: 13px; outline: none; }
 
-    /* 카드 디자인 */
-    .card { background: #ffffff; width: 100%; max-width: 240px; border-radius: 14px; padding: 15px 15px 15px 22px; box-shadow: 0 3px 12px rgba(0,0,0,0.05); position: relative; z-index: 20; cursor: grab; border: 1px solid rgba(0,0,0,0.06); touch-action: none; transition: transform 0.1s; }
-    .card.dragging { position: fixed !important; pointer-events: none; z-index: 5000; opacity: 0.95; transform: scale(1.05) rotate(2deg); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
-    .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background-color: var(--card-accent, #eee); border-radius: 14px 0 0 14px; }
-    .card-month { font-size: 10px; font-weight: 900; color: #adb5bd; margin-bottom: 5px; text-transform: uppercase; }
-    .card-content { font-size: 12px; line-height: 1.5; font-weight: 600; color: #444; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    /* 컬러칩 (정원형) */
+    .color-chip { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 0 0 1px #eee; flex-shrink: 0; }
+    .color-chip.selected { box-shadow: 0 0 0 2px var(--primary); transform: scale(1.1); }
 
-    /* 하단 네비게이션 */
-    .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
-    .nav-btn { border: none; background: none; font-size: 10px; font-weight: 800; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; cursor: pointer; }
-    .nav-btn svg { width: 22px; height: 22px; stroke: #adb5bd; stroke-width: 2.5; fill: none; }
-    .add-btn { font-size: 38px; color: var(--primary); background: none; border: none; font-weight: 200; cursor: pointer; flex: 1; padding-bottom: 8px; }
-
-    /* 모달 스타일 업데이트 */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(4px); padding: 20px; }
-    .modal-content { background: white; width: 100%; max-width: 380px; padding: 30px; border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    input, textarea, select { width: 100%; padding: 14px; margin-bottom: 18px; border-radius: 12px; border: 1px solid #f1f1f1; background: #f8f9fa; font-size: 14px; outline: none; transition: 0.2s; }
-    input:focus, textarea:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(77,171,247,0.1); }
-    
-    .color-chip { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 0 0 1px #eee; transition: 0.2s; }
-    .color-chip.selected { transform: scale(1.2); box-shadow: 0 0 0 2px #444; }
-
-    .btn-main { width: 100%; padding: 16px; border: none; border-radius: 16px; background: var(--primary); color: white; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 10px; }
-    .btn-del { width: 100%; padding: 12px; border: none; background: none; color: var(--danger); font-weight: 700; font-size: 13px; margin-top: 10px; }
+    .btn-half-wrap { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-half { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-ghost { background: #f1f3f5; color: #adb5bd; }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="project-name" id="projectTitle">STORY MASTER</div>
-  <button onclick="saveToCloud()" style="background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:10px; font-weight:800; font-size:12px;">저장</button>
+  <div style="font-size:14px; font-weight:900; color:var(--primary);" id="projectTitle">STORY MASTER</div>
+  <button onclick="saveToCloud()" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; font-weight:800; font-size:11px;">저장</button>
 </div>
 
 <div class="timeline-container" id="timeline"></div>
@@ -76,32 +72,47 @@
   <button class="nav-btn" onclick="openEraModal()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>시대</span></button>
   <button class="add-btn" onclick="addScene()">+</button>
   <button class="nav-btn" onclick="openCharModal()"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>캐릭터</span></button>
-  <button class="nav-btn" onclick="location.reload()"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span>새로고침</span></button>
+  <button class="nav-btn" onclick="location.reload()"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span>새침</span></button>
 </div>
 
 <div id="viewModal" class="modal"><div class="modal-content">
-  <div id="viewMonth" style="font-size:12px; font-weight:900; color:var(--primary); margin-bottom:12px;"></div>
-  <div id="viewText" style="font-size:15px; line-height:1.7; color:#333; margin-bottom:25px; white-space:pre-wrap;"></div>
-  <div id="viewChars" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:25px;"></div>
-  <button class="btn-main" onclick="goToEdit()">수정하기</button>
-  <button class="btn-del" style="color:#adb5bd" onclick="closeModal('viewModal')">닫기</button>
+  <div id="viewMonth" style="font-size:10px; font-weight:900; color:var(--primary); margin-bottom:8px;"></div>
+  <div id="viewText" style="font-size:13px; line-height:1.6; color:#444; margin-bottom:15px; white-space:pre-wrap;"></div>
+  <div id="viewChars" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:15px;"></div>
+  <div class="btn-half-wrap">
+    <button class="btn-half btn-ghost" onclick="closeModal('viewModal')">닫기</button>
+    <button class="btn-half btn-primary" onclick="goToEdit()">수정하기</button>
+  </div>
 </div></div>
 
 <div id="editModal" class="modal"><div class="modal-content">
-  <h3 id="editTitle" style="margin-top:0">사건 기록</h3>
-  <label>시대 구분</label><select id="eraType"></select>
-  <div style="display:flex; gap:12px;"><div style="flex:1"><label>연도</label><input type="number" id="eYear"></div><div style="flex:1"><label>월</label><select id="eMonth"><script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}월</option>`)</script></select></div></div>
-  <label>포인트 컬러</label><div id="colorPicker" style="display:flex; gap:10px; margin-bottom:20px;"></div>
-  <label>등장 캐릭터</label><div id="charTagSelector" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;"></div>
-  <label>사건 내용</label><textarea id="eContent" rows="5" placeholder="기록할 내용을 입력하세요..."></textarea>
-  <button class="btn-main" onclick="saveScene()">기록 완료</button>
-  <button id="delBtn" class="btn-del" onclick="handleDelete()">이 사건 삭제</button>
-  <button class="btn-del" style="color:#adb5bd" onclick="closeModal('editModal')">취소</button>
+  <h3 id="editTitle" style="margin:0 0 15px 0; font-size:15px;">사건 기록</h3>
+  
+  <div style="display:flex; gap:8px;">
+    <div style="flex:1.5"><label>시대 구분</label><select id="eraType" style="padding:8px; font-size:12px;"></select></div>
+    <div style="flex:1"><label>연도</label><input type="number" id="eYear" style="padding:8px; font-size:12px;"></div>
+    <div style="flex:1"><label>월</label><select id="eMonth" style="padding:8px; font-size:12px;"><script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}월</option>`)</script></select></div>
+  </div>
+
+  <label>포인트 컬러</label>
+  <div id="colorPicker" style="display:flex; gap:6px; margin-bottom:15px; flex-wrap:wrap;"></div>
+
+  <label>등장 캐릭터</label>
+  <div id="charTagSelector" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:15px;"></div>
+
+  <label>사건 내용</label>
+  <textarea id="eContent" rows="4" style="font-size:12px;" placeholder="내용을 입력하세요"></textarea>
+
+  <div class="btn-half-wrap">
+    <button id="delBtn" class="btn-half" style="background:#fff1f1; color:red;" onclick="handleDelete()">삭제</button>
+    <button class="btn-half btn-primary" onclick="saveScene()">기록 완료</button>
+  </div>
+  <button class="btn-half" style="width:100%; margin-top:8px; background:none; color:#ccc; font-size:11px;" onclick="closeModal('editModal')">취소</button>
 </div></div>
 
-<div id="eraModal" class="modal"><div class="modal-content"><h3>시대 관리</h3><div style="display:flex; gap:8px; margin-bottom:15px;"><input type="text" id="newEraName" style="margin:0" placeholder="예: 조선시대"><button onclick="addEra()" style="background:var(--primary); color:white; border:none; padding:0 20px; border-radius:12px; font-weight:800;">추가</button></div><div id="eraListGrid"></div><button class="btn-del" onclick="closeModal('eraModal')">닫기</button></div></div>
-<div id="charModal" class="modal"><div class="modal-content"><h3>캐릭터 관리</h3><div style="display:flex; gap:8px; margin-bottom:15px;"><input type="text" id="newCharName" style="margin:0" placeholder="이름"><button onclick="addChar()" style="background:var(--primary); color:white; border:none; padding:0 20px; border-radius:12px; font-weight:800;">추가</button></div><div id="charListGrid"></div><button class="btn-del" onclick="closeModal('charModal')">닫기</button></div></div>
-<div id="loadModal" class="modal"><div class="modal-content"><h3>작업 목록</h3><div id="projectList"></div><button onclick="createNewProject()" style="width:100%; padding:15px; border:2px dashed var(--primary); background:none; border-radius:15px; margin-top:15px; color:var(--primary); font-weight:800;">+ 새 프로젝트</button><button class="btn-del" onclick="closeModal('loadModal')">닫기</button></div></div>
+<div id="eraModal" class="modal"><div class="modal-content"><h3>시대 관리</h3><div style="display:flex; gap:5px; margin-bottom:10px;"><input type="text" id="newEraName" style="margin:0"><button onclick="addEra()" style="background:var(--primary); color:white; border:none; padding:0 10px; border-radius:8px;">+</button></div><div id="eraListGrid"></div><button class="btn-half btn-ghost" style="width:100%" onclick="closeModal('eraModal')">닫기</button></div></div>
+<div id="charModal" class="modal"><div class="modal-content"><h3>캐릭터 관리</h3><div style="display:flex; gap:5px; margin-bottom:10px;"><input type="text" id="newCharName" style="margin:0"><button onclick="addChar()" style="background:var(--primary); color:white; border:none; padding:0 10px; border-radius:8px;">+</button></div><div id="charListGrid"></div><button class="btn-half btn-ghost" style="width:100%" onclick="closeModal('charModal')">닫기</button></div></div>
+<div id="loadModal" class="modal"><div class="modal-content"><h3>작업 목록</h3><div id="projectList"></div><button class="btn-half btn-primary" style="width:100%; margin-top:10px;" onclick="createNewProject()">+ 새 연력</button><button class="btn-half btn-ghost" style="width:100%; margin-top:5px;" onclick="closeModal('loadModal')">닫기</button></div></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -115,32 +126,57 @@
   let selectedColor = "#eee", selectedChars = [];
   const userColors = ["#eee", "#d0ebff", "#fff9db", "#d3f9d8", "#ffdeeb", "#eebefa", "#dae1e7", "#495057", "#ffd43b"];
 
-  // --- 드래그 앤 드롭 로직 (모든 요소에 자동 적용) ---
-  let dragItem = null, startX, startY, currentTarget = null;
-  
-  // 이벤트 위임으로 모든 카드를 드래그 가능하게 설정
-  document.addEventListener('mousedown', e => { const c = e.target.closest('.card'); if(c) initDrag(e, c.dataset.id); });
-  document.addEventListener('touchstart', e => { const c = e.target.closest('.card'); if(c) initDrag(e, c.dataset.id); }, {passive: false});
+  // --- 통합 이벤트 핸들러 (드래그 및 클릭/수정 모두 대응) ---
+  document.addEventListener('mousedown', e => handleInteraction(e));
+  document.addEventListener('touchstart', e => handleInteraction(e), {passive: false});
 
+  function handleInteraction(e) {
+    const card = e.target.closest('.card');
+    if(!card) return;
+    
+    // 클릭 이벤트 (수정 팝업 열기 용도)
+    const startTime = Date.now();
+    const startPos = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+    const onEndInteraction = (endEvent) => {
+      const duration = Date.now() - startTime;
+      const endPos = endEvent.type.includes('touch') ? endEvent.changedTouches[0].clientY : endEvent.clientY;
+      
+      // 드래그가 아니고 짧은 클릭일 때만 뷰어 오픈
+      if(duration < 200 && Math.abs(startPos - endPos) < 5) {
+        openViewer(card.dataset.id);
+      }
+      window.removeEventListener('mouseup', onEndInteraction);
+      window.removeEventListener('touchend', onEndInteraction);
+    };
+
+    window.addEventListener('mouseup', onEndInteraction);
+    window.addEventListener('touchend', onEndInteraction);
+
+    // 드래그 로직 호출
+    initDrag(e, card.dataset.id);
+  }
+
+  // --- 드래그 로직 ---
+  let dragItem = null, startX, startY, currentTarget = null;
   function initDrag(e, id) {
     if(e.target.tagName === 'BUTTON') return;
     const card = document.querySelector(`.card[data-id="${id}"]`);
     const rect = card.getBoundingClientRect();
-    dragItem = card.cloneNode(true);
-    dragItem.classList.add('dragging');
-    dragItem.style.width = rect.width + 'px';
-    document.body.appendChild(dragItem);
     
-    const touch = e.type.includes('touch') ? e.touches[0] : e;
-    startX = touch.clientX - rect.left;
-    startY = touch.clientY - rect.top;
-    updatePos(touch.clientX, touch.clientY);
-    document.body.classList.add('dragging-active');
-
     const moveHandler = (me) => {
+      if(!dragItem) {
+        dragItem = card.cloneNode(true);
+        dragItem.classList.add('dragging');
+        dragItem.style.width = rect.width + 'px';
+        document.body.appendChild(dragItem);
+        document.body.classList.add('dragging-active');
+      }
       me.preventDefault();
       const mtouch = me.type.includes('touch') ? me.touches[0] : me;
-      updatePos(mtouch.clientX, mtouch.clientY);
+      dragItem.style.left = (mtouch.clientX - startX) + 'px';
+      dragItem.style.top = (mtouch.clientY - startY) + 'px';
+      
       dragItem.style.display = 'none';
       const below = document.elementFromPoint(mtouch.clientX, mtouch.clientY);
       dragItem.style.display = 'block';
@@ -157,34 +193,39 @@
         storyboard[idx].month = parseInt(currentTarget.dataset.month);
         storyboard[idx].side = currentTarget.dataset.side;
         sync();
-      } else render();
+      } else if(dragItem) render();
+      
       dragItem?.remove(); dragItem = null; currentTarget = null;
       document.body.classList.remove('dragging-active');
-      window.removeEventListener(e.type.includes('touch') ? 'touchmove' : 'mousemove', moveHandler);
-      window.removeEventListener(e.type.includes('touch') ? 'touchend' : 'mouseup', endHandler);
+      window.removeEventListener('touchmove', moveHandler);
+      window.removeEventListener('touchend', endHandler);
+      window.removeEventListener('mousemove', moveHandler);
+      window.removeEventListener('mouseup', endHandler);
     };
+
+    const touch = e.type.includes('touch') ? e.touches[0] : e;
+    startX = touch.clientX - rect.left;
+    startY = touch.clientY - rect.top;
 
     window.addEventListener(e.type.includes('touch') ? 'touchmove' : 'mousemove', moveHandler, { passive: false });
     window.addEventListener(e.type.includes('touch') ? 'touchend' : 'mouseup', endHandler);
   }
-  
-  function updatePos(x, y) { dragItem.style.left = (x - startX) + 'px'; dragItem.style.top = (y - startY) + 'px'; }
 
   // --- 렌더링 ---
   window.render = () => {
     const container = document.getElementById('timeline');
-    if(!currentProject) { container.innerHTML = '<div style="text-align:center; padding-top:200px; color:#adb5bd; font-weight:700;">작업 목록에서 연력을 선택해주세요.</div>'; return; }
+    if(!currentProject) { container.innerHTML = '<div style="text-align:center; padding-top:150px; color:#ccc;">목록을 선택해주세요.</div>'; return; }
     container.innerHTML = '<div class="center-line"></div>';
 
     const groups = {};
-    storyboard.forEach(s => {
+    storyboard.sort((a,b)=>a.year-b.year).forEach(s => {
       const k = `${s.era || eras[0]} ${s.year}년`;
       if(!groups[k]) groups[k] = {};
       if(!groups[k][s.month]) groups[k][s.month] = { left: [], right: [] };
       groups[k][s.month][s.side || 'left'].push(s);
     });
 
-    Object.keys(groups).sort().forEach(key => {
+    Object.keys(groups).forEach(key => {
       container.innerHTML += `<div class="year-marker">${key}</div>`;
       Object.keys(groups[key]).sort((a,b)=>a-b).forEach(m => {
         const row = document.createElement('div'); row.className = 'row';
@@ -200,7 +241,6 @@
             card.dataset.id = sc.id;
             card.style.setProperty('--card-accent', sc.color || "#eee");
             card.innerHTML = `<div class="card-month">${m}월</div><div class="card-content">${sc.text}</div>`;
-            card.onclick = () => openViewer(sc.id);
             zone.appendChild(card);
           });
         });
@@ -208,19 +248,21 @@
     });
   };
 
-  // --- 로직 핸들러 ---
+  // --- 팝업 로직 ---
   window.openViewer = (id) => {
     editingId = id; const s = storyboard.find(x => x.id == id);
+    if(!s) return;
     document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`;
     document.getElementById('viewText').innerText = s.text;
-    document.getElementById('viewChars').innerHTML = (s.chars || []).map(c => `<span style="font-size:11px; background:#f1f3f5; padding:4px 10px; border-radius:8px; font-weight:700;">${c}</span>`).join('');
+    document.getElementById('viewChars').innerHTML = (s.chars || []).map(c => `<span style="font-size:9px; background:#f1f3f5; padding:3px 7px; border-radius:6px; font-weight:700;">${c}</span>`).join('');
     document.getElementById('viewModal').style.display = 'flex';
   };
+
   window.goToEdit = () => { closeModal('viewModal'); openEdit(editingId); };
 
   window.openEdit = (id) => {
     editingId = id; const s = storyboard.find(x => x.id == id);
-    document.getElementById('editTitle').innerText = id ? "사건 상세 수정" : "새 사건 기록";
+    document.getElementById('editTitle').innerText = id ? "사건 수정" : "새 기록";
     document.getElementById('eContent').value = s ? s.text : "";
     document.getElementById('eYear').value = s ? s.year : "2024";
     document.getElementById('eMonth').value = s ? s.month : "1";
@@ -238,7 +280,7 @@
   };
   window.selectColor = (c) => { selectedColor = c; updateColorUI(); };
   window.updateCharUI_inEdit = () => {
-    document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div class="char-chip ${selectedChars.includes(c) ? 'selected' : ''}" style="padding:8px 14px; border-radius:10px; background:${selectedChars.includes(c)?'var(--primary)':'#f1f3f5'}; color:${selectedChars.includes(c)?'white':'#333'}; font-size:12px; font-weight:700; cursor:pointer;" onclick="toggleChar('${c}')">${c}</div>`).join('') || '<span style="color:#ccc; font-size:12px;">등록된 캐릭터 없음</span>';
+    document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div style="padding:6px 10px; border-radius:8px; background:${selectedChars.includes(c)?'var(--primary)':'#f1f3f5'}; color:${selectedChars.includes(c)?'white':'#333'}; font-size:11px; font-weight:700; cursor:pointer;" onclick="toggleChar('${c}')">${c}</div>`).join('') || '<span style="color:#ccc; font-size:10px;">캐릭터 없음</span>';
   };
   window.toggleChar = (c) => { if(selectedChars.includes(c)) selectedChars = selectedChars.filter(x => x !== c); else selectedChars.push(c); updateCharUI_inEdit(); };
 
@@ -250,30 +292,20 @@
     closeModal('editModal'); sync();
   };
 
-  // --- 기초 관리 로직 ---
+  // --- 기본 통신 및 관리 ---
   window.sync = () => { if(currentProject) set(ref(db, `projects/${currentProject}`), { data: storyboard, eras, chars }).then(() => render()); };
-  window.saveToCloud = () => { sync(); alert("저장되었습니다."); };
+  window.saveToCloud = () => { sync(); alert("저장됨"); };
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-  window.handleDelete = () => { if(confirm("정말 삭제할까요?")) { storyboard = storyboard.filter(s => s.id != editingId); closeModal('editModal'); sync(); } };
-  window.addScene = () => { if(currentProject) openEdit(null); else alert("작업 목록에서 연력을 먼저 선택해주세요."); };
-
-  window.openEraModal = () => { 
-    document.getElementById('eraListGrid').innerHTML = eras.map(e => `<div style="display:flex; justify-content:space-between; padding:15px; background:#f8f9fa; border-radius:12px; margin-bottom:8px; font-weight:700;"><span>${e}</span><button onclick="delEra('${e}')" style="color:red; border:none; background:none;">삭제</button></div>`).join('');
-    document.getElementById('eraModal').style.display = 'flex'; 
-  };
+  window.handleDelete = () => { if(confirm("삭제?")) { storyboard = storyboard.filter(s => s.id != editingId); closeModal('editModal'); sync(); } };
+  window.addScene = () => { if(currentProject) openEdit(null); };
   window.addEra = () => { const n = document.getElementById('newEraName').value.trim(); if(n && !eras.includes(n)) { eras.push(n); sync(); openEraModal(); document.getElementById('newEraName').value=''; } };
-  window.delEra = (n) => { if(eras.length > 1) { eras = eras.filter(x => x !== n); sync(); openEraModal(); } };
-
-  window.openCharModal = () => { 
-    document.getElementById('charListGrid').innerHTML = chars.map(c => `<div style="display:flex; justify-content:space-between; padding:15px; background:#f8f9fa; border-radius:12px; margin-bottom:8px; font-weight:700;"><span>${c}</span><button onclick="delChar('${c}')" style="color:red; border:none; background:none;">삭제</button></div>`).join('');
-    document.getElementById('charModal').style.display = 'flex'; 
-  };
+  window.openEraModal = () => { document.getElementById('eraListGrid').innerHTML = eras.map(e => `<div style="display:flex; justify-content:space-between; padding:10px; background:#f8f9fa; border-radius:8px; margin-bottom:5px; font-size:12px;"><span>${e}</span><button onclick="delEra('${e}')" style="color:red; border:none; background:none;">X</button></div>`).join(''); document.getElementById('eraModal').style.display = 'flex'; };
   window.addChar = () => { const n = document.getElementById('newCharName').value.trim(); if(n && !chars.includes(n)) { chars.push(n); sync(); openCharModal(); document.getElementById('newCharName').value=''; } };
-  window.delChar = (n) => { chars = chars.filter(x => x !== n); sync(); openCharModal(); };
+  window.openCharModal = () => { document.getElementById('charListGrid').innerHTML = chars.map(c => `<div style="display:flex; justify-content:space-between; padding:10px; background:#f8f9fa; border-radius:8px; margin-bottom:5px; font-size:12px;"><span>${c}</span><button onclick="delChar('${c}')" style="color:red; border:none; background:none;">X</button></div>`).join(''); document.getElementById('charModal').style.display = 'flex'; };
 
   window.loadP = (k) => { currentProject = k; localStorage.setItem('lastProject', k); document.getElementById('projectTitle').innerText = k; onValue(ref(db, `projects/${k}`), s => { const d = s.val(); if(d){ storyboard=d.data||[]; eras=d.eras||["공통"]; chars=d.chars||[]; render(); } }, {onlyOnce:true}); closeModal('loadModal'); };
-  window.openLoadModal = () => { get(ref(db, 'projects')).then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<button onclick="loadP('${k}')" style="width:100%; padding:15px; margin-bottom:10px; border:1px solid #eee; border-radius:15px; background:#fff; text-align:left; font-weight:800; display:flex; justify-content:space-between;"><span>📁 ${k}</span><span style="color:var(--primary)">→</span></button>`).join('') : ''; document.getElementById('loadModal').style.display = 'flex'; }); };
-  window.createNewProject = () => { const n = prompt("새로운 연력 이름을 입력하세요."); if(n) { currentProject = n; storyboard = []; eras = ["공통"]; chars = []; sync(); closeModal('loadModal'); } };
+  window.openLoadModal = () => { get(ref(db, 'projects')).then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<button onclick="loadP('${k}')" style="width:100%; padding:10px; margin-bottom:8px; border:1px solid #eee; border-radius:10px; background:#fff; text-align:left; font-weight:700;">📁 ${k}</button>`).join('') : ''; document.getElementById('loadModal').style.display = 'flex'; }); };
+  window.createNewProject = () => { const n = prompt("이름"); if(n) { currentProject = n; storyboard = []; eras = ["공통"]; chars = []; sync(); closeModal('loadModal'); } };
 
   const last = localStorage.getItem('lastProject'); if(last) loadP(last);
 </script>
