@@ -7,67 +7,70 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    :root { --primary: #4dabf7; --bg: #f8f9fa; --card-bg: #ffffff; --line: #dee2e6; --danger: #ff8787; --branch: #adb5bd; }
-    body { font-family: 'Pretendard', sans-serif; margin: 0; background: var(--bg); touch-action: pan-y; -webkit-user-select: none; user-select: none; padding-bottom: 80px; color: #333; overflow-x: hidden; }
+    :root { --primary: #4dabf7; --bg: #f8f9fa; --card-bg: #ffffff; --line: #e9ecef; --danger: #ff8787; --branch: #adb5bd; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; margin: 0; background: var(--bg); touch-action: pan-y; -webkit-user-select: none; user-select: none; padding-bottom: 80px; color: #333; overflow-x: hidden; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    /* 타임라인 레이아웃 - 중앙 정렬 정밀 교정 */
-    .header { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 1000; padding: 0 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; height: 50px; align-items: center; }
-    .timeline-container { position: relative; width: 100%; max-width: 800px; margin: 65px auto 0; padding: 0; min-height: 100vh; }
+    /* 레이아웃 - 중앙선 및 그리드 */
+    .header { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); z-index: 1000; padding: 0 20px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.05); height: 55px; align-items: center; }
+    .timeline-container { position: relative; width: 100%; max-width: 500px; margin: 70px auto 0; padding: 0; min-height: 100vh; }
     .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 0; }
     
-    .row { display: grid; grid-template-columns: 1fr 1fr; position: relative; margin-bottom: 15px; min-height: 80px; }
-    .node { width: 10px; height: 10px; background: white; border: 2px solid var(--primary); border-radius: 50%; position: absolute; left: 50%; transform: translateX(-50%); top: 30px; z-index: 5; }
-    .year-marker { position: relative; width: fit-content; margin: 40px auto 20px; padding: 4px 12px; background: #495057; color: white; border-radius: 12px; font-size: 10px; font-weight: 800; z-index: 10; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; position: relative; margin-bottom: 20px; min-height: 90px; }
+    .node { width: 12px; height: 12px; background: white; border: 2.5px solid var(--primary); border-radius: 50%; position: absolute; left: 50%; transform: translateX(-50%); top: 38px; z-index: 5; box-shadow: 0 0 0 4px var(--bg); }
+    .year-marker { position: relative; width: fit-content; margin: 50px auto 30px; padding: 6px 16px; background: #343a40; color: white; border-radius: 20px; font-size: 11px; font-weight: 800; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     
-    .dropzone { display: flex; flex-direction: column; gap: 10px; padding: 5px 12px; }
-    .dropzone[data-side="left"] { align-items: flex-end; }
-    .dropzone[data-side="right"] { align-items: flex-start; }
+    .dropzone { display: flex; flex-direction: column; gap: 15px; padding: 0 10px; }
+    .dropzone[data-side="left"] { align-items: flex-end; padding-right: 20px; }
+    .dropzone[data-side="right"] { align-items: flex-start; padding-left: 20px; }
 
-    /* 카드 디자인 및 가지 위치(카드 내부 우상단) */
-    .card-wrapper { position: relative; width: fit-content; }
-    .card { background: #fff; width: 115px; min-height: 65px; border-radius: 10px; padding: 12px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: relative; z-index: 10; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; }
-    .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background-color: var(--card-accent, #eee); border-radius: 10px 0 0 10px; }
-    .card-month { font-size: 8px; font-weight: 900; color: #adb5bd; margin-bottom: 4px; }
-    .card-content { font-size: 11px; line-height: 1.4; font-weight: 600; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+    /* 카드 및 가지 배치 로직 */
+    .card-wrapper { position: relative; width: fit-content; display: flex; align-items: flex-start; }
     
-    /* 가지 컨테이너: 카드의 오른쪽 바깥 혹은 안쪽 모서리에 배치 */
-    .branch-outer-container { 
-        position: absolute; top: -5px; right: -8px; 
-        display: flex; flex-direction: column; gap: 3px; z-index: 100; 
-    }
-    .branch-cube { 
-        width: 15px; height: 15px; background: var(--branch); border-radius: 3px; 
-        cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border: 1.5px solid white;
-    }
-
-    /* 모달 및 에디터 버튼 */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-    .modal-content { background: white; width: 88%; max-width: 320px; padding: 25px 20px; border-radius: 20px; }
-    .edit-btn-group { display: flex; gap: 8px; margin-top: 15px; }
-    .btn-main { flex: 2; padding: 14px; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; background: var(--primary); color: white; }
-    .btn-danger { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; background: #fff1f1; color: #ff8787; }
-    .btn-sub { width: 100%; padding: 10px; border: none; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; background: #f1f3f5; color: #adb5bd; margin-top: 8px; }
-
-    .edit-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-    input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #eee; background: #f8f9fa; font-size: 13px; outline: none; margin-bottom: 10px; }
+    .card { background: #fff; width: 120px; min-height: 70px; border-radius: 12px; padding: 15px 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.04); position: relative; z-index: 10; border: 1px solid rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.1s; }
+    .card:active { transform: scale(0.97); }
+    .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background-color: var(--card-accent, #eee); border-radius: 12px 0 0 12px; }
     
-    .nav { position: fixed; bottom: 0; width: 100%; height: 60px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
-    .nav-btn { border: none; background: none; font-size: 9px; font-weight: 800; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
-    #toast { visibility: hidden; min-width: 140px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 10px; position: fixed; z-index: 5000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 12px; opacity: 0; transition: 0.3s; }
+    .card-month { font-size: 9px; font-weight: 900; color: #adb5bd; margin-bottom: 6px; letter-spacing: -0.5px; }
+    .card-content { font-size: 11.5px; line-height: 1.5; font-weight: 600; color: #2d3436; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+    
+    /* 카드 위치에 따른 가지 위치 대칭 조정 */
+    .branch-outer-container { position: absolute; top: 8px; display: flex; flex-direction: column; gap: 5px; z-index: 20; }
+    
+    /* 왼쪽 카드의 가지는 왼쪽 끝으로 */
+    .dropzone[data-side="left"] .branch-outer-container { right: 100%; margin-right: 8px; }
+    /* 오른쪽 카드의 가지는 오른쪽 끝으로 */
+    .dropzone[data-side="right"] .branch-outer-container { left: 100%; margin-left: 8px; }
+
+    .branch-cube { width: 18px; height: 18px; background: var(--branch); border-radius: 4px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid white; }
+
+    /* 모달 스타일 개선 */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+    .modal-content { background: white; width: 90%; max-width: 330px; padding: 30px 20px; border-radius: 24px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+    
+    .edit-btn-group { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-main { flex: 2; padding: 15px; border: none; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; background: var(--primary); color: white; }
+    .btn-danger { flex: 1; padding: 15px; border: none; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; background: #fff0f0; color: #ff8787; }
+    .btn-sub { width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; background: #f1f3f5; color: #868e96; margin-top: 10px; }
+
+    input, textarea, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #f1f3f5; background: #f8f9fa; font-size: 14px; outline: none; margin-bottom: 12px; }
+    
+    .nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+    .nav-btn { border: none; background: none; font-size: 10px; font-weight: 800; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+    #toast { visibility: hidden; min-width: 150px; background-color: #333; color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 5000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 13px; opacity: 0; transition: 0.3s; }
     #toast.show { visibility: visible; opacity: 1; }
   </style>
 </head>
 <body>
 
-<div id="toast">저장되었습니다</div>
+<div id="toast">변경사항 저장됨</div>
 
 <div id="customAlert" class="modal" style="z-index: 6000;">
     <div class="modal-content">
-        <div id="alertTitle" style="font-size:15px; font-weight:900; margin-bottom:10px; text-align:center;">알림</div>
-        <div id="alertMsg" style="font-size:13px; color:#666; text-align:center; margin-bottom:20px; line-height:1.5;"></div>
-        <div id="alertInputWrap" style="display:none;"><input type="text" id="alertInput" placeholder="입력하세요"></div>
-        <div style="display:flex; gap:8px;">
+        <div id="alertTitle" style="font-size:16px; font-weight:900; margin-bottom:12px; text-align:center;">알림</div>
+        <div id="alertMsg" style="font-size:14px; color:#555; text-align:center; margin-bottom:25px; line-height:1.6;"></div>
+        <div id="alertInputWrap" style="display:none;"><input type="text" id="alertInput" placeholder="여기에 입력하세요"></div>
+        <div style="display:flex; gap:10px;">
             <button class="btn-sub" style="flex:1; margin-top:0;" onclick="window.closeAlert(false)">취소</button>
             <button id="alertConfirm" class="btn-main" style="flex:1; margin-top:0;" onclick="window.closeAlert(true)">확인</button>
         </div>
@@ -75,8 +78,8 @@
 </div>
 
 <div class="header">
-  <div style="font-size:14px; font-weight:900; color:var(--primary);" id="projectTitle">STORY MASTER</div>
-  <button onclick="window.saveToCloud()" style="background:var(--primary); color:white; border:none; padding:6px 14px; border-radius:8px; font-weight:800; font-size:11px;">저장</button>
+  <div style="font-size:16px; font-weight:900; color:var(--primary); letter-spacing:-0.5px;" id="projectTitle">연력표를 불러오세요</div>
+  <button onclick="window.saveToCloud()" style="background:var(--primary); color:white; border:none; padding:8px 18px; border-radius:10px; font-weight:800; font-size:12px; box-shadow: 0 4px 10px rgba(77,171,247,0.3);">저장</button>
 </div>
 
 <div class="timeline-container" id="timeline"></div>
@@ -84,31 +87,32 @@
 <div class="nav">
   <button class="nav-btn" onclick="window.openLoadModal()">목록</button>
   <button class="nav-btn" onclick="window.openEraModal()">시대</button>
-  <button class="nav-btn" style="font-size:36px; color:var(--primary);" onclick="window.addScene()">+</button>
+  <button class="nav-btn" style="font-size:40px; color:var(--primary); font-weight:300;" onclick="window.addScene()">+</button>
   <button class="nav-btn" onclick="window.openCharModal()">캐릭터</button>
   <button class="nav-btn" onclick="location.reload()">갱신</button>
 </div>
 
 <div id="viewModal" class="modal"><div class="modal-content">
-    <div id="viewMonth" style="font-size:10px; font-weight:900; color:var(--primary); margin-bottom:8px;"></div>
-    <div id="viewText" style="font-size:13px; line-height:1.6; color:#444; margin-bottom:15px; white-space:pre-wrap;"></div>
-    <div id="viewTags" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:20px;"></div>
+    <div id="viewMonth" style="font-size:11px; font-weight:900; color:var(--primary); margin-bottom:10px;"></div>
+    <div id="viewText" style="font-size:14px; line-height:1.7; color:#333; margin-bottom:20px; white-space:pre-wrap;"></div>
+    <div id="viewTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:25px;"></div>
     <div style="display:flex; gap:10px;">
-        <button class="btn-main" onclick="window.goToEdit()">수정하기</button>
+        <button class="btn-main" onclick="window.goToEdit()">수정</button>
         <button class="btn-main" style="background:#868e96;" onclick="window.addBranchFromView()">가지 추가</button>
     </div>
     <button class="btn-sub" onclick="window.closeModal('viewModal')">닫기</button>
 </div></div>
 
-<div id="editModal" class="modal"><div class="modal-content"><h3 style="margin:0 0 15px 0; font-size:15px; text-align:center;">사건 기록</h3>
-    <div class="edit-grid">
+<div id="editModal" class="modal"><div class="modal-content">
+    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">사건 기록</h3>
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 10px;">
         <select id="eraType"></select>
         <input type="number" id="eYear" placeholder="연도">
         <select id="eMonth"><script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}월</option>`)</script></select>
     </div>
-    <div id="colorPicker" style="display:flex; gap:6px; margin-bottom:15px; justify-content:center; flex-wrap:wrap;"></div>
-    <div id="charTagSelector" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:15px;"></div>
-    <textarea id="eContent" rows="5" placeholder="내용을 입력하세요"></textarea>
+    <div id="colorPicker" style="display:flex; gap:8px; margin: 15px 0; justify-content:center; flex-wrap:wrap;"></div>
+    <div id="charTagSelector" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:15px;"></div>
+    <textarea id="eContent" rows="5" placeholder="사건의 내용을 기록하세요..."></textarea>
     <div class="edit-btn-group">
         <button class="btn-main" onclick="window.saveScene()">기록 완료</button>
         <button id="delBtn" class="btn-danger" onclick="window.confirmDeleteScene()">삭제</button>
@@ -121,6 +125,7 @@
 <div id="charModal" class="modal"><div class="modal-content"><h3>캐릭터 관리</h3><div id="charListGrid"></div><button class="btn-main" onclick="window.promptNewChar()">+ 캐릭터 추가</button><button class="btn-sub" onclick="window.closeModal('charModal')">닫기</button></div></div>
 
 <script>
+  // Firebase 및 기본 로직 (동일 유지)
   const config = { apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", authDomain: "true-s.firebaseapp.com", databaseURL: "https://true-s-default-rtdb.firebaseio.com", projectId: "true-s" };
   if (!firebase.apps.length) firebase.initializeApp(config);
   const db = firebase.database();
@@ -140,7 +145,7 @@
 
   window.render = () => {
     const container = document.getElementById('timeline');
-    if(!currentProject) { container.innerHTML = '<div style="text-align:center; padding-top:150px; color:#ccc; font-size:12px;">연력표를 선택해주세요.</div>'; return; }
+    if(!currentProject) { container.innerHTML = '<div style="text-align:center; padding-top:150px; color:#ccc; font-size:13px;">작업 목록에서 연력표를 불러오세요.</div>'; return; }
     container.innerHTML = '<div class="center-line"></div>';
     
     const sortedBoard = [...storyboard].sort((a, b) => {
@@ -189,11 +194,9 @@
   };
 
   window.viewBranch = (e, id, bIdx) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 전파 방지
+    e.stopPropagation();
     const s = storyboard.find(x => x.id == id);
-    window.customUI("생각 보기", s.branches[bIdx], "confirm", (res) => { 
-        if(res) { s.branches.splice(bIdx, 1); window.sync(); } 
-    });
+    window.customUI("가지 기록", s.branches[bIdx], "confirm", (res) => { if(res) { s.branches.splice(bIdx, 1); window.sync(); } });
     document.getElementById('alertConfirm').innerText = "가지 삭제";
     document.getElementById('alertConfirm').style.background = "#ff8787";
   };
@@ -201,7 +204,7 @@
   window.addBranchFromView = () => {
     const targetId = editingId; window.closeModal('viewModal');
     setTimeout(() => {
-        window.customUI("생각 추가", "사건과 관련된 설정을 입력하세요.", "prompt", (val) => {
+        window.customUI("가지 추가", "이 사건과 연결된 세부 설정이나 생각을 입력하세요.", "prompt", (val) => {
             if(val && typeof val === 'string') {
                 const idx = storyboard.findIndex(s => s.id == targetId);
                 if(!storyboard[idx].branches) storyboard[idx].branches = [];
@@ -211,16 +214,16 @@
     }, 200);
   };
 
-  // 기존 저장/수정/삭제 로직 유지
+  // 나머지 기능들은 기존과 동일하게 작동하도록 유지
   window.loadP = (k) => { currentProject = k; localStorage.setItem('lastProject', k); document.getElementById('projectTitle').innerText = k; db.ref('projects/'+k).on('value', s => { const d = s.val(); if(d){ storyboard=d.data||[]; eras=d.eras||["공통"]; chars=d.chars||[]; window.render(); } }); window.closeModal('loadModal'); };
-  window.openLoadModal = () => { db.ref('projects').once('value').then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<div style="display:flex; gap:5px; margin-bottom:8px; align-items:center;"><button onclick="window.loadP('${k}')" style="flex:1; padding:12px; border:1px solid #eee; border-radius:10px; background:#fff; text-align:left; font-weight:bold;">${k}</button><button onclick="window.confirmDeleteProject('${k}')" style="padding:10px; color:red; border:none; background:#fff1f1; border-radius:10px;">X</button></div>`).join('') : '<p style="text-align:center; font-size:12px; color:#ccc;">비어있음</p>'; window.openModal('loadModal'); }); };
-  window.confirmDeleteProject = (k) => { window.customUI("연력 삭제", `${k} 삭제?`, "confirm", (r) => { if(r) db.ref('projects/'+k).remove().then(window.openLoadModal); }); };
-  window.promptNewProject = () => { window.customUI("새 연력표", "이름 입력", "prompt", (n) => { if(n && typeof n === 'string') { currentProject = n; storyboard = []; eras = ["공통"]; chars = []; window.sync(); window.closeModal('loadModal'); } }); };
+  window.openLoadModal = () => { db.ref('projects').once('value').then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<div style="display:flex; gap:5px; margin-bottom:8px; align-items:center;"><button onclick="window.loadP('${k}')" style="flex:1; padding:12px; border:1px solid #eee; border-radius:12px; background:#fff; text-align:left; font-weight:bold;">${k}</button><button onclick="window.confirmDeleteProject('${k}')" style="padding:10px; color:red; border:none; background:#fff1f1; border-radius:12px;">삭제</button></div>`).join('') : '<p style="text-align:center; font-size:12px; color:#ccc;">비어있음</p>'; window.openModal('loadModal'); }); };
+  window.confirmDeleteProject = (k) => { window.customUI("연력 삭제", `${k} 연력표를 완전히 삭제할까요?`, "confirm", (r) => { if(r) db.ref('projects/'+k).remove().then(window.openLoadModal); }); };
+  window.promptNewProject = () => { window.customUI("새 연력표", "작품의 제목이나 연력표 이름을 입력하세요.", "prompt", (n) => { if(n && typeof n === 'string') { currentProject = n; storyboard = []; eras = ["공통"]; chars = []; window.sync(); window.closeModal('loadModal'); } }); };
   window.addScene = () => { if(!currentProject) { window.openLoadModal(); return; } window.openEdit(null); };
   window.openEdit = (id) => {
     editingId = id; const s = storyboard.find(x => x.id == id);
     document.getElementById('eContent').value = s ? s.text : "";
-    document.getElementById('eYear').value = s ? s.year : "2024";
+    document.getElementById('eYear').value = s ? s.year : "500";
     document.getElementById('eMonth').value = s ? s.month : "1";
     document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join('');
     if(s) document.getElementById('eraType').value = s.era;
@@ -235,23 +238,23 @@
     else storyboard.push({ id: Date.now().toString(), era, year, month, text, color: selectedColor, chars: selectedChars, side: 'left', branches: [] });
     window.sync(); window.closeModal('editModal');
   };
-  window.confirmDeleteScene = () => { window.customUI("사건 삭제", "삭제할까요?", "confirm", (r) => { if(r) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } }); };
-  window.openViewer = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`; document.getElementById('viewText').innerText = s.text; document.getElementById('viewTags').innerHTML = (s.chars || []).map(c => `<span style="font-size:9px; background:#f1f3f5; padding:3px 7px; border-radius:6px; font-weight:700;">${c}</span>`).join(''); window.openModal('viewModal'); };
+  window.confirmDeleteScene = () => { window.customUI("사건 삭제", "이 사건 기록을 삭제할까요?", "confirm", (r) => { if(r) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } }); };
+  window.openViewer = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`; document.getElementById('viewText').innerText = s.text; document.getElementById('viewTags').innerHTML = (s.chars || []).map(c => `<span style="font-size:10px; background:#f1f3f5; padding:4px 10px; border-radius:8px; font-weight:700; color:#495057;">#${c}</span>`).join(''); window.openModal('viewModal'); };
   window.goToEdit = () => { window.closeModal('viewModal'); window.openEdit(editingId); };
-  window.updateColorUI = () => { document.getElementById('colorPicker').innerHTML = userColors.map(c => `<div class="color-chip ${selectedColor===c?'selected':''}" style="background:${c};" onclick="window.selectColor('${c}')"></div>`).join(''); };
+  window.updateColorUI = () => { document.getElementById('colorPicker').innerHTML = userColors.map(c => `<div class="color-chip ${selectedColor===c?'selected':''}" style="background:${c}; width:24px; height:24px; border-radius:50%; border:2px solid ${selectedColor===c?'#4dabf7':'transparent'}; cursor:pointer;" onclick="window.selectColor('${c}')"></div>`).join(''); };
   window.selectColor = (c) => { selectedColor = c; window.updateColorUI(); };
-  window.updateCharUI = () => { document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div style="padding:6px 10px; border-radius:8px; background:${selectedChars.includes(c)?'var(--primary)':'#f1f3f5'}; color:${selectedChars.includes(c)?'white':'#333'}; font-size:10px; font-weight:700;" onclick="window.toggleChar('${c}')">${c}</div>`).join('') || '<p style="font-size:10px; color:#ccc;">캐릭터 없음</p>'; };
+  window.updateCharUI = () => { document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div style="padding:8px 12px; border-radius:10px; background:${selectedChars.includes(c)?'var(--primary)':'#f1f3f5'}; color:${selectedChars.includes(c)?'white':'#495057'}; font-size:11px; font-weight:700;" onclick="window.toggleChar('${c}')">${c}</div>`).join('') || '<p style="font-size:11px; color:#ccc;">등록된 캐릭터가 없습니다.</p>'; };
   window.toggleChar = (c) => { if(selectedChars.includes(c)) selectedChars = selectedChars.filter(x => x !== c); else selectedChars.push(c); window.updateCharUI(); };
-  window.openEraModal = () => { document.getElementById('eraListGrid').innerHTML = eras.map((e, i) => `<div style="display:flex; justify-content:space-between; padding:10px; background:#f8f9fa; border-radius:8px; margin-bottom:5px;"><span>${e}</span><button onclick="window.confirmDelEra('${e}')" style="color:red; border:none; background:none;">X</button></div>`).join(''); window.openModal('eraModal'); };
-  window.promptNewEra = () => { window.closeModal('eraModal'); window.customUI("시대 추가", "이름 입력", "prompt", (n) => { if(n && typeof n === 'string' && !eras.includes(n)) { eras.push(n); window.sync(); } window.openEraModal(); }); };
-  window.confirmDelEra = (e) => { window.closeModal('eraModal'); window.customUI("시대 삭제", `${e} 삭제?`, "confirm", (r) => { if(r) { storyboard = storyboard.map(s => s.era === e ? {...s, era: '공통'} : s); eras = eras.filter(x => x !== e); if(eras.length === 0) eras = ["공통"]; window.sync(); } window.openEraModal(); }); };
-  window.openCharModal = () => { document.getElementById('charListGrid').innerHTML = chars.map(c => `<div style="display:flex; justify-content:space-between; padding:10px; background:#f8f9fa; border-radius:8px; margin-bottom:5px;"><span>${c}</span><button onclick="window.confirmDelChar('${c}')" style="color:red; border:none; background:none;">X</button></div>`).join(''); window.openModal('charModal'); };
-  window.promptNewChar = () => { window.closeModal('charModal'); window.customUI("캐릭터 추가", "이름 입력", "prompt", (n) => { if(n && typeof n === 'string') { chars.push(n); window.sync(); } window.openCharModal(); }); };
-  window.confirmDelChar = (c) => { window.closeModal('charModal'); window.customUI("캐릭터 삭제", `${c} 삭제?`, "confirm", (r) => { if(r) { chars = chars.filter(x => x !== c); window.sync(); } window.openCharModal(); }); };
+  window.openEraModal = () => { document.getElementById('eraListGrid').innerHTML = eras.map((e, i) => `<div style="display:flex; justify-content:space-between; padding:12px; background:#f8f9fa; border-radius:12px; margin-bottom:8px; align-items:center;"><span>${e}</span><button onclick="window.confirmDelEra('${e}')" style="color:#ff8787; border:none; background:none; font-weight:800;">삭제</button></div>`).join(''); window.openModal('eraModal'); };
+  window.promptNewEra = () => { window.closeModal('eraModal'); window.customUI("시대 추가", "예: 제국력, 성력 등", "prompt", (n) => { if(n && typeof n === 'string' && !eras.includes(n)) { eras.push(n); window.sync(); } window.openEraModal(); }); };
+  window.confirmDelEra = (e) => { window.closeModal('eraModal'); window.customUI("시대 삭제", `${e} 시대를 삭제할까요? (사건은 보존됩니다)`, "confirm", (r) => { if(r) { storyboard = storyboard.map(s => s.era === e ? {...s, era: '공통'} : s); eras = eras.filter(x => x !== e); if(eras.length === 0) eras = ["공통"]; window.sync(); } window.openEraModal(); }); };
+  window.openCharModal = () => { document.getElementById('charListGrid').innerHTML = chars.map(c => `<div style="display:flex; justify-content:space-between; padding:12px; background:#f8f9fa; border-radius:12px; margin-bottom:8px; align-items:center;"><span>${c}</span><button onclick="window.confirmDelChar('${c}')" style="color:#ff8787; border:none; background:none; font-weight:800;">삭제</button></div>`).join(''); window.openModal('charModal'); };
+  window.promptNewChar = () => { window.closeModal('charModal'); window.customUI("캐릭터 추가", "캐릭터의 이름을 입력하세요.", "prompt", (n) => { if(n && typeof n === 'string') { chars.push(n); window.sync(); } window.openCharModal(); }); };
+  window.confirmDelChar = (c) => { window.closeModal('charModal'); window.customUI("캐릭터 삭제", `${c} 캐릭터를 삭제할까요?`, "confirm", (r) => { if(r) { chars = chars.filter(x => x !== c); window.sync(); } window.openCharModal(); }); };
   window.sync = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars }).then(window.render); };
   window.saveToCloud = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars }).then(() => { const t = document.getElementById('toast'); t.className = 'show'; setTimeout(() => t.className = '', 2000); }); };
 
-  // 드래그 앤 드롭 로직
+  // 드래그 앤 드롭 및 클릭 핸들러
   let dragItem = null, startX, startY, currentTarget = null, dragId = null, isMoving = false;
   document.addEventListener('touchstart', (e) => {
     if(e.target.closest('button') || e.target.closest('.branch-cube')) return;
@@ -268,7 +271,7 @@
       if(isMoving && dragItem) {
         dragItem.style.left = (mt.clientX - (card.offsetWidth/2)) + 'px'; dragItem.style.top = (mt.clientY - 20) + 'px';
         const below = document.elementFromPoint(mt.clientX, mt.clientY); const zone = below?.closest('.dropzone');
-        if(currentTarget !== zone) { if(currentTarget) currentTarget.style.background = ''; currentTarget = zone; if(currentTarget) currentTarget.style.background = 'rgba(77,171,247,0.1)'; }
+        if(currentTarget !== zone) { if(currentTarget) currentTarget.style.background = ''; currentTarget = zone; if(currentTarget) currentTarget.style.background = 'rgba(77,171,247,0.08)'; }
       }
     };
     const end = () => {
