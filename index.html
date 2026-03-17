@@ -32,42 +32,28 @@
     .dropzone[data-side="left"] { align-items: flex-end; padding-right: 25px; }
     .dropzone[data-side="right"] { align-items: flex-start; padding-left: 25px; }
 
-    .card { background: #fff; width: 130px; min-height: 75px; border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; z-index: 10; border: 1px solid rgba(0,0,0,0.03); cursor: pointer; }
+    .card-wrapper { position: relative; width: 130px; } /* 래퍼 추가로 위치 고정 */
+    .card { background: #fff; width: 100%; min-height: 75px; border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; z-index: 10; border: 1px solid rgba(0,0,0,0.03); cursor: pointer; }
     .card::before { content: ""; position: absolute; left: 0; top: 15px; bottom: 15px; width: 4px; background-color: var(--card-accent, #eee); border-radius: 0 4px 4px 0; }
     .card-month { font-size: 10px; font-weight: 900; color: #adb5bd; margin-bottom: 8px; }
     .card-content { font-size: 12px; line-height: 1.5; font-weight: 700; color: #333; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     
-    /* 가지 컨테이너 수정: 카드 영역을 침범하지 않도록 설정 */
-    .branch-outer-container { position: absolute; top: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 20; pointer-events: none; } /* 자식인 큐브만 터치되게 설정 */
-    .dropzone[data-side="left"] .branch-outer-container { right: 100%; margin-right: 10px; align-items: flex-end; }
-    .dropzone[data-side="right"] .branch-outer-container { left: 100%; margin-left: 10px; align-items: flex-start; }
-    .branch-cube { width: 16px; height: 16px; background: var(--branch); border-radius: 5px; cursor: pointer; border: 2.5px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); pointer-events: auto; } /* 큐브만 터치 가능 */
+    .branch-outer-container { position: absolute; top: 5px; display: flex; flex-direction: column; gap: 5px; z-index: 100; pointer-events: none; }
+    .dropzone[data-side="left"] .branch-outer-container { right: 105%; align-items: flex-end; }
+    .dropzone[data-side="right"] .branch-outer-container { left: 105%; align-items: flex-start; }
+    .branch-cube { width: 16px; height: 16px; background: var(--branch); border-radius: 5px; cursor: pointer; border: 2.5px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); pointer-events: auto; }
 
-    /* 모달 공통 */
+    /* 모달 */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
     .modal-content { background: white; width: 90%; max-width: 340px; padding: 20px; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; position: relative; }
     
-    .char-edit-body { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-    .char-img-box { width: 100px; height: 100px; border-radius: 50%; background: #f8f9fa; margin: 0 auto 10px; overflow: hidden; border: 2px dashed #dee2e6; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
-    .char-img-box img { width: 100%; height: 100%; object-fit: cover; }
-    .char-img-box span { font-size: 10px; color: #adb5bd; text-align: center; font-weight: 700; }
-    
-    input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; background: #f8f9fa; font-size: 14px; font-family: inherit; outline: none; }
-    .input-row { display: flex; gap: 8px; }
-
-    .char-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 16px; margin-bottom: 8px; }
-    .char-info { display: flex; align-items: center; gap: 10px; }
-    .char-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; background: #eee; }
-    .btn-icon { border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
-
+    input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; background: #f8f9fa; font-size: 14px; outline: none; }
     .btn-save { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 14px; width: 100%; margin-top: 10px; }
     .btn-close-text { width: 100%; background: none; border: none; color: #adb5bd; font-size: 13px; font-weight: 700; padding: 10px; margin-top: 5px; }
 
-    .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+    .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; }
     .nav-btn { border: none; background: none; font-size: 10px; font-weight: 800; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    
-    .tag-thumb { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; }
-    #toast { visibility: hidden; min-width: 150px; background-color: #333; color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 5000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 13px; opacity: 0; transition: 0.3s; }
+    #toast { visibility: hidden; min-width: 150px; background-color: #333; color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 5000; left: 50%; bottom: 100px; transform: translateX(-50%); opacity: 0; transition: 0.3s; }
     #toast.show { visibility: visible; opacity: 1; }
   </style>
 </head>
@@ -99,7 +85,7 @@
 
 <div id="editModal" class="modal"><div class="modal-content">
     <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">사건 기록</h3>
-    <div class="input-row" style="margin-bottom:10px;">
+    <div class="input-row" style="display:flex; gap:8px; margin-bottom:10px;">
         <select id="eraType" style="flex:1.2;"></select>
         <input type="number" id="eYear" placeholder="연도" style="flex:1;">
         <select id="eMonth" style="flex:1;"><script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}월</option>`)</script></select>
@@ -107,48 +93,16 @@
     <div id="colorPicker" style="display:flex; gap:8px; margin: 15px 0; justify-content:center; flex-wrap:wrap;"></div>
     <div id="charTagSelector" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:15px; max-height:100px; overflow-y:auto;"></div>
     <textarea id="eContent" rows="5" placeholder="내용을 입력하세요" style="margin-bottom:15px;"></textarea>
-    <div class="input-row">
+    <div style="display:flex; gap:8px;">
         <button class="btn-save" style="flex:2.5; margin-top:0;" onclick="window.saveScene()">기록 완료</button>
         <button id="delBtn" style="flex:1; background:#fff0f0; color:#ff8787; border:none; border-radius:14px; font-weight:800;" onclick="window.confirmDeleteScene()">삭제</button>
     </div>
     <button class="btn-close-text" onclick="window.closeModal('editModal')">닫기</button>
 </div></div>
 
-<div id="charModal" class="modal"><div class="modal-content">
-    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 관리</h3>
-    <div id="charListGrid" style="margin-bottom:15px; max-height:40vh; overflow-y:auto;"></div>
-    <button class="btn-save" onclick="window.openCharAdd()">+ 신규 캐릭터 추가</button>
-    <button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button>
-</div></div>
-
-<div id="charEditModal" class="modal"><div class="modal-content">
-    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 프로필</h3>
-    <div class="char-edit-body">
-        <div class="char-img-box" id="charImgPreview" onclick="document.getElementById('imageInput').click()">
-            <span>사진 업로드</span>
-        </div>
-        <input type="text" id="cName" placeholder="이름 (필수)">
-        <div class="input-row">
-            <input type="text" id="cAge" placeholder="나이" style="flex:1;">
-            <input type="text" id="cOrigin" placeholder="출신지" style="flex:1;">
-        </div>
-        <textarea id="cLook" rows="2" placeholder="외형 묘사"></textarea>
-        <textarea id="cPers" rows="2" placeholder="성격/특징"></textarea>
-    </div>
-    <button class="btn-save" onclick="window.saveCharDetail()">저장하기</button>
-    <button class="btn-close-text" onclick="window.closeModal('charEditModal')">취소</button>
-</div></div>
-
-<div id="customAlert" class="modal" style="z-index: 6000;"><div class="modal-content">
-    <div id="alertTitle" style="font-size:16px; font-weight:900; margin-bottom:12px; text-align:center;">알림</div>
-    <div id="alertMsg" style="font-size:14px; color:#555; text-align:center; margin-bottom:20px;"></div>
-    <div id="alertInputWrap" style="display:none;"><textarea id="alertInput" rows="4"></textarea></div>
-    <div style="display:flex; gap:10px;">
-        <button class="btn-close-text" style="flex:1; background:#f1f3f5; border-radius:12px;" onclick="window.closeAlert(false)">취소</button>
-        <button class="btn-save" style="flex:1; margin-top:0;" onclick="window.closeAlert(true)">확인</button>
-    </div>
-</div></div>
-
+<div id="charModal" class="modal"><div class="modal-content"><h3>캐릭터 관리</h3><div id="charListGrid"></div><button class="btn-save" onclick="window.openCharAdd()">+ 캐릭터 추가</button><button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button></div></div>
+<div id="charEditModal" class="modal"><div class="modal-content"><h3>프로필</h3><div id="charImgPreview" style="width:80px; height:80px; border-radius:50%; margin:0 auto 10px; border:2px dashed #eee; overflow:hidden;" onclick="document.getElementById('imageInput').click()"></div><input type="text" id="cName" placeholder="이름"><button class="btn-save" onclick="window.saveCharDetail()">저장</button><button class="btn-close-text" onclick="window.closeModal('charEditModal')">취소</button></div></div>
+<div id="customAlert" class="modal" style="z-index: 6000;"><div class="modal-content"><div id="alertTitle" style="font-weight:900; text-align:center;"></div><div id="alertMsg" style="text-align:center; margin:10px 0;"></div><div id="alertInputWrap" style="display:none;"><textarea id="alertInput" rows="4"></textarea></div><div style="display:flex; gap:10px;"><button class="btn-close-text" style="flex:1;" onclick="window.closeAlert(false)">취소</button><button class="btn-save" style="flex:1; margin-top:0;" onclick="window.closeAlert(true)">확인</button></div></div></div>
 <div id="loadModal" class="modal"><div class="modal-content"><h3>연력표 목록</h3><div id="projectList"></div><button class="btn-save" onclick="window.promptNewProject()">+ 새 연력표</button><button class="btn-close-text" onclick="window.closeModal('loadModal')">닫기</button></div></div>
 <div id="eraModal" class="modal"><div class="modal-content"><h3>시대 관리</h3><div id="eraListGrid"></div><button class="btn-save" onclick="window.promptNewEra()">+ 시대 추가</button><button class="btn-close-text" onclick="window.closeModal('eraModal')">닫기</button></div></div>
 
@@ -172,55 +126,6 @@
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
   window.openModal = (id) => document.getElementById(id).style.display = 'flex';
   
-  window.handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64Img = e.target.result;
-        document.getElementById('charImgPreview').innerHTML = `<img src="${base64Img}">`;
-        document.getElementById('charImgPreview').dataset.img = base64Img;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  window.openCharAdd = () => {
-    window.closeModal('charModal');
-    document.getElementById('cName').value = ""; document.getElementById('cAge').value = ""; document.getElementById('cOrigin').value = "";
-    document.getElementById('cLook').value = ""; document.getElementById('cPers').value = "";
-    document.getElementById('charImgPreview').innerHTML = "<span>사진 업로드</span>";
-    delete document.getElementById('charImgPreview').dataset.img;
-    window.openModal('charEditModal');
-  };
-
-  window.editCharDetail = (name) => {
-    window.closeModal('charModal');
-    const d = charDetails[name] || {};
-    document.getElementById('cName').value = name;
-    document.getElementById('cAge').value = d.age || "";
-    document.getElementById('cOrigin').value = d.origin || "";
-    document.getElementById('cLook').value = d.look || "";
-    document.getElementById('cPers').value = d.pers || "";
-    document.getElementById('charImgPreview').innerHTML = d.img ? `<img src="${d.img}">` : "<span>사진 업로드</span>";
-    document.getElementById('charImgPreview').dataset.img = d.img || "";
-    window.openModal('charEditModal');
-  };
-
-  window.saveCharDetail = () => {
-    const name = document.getElementById('cName').value.trim();
-    if(!name) return;
-    if(!chars.includes(name)) chars.push(name);
-    charDetails[name] = {
-      age: document.getElementById('cAge').value,
-      origin: document.getElementById('cOrigin').value,
-      look: document.getElementById('cLook').value,
-      pers: document.getElementById('cPers').value,
-      img: document.getElementById('charImgPreview').dataset.img || ""
-    };
-    window.sync(); window.closeModal('charEditModal'); window.openCharModal();
-  };
-
   window.render = () => {
     const container = document.getElementById('timeline');
     if(!currentProject) return;
@@ -233,6 +138,7 @@
       if(!groups[k]) groups[k] = {}; if(!groups[k][s.month]) groups[k][s.month] = {left:[], right:[]};
       groups[k][s.month][s.side||'left'].push(s);
     });
+
     Object.keys(groups).forEach(key => {
       container.innerHTML += `<div class="year-marker">${key}</div>`;
       Object.keys(groups[key]).sort((a,b)=>a-b).forEach(m => {
@@ -244,13 +150,19 @@
           groups[key][m][side].forEach(sc => {
             const wrap = document.createElement('div'); wrap.className = 'card-wrapper';
             wrap.innerHTML = `<div class="card" data-id="${sc.id}" style="--card-accent:${sc.color||'#eee'}"><div class="card-month">${m}월</div><div class="card-content">${sc.text}</div></div>`;
-            const bCont = document.createElement('div'); bCont.className = 'branch-outer-container';
-            if(sc.branches) sc.branches.forEach((b,idx) => {
-              const cb = document.createElement('div'); cb.className = 'branch-cube';
-              cb.onclick = (e) => { e.stopPropagation(); window.editBranch(e, sc.id, idx); };
-              bCont.appendChild(cb);
-            });
-            wrap.appendChild(bCont); zone.appendChild(wrap);
+            
+            // 가지 큐브 렌더링 (sc.branches가 없어도 빈 배열로 처리하여 오류 방지)
+            const branches = sc.branches || [];
+            if(branches.length > 0) {
+              const bCont = document.createElement('div'); bCont.className = 'branch-outer-container';
+              branches.forEach((b,idx) => {
+                const cb = document.createElement('div'); cb.className = 'branch-cube';
+                cb.onclick = (e) => { e.stopPropagation(); window.editBranch(e, sc.id, idx); };
+                bCont.appendChild(cb);
+              });
+              wrap.appendChild(bCont);
+            }
+            zone.appendChild(wrap);
           });
         });
       });
@@ -258,81 +170,73 @@
     window.updateSearchBar();
   };
 
-  window.openCharModal = () => {
-    const grid = document.getElementById('charListGrid');
-    grid.innerHTML = chars.map(c => `
-      <div class="char-list-item">
-        <div class="char-info">
-          <img src="${charDetails[c]?.img || ''}" class="char-thumb" onerror="this.src='https://via.placeholder.com/50?text=?'">
-          <span style="font-weight:700;">${c}</span>
-        </div>
-        <div>
-          <button class="btn-icon" style="background:#e9ecef;" onclick="window.editCharDetail('${c}')">편집</button>
-          <button class="btn-icon" style="background:#fff0f0; color:#ff8787;" onclick="window.confirmDelChar('${c}')">삭제</button>
-        </div>
-      </div>
-    `).join('');
-    window.openModal('charModal');
-  };
-
-  window.updateSearchBar = () => {
-    const bar = document.getElementById('searchBar');
-    bar.innerHTML = `<div class="filter-tag ${selectedFilter===null?'active':''}" onclick="window.filterByChar(null)">전체</div>` + 
-      chars.map(c => `<div class="filter-tag ${selectedFilter===c?'active':''}" onclick="window.filterByChar('${c}')">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join('');
-  };
-  window.filterByChar = (name) => { selectedFilter = name; window.render(); };
-
+  // 기존 유틸리티 함수들
   window.sync = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(window.render); };
   window.saveToCloud = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(() => { const t = document.getElementById('toast'); t.className = 'show'; setTimeout(() => t.className = '', 2000); }); };
   window.loadP = (k) => { currentProject = k; localStorage.setItem('lastProject', k); document.getElementById('projectTitle').innerText = k; db.ref('projects/'+k).on('value', s => { const d = s.val(); if(d){ storyboard=d.data||[]; eras=d.eras||["공통"]; chars=d.chars||[]; charDetails=d.charDetails||{}; window.render(); } }); window.closeModal('loadModal'); };
-  window.openLoadModal = () => { db.ref('projects').once('value').then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<div class="char-list-item"><span>${k}</span><div><button class="btn-icon" style="background:var(--primary); color:white;" onclick="window.loadP('${k}')">열기</button><button class="btn-icon" onclick="window.confirmDeleteProject('${k}')">삭제</button></div></div>`).join('') : ''; window.openModal('loadModal'); }); };
-  
-  window.openEdit = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); document.getElementById('eContent').value = s ? s.text : ""; document.getElementById('eYear').value = s ? s.year : "1000"; document.getElementById('eMonth').value = s ? s.month : "1"; document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); if(s) document.getElementById('eraType').value = s.era; document.getElementById('delBtn').style.display = id ? "block" : "none"; selectedColor = s ? (s.color || "#eee") : "#eee"; selectedChars = s ? (s.chars || []) : []; window.updateColorUI(); window.updateCharUI(); window.openModal('editModal'); };
-  window.updateCharUI = () => { document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div class="filter-tag ${selectedChars.includes(c)?'active':''}" style="font-size:10px;" onclick="window.toggleChar('${c}')">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join(''); };
-  window.toggleChar = (c) => { if(selectedChars.includes(c)) selectedChars = selectedChars.filter(x=>x!==c); else selectedChars.push(c); window.updateCharUI(); };
-  window.updateColorUI = () => { document.getElementById('colorPicker').innerHTML = userColors.map(c => `<div style="background:${c}; width:22px; height:22px; border-radius:50%; border:2px solid ${selectedColor===c?'#4dabf7':'transparent'};" onclick="window.selectColor('${c}')"></div>`).join(''); };
-  window.selectColor = (c) => { selectedColor = c; window.updateColorUI(); };
-  window.saveScene = () => { const text = document.getElementById('eContent').value.trim(); if(!text) return; const year = parseInt(document.getElementById('eYear').value), month = parseInt(document.getElementById('eMonth').value), era = document.getElementById('eraType').value; if(editingId) storyboard = storyboard.map(s => s.id == editingId ? {...s, text, year, month, era, color: selectedColor, chars: selectedChars} : s); else storyboard.push({ id: Date.now().toString(), era, year, month, text, color: selectedColor, chars: selectedChars, side: 'left', branches: [] }); window.sync(); window.closeModal('editModal'); };
-  
-  window.confirmDeleteScene = () => { window.customUI("삭제", "사건을 삭제할까요?", "confirm", (r) => { if(r) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } }); };
-  window.confirmDelChar = (c) => { window.customUI("삭제", `${c} 삭제?`, "confirm", (r) => { if(r) { chars = chars.filter(x => x !== c); delete charDetails[c]; window.sync(); window.openCharModal(); } }); };
+  window.openLoadModal = () => { db.ref('projects').once('value').then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<div class="char-list-item"><span>${k}</span><button onclick="window.loadP('${k}')">열기</button></div>`).join('') : ''; window.openModal('loadModal'); }); };
   
   window.openViewer = (id) => { 
     editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; 
     document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`; 
     document.getElementById('viewText').innerText = s.text; 
-    document.getElementById('viewTags').innerHTML = (s.chars || []).map(c => `<div class="filter-tag">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join(''); 
+    document.getElementById('viewTags').innerHTML = (s.chars || []).map(c => `<div class="filter-tag">${c}</div>`).join(''); 
     const addBtn = document.getElementById('addBranchBtn'); 
-    if(s.branches && s.branches.length >= 2) { addBtn.style.opacity = '0.4'; addBtn.innerText = "가득참"; } 
-    else { addBtn.style.opacity = '1'; addBtn.innerText = "가지 추가"; } 
+    addBtn.style.opacity = (s.branches && s.branches.length >= 2) ? '0.4' : '1';
     window.openModal('viewModal'); 
   };
   
   window.goToEdit = () => { window.closeModal('viewModal'); window.openEdit(editingId); };
-  window.addScene = () => { if(!currentProject) return; window.openEdit(null); };
+  window.openEdit = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); document.getElementById('eContent').value = s ? s.text : ""; document.getElementById('eYear').value = s ? s.year : "1000"; document.getElementById('eMonth').value = s ? s.month : "1"; document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); if(s) document.getElementById('eraType').value = s.era; window.updateColorUI(); window.updateCharUI(); window.openModal('editModal'); };
+  window.updateCharUI = () => { document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div class="filter-tag ${selectedChars.includes(c)?'active':''}" onclick="window.toggleChar('${c}')">${c}</div>`).join(''); };
+  window.toggleChar = (c) => { if(selectedChars.includes(c)) selectedChars = selectedChars.filter(x=>x!==c); else selectedChars.push(c); window.updateCharUI(); };
+  window.updateColorUI = () => { document.getElementById('colorPicker').innerHTML = userColors.map(c => `<div style="background:${c}; width:22px; height:22px; border-radius:50%; border:2px solid ${selectedColor===c?'#4dabf7':'transparent'};" onclick="window.selectColor('${c}')"></div>`).join(''); };
+  window.selectColor = (c) => { selectedColor = c; window.updateColorUI(); };
+  window.saveScene = () => { const text = document.getElementById('eContent').value.trim(); if(!text) return; const year = parseInt(document.getElementById('eYear').value), month = parseInt(document.getElementById('eMonth').value), era = document.getElementById('eraType').value; if(editingId) storyboard = storyboard.map(s => s.id == editingId ? {...s, text, year, month, era, color: selectedColor, chars: selectedChars} : s); else storyboard.push({ id: Date.now().toString(), era, year, month, text, color: selectedColor, chars: selectedChars, side: 'left', branches: [] }); window.sync(); window.closeModal('editModal'); };
   
-  window.editBranch = (e, id, bIdx) => { e.stopPropagation(); const s = storyboard.find(x => x.id == id); window.customUI("가지 수정", "수정/삭제", "prompt", (val) => { if(val === false) return; if(val === true || (typeof val === 'string' && val.trim() === '')) s.branches.splice(bIdx, 1); else s.branches[bIdx] = val; window.sync(); }, s.branches[bIdx]); };
-  window.addBranchFromView = () => { const s = storyboard.find(x => x.id == editingId); if(s.branches && s.branches.length >= 2) { alert("최대 2개"); return; } window.closeModal('viewModal'); setTimeout(() => { window.customUI("가지 추가", "내용 입력", "prompt", (val) => { if(val && typeof val === 'string' && val.trim() !== '') { if(!s.branches) s.branches = []; s.branches.push(val); window.sync(); } else { window.openViewer(editingId); } }); }, 200); };
+  window.addBranchFromView = () => { 
+    const s = storyboard.find(x => x.id == editingId); 
+    if(s.branches && s.branches.length >= 2) return; 
+    window.closeModal('viewModal'); 
+    setTimeout(() => { 
+      window.customUI("가지 추가", "내용을 입력하세요", "prompt", (val) => { 
+        if(val && typeof val === 'string' && val.trim() !== '') { 
+          if(!s.branches) s.branches = []; 
+          s.branches.push(val); 
+          window.sync(); 
+        } else { window.openViewer(editingId); }
+      }); 
+    }, 200); 
+  };
   
-  window.openEraModal = () => { document.getElementById('eraListGrid').innerHTML = eras.map(e => `<div class="char-list-item"><span>${e}</span><button class="btn-icon" onclick="window.confirmDelEra('${e}')">삭제</button></div>`).join(''); window.openModal('eraModal'); };
-  window.promptNewEra = () => { window.customUI("시대 추가", "이름 입력", "prompt", (n) => { if(n && typeof n === 'string' && !eras.includes(n)) { eras.push(n); window.sync(); window.openEraModal(); } }); };
-  window.confirmDelEra = (e) => { window.customUI("삭제", `${e} 삭제?`, "confirm", (r) => { if(r) { storyboard = storyboard.map(s => s.era === e ? {...s, era: '공통'} : s); eras = eras.filter(x => x !== e); window.sync(); window.openEraModal(); } }); };
-  window.promptNewProject = () => { window.customUI("새 연력표", "제목 입력", "prompt", (n) => { if(n && typeof n === 'string') { currentProject = n; storyboard = []; eras = ["공통"]; chars = []; charDetails = {}; window.sync(); window.closeModal('loadModal'); } }); };
-  window.confirmDeleteProject = (k) => { window.customUI("삭제", "영구 삭제하시겠습니까?", "confirm", (r) => { if(r) db.ref('projects/'+k).remove().then(window.openLoadModal); }); };
-  window.closeAlert = (res) => { window.closeModal('customAlert'); if(alertCallback) { const val = document.getElementById('alertInput').value; alertCallback(res ? (val || true) : false); } };
+  window.editBranch = (e, id, bIdx) => { 
+    const s = storyboard.find(x => x.id == id); 
+    window.customUI("가지 수정", "빈칸으로 저장하면 삭제됩니다.", "prompt", (val) => { 
+      if(val === false) return; 
+      if(val === true || (typeof val === 'string' && val.trim() === '')) s.branches.splice(bIdx, 1); 
+      else s.branches[bIdx] = val; 
+      window.sync(); 
+    }, s.branches[bIdx]); 
+  };
+
   window.customUI = (title, msg, type, callback, defaultVal = "") => {
     document.getElementById('alertTitle').innerText = title; document.getElementById('alertMsg').innerText = msg;
     const wrap = document.getElementById('alertInputWrap'); wrap.style.display = (type==='prompt'?'block':'none');
     if(type==='prompt') document.getElementById('alertInput').value = defaultVal;
     alertCallback = callback; window.openModal('customAlert');
   };
+  window.closeAlert = (res) => { window.closeModal('customAlert'); if(alertCallback) { const val = document.getElementById('alertInput').value; alertCallback(res ? (val || true) : false); } };
+  window.updateSearchBar = () => { const bar = document.getElementById('searchBar'); bar.innerHTML = `<div class="filter-tag ${selectedFilter===null?'active':''}" onclick="window.filterByChar(null)">전체</div>` + chars.map(c => `<div class="filter-tag ${selectedFilter===c?'active':''}" onclick="window.filterByChar('${c}')">${c}</div>`).join(''); };
+  window.filterByChar = (name) => { selectedFilter = name; window.render(); };
+  window.addScene = () => { if(!currentProject) return; window.openEdit(null); };
+  window.openEraModal = () => { document.getElementById('eraListGrid').innerHTML = eras.map(e => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${e}</span><button onclick="window.confirmDelEra('${e}')">삭제</button></div>`).join(''); window.openModal('eraModal'); };
+  window.promptNewEra = () => { window.customUI("시대 추가", "이름 입력", "prompt", (n) => { if(n && typeof n === 'string') { eras.push(n); window.sync(); window.openEraModal(); } }); };
+  window.openCharModal = () => { document.getElementById('charListGrid').innerHTML = chars.map(c => `<div>${c} <button onclick="window.confirmDelChar('${c}')">삭제</button></div>`).join(''); window.openModal('charModal'); };
 
-  /* 드래그 앤 드롭 로직 (최종 안정화) */
+  /* 터치 및 드래그 로직 (간섭 차단 최적화) */
   let dragItem = null, startX, startY, currentTarget = null, dragId = null, isMoving = false;
   document.addEventListener('touchstart', (e) => {
-    // 큐브나 버튼 터치 시 무시
     if(e.target.closest('button') || e.target.closest('.branch-cube')) return;
-    
     const card = e.target.closest('.card'); if(!card) return;
     const touch = e.touches[0]; startX = touch.clientX; startY = touch.clientY;
     dragId = card.dataset.id; isMoving = false;
@@ -341,17 +245,17 @@
       const mt = me.touches[0];
       if(!isMoving && (Math.abs(mt.clientX - startX) > 10 || Math.abs(mt.clientY - startY) > 10)) {
         isMoving = true; card.style.opacity = '0.5';
-        dragItem = card.cloneNode(true); dragItem.style.position = 'fixed'; dragItem.style.zIndex = '5000'; dragItem.style.opacity = '0.8'; dragItem.style.pointerEvents = 'none';
-        dragItem.style.width = card.offsetWidth + 'px'; document.body.appendChild(dragItem);
+        dragItem = card.cloneNode(true); dragItem.style.position = 'fixed'; dragItem.style.zIndex = '5000'; dragItem.style.pointerEvents = 'none';
+        document.body.appendChild(dragItem);
       }
       if(isMoving && dragItem) {
-        dragItem.style.left = (mt.clientX - (card.offsetWidth/2)) + 'px'; dragItem.style.top = (mt.clientY - 20) + 'px';
+        dragItem.style.left = (mt.clientX - 65) + 'px'; dragItem.style.top = (mt.clientY - 20) + 'px';
         const below = document.elementFromPoint(mt.clientX, mt.clientY); const zone = below?.closest('.dropzone');
-        if(currentTarget !== zone) { if(currentTarget) currentTarget.style.background = ''; currentTarget = zone; if(currentTarget) currentTarget.style.background = 'rgba(77,171,247,0.08)'; }
+        if(currentTarget !== zone) { if(currentTarget) currentTarget.style.background = ''; currentTarget = zone; if(currentTarget) currentTarget.style.background = 'rgba(77,171,247,0.1)'; }
       }
     };
     const end = () => {
-      if(!isMoving && dragId) { window.openViewer(dragId); }
+      if(!isMoving) { window.openViewer(dragId); }
       else if(currentTarget && dragId) {
         const idx = storyboard.findIndex(s => s.id == dragId);
         if(idx !== -1) {
