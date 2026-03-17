@@ -55,7 +55,6 @@
     input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; background: #f8f9fa; font-size: 14px; font-family: inherit; outline: none; }
     .input-row { display: flex; gap: 8px; }
 
-    /* 캐릭터 리스트 아이템 */
     .char-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 16px; margin-bottom: 8px; }
     .char-info { display: flex; align-items: center; gap: 10px; }
     .char-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; background: #eee; }
@@ -249,7 +248,8 @@
             const bCont = document.createElement('div'); bCont.className = 'branch-outer-container';
             if(sc.branches) sc.branches.forEach((b,idx) => {
               const cb = document.createElement('div'); cb.className = 'branch-cube';
-              cb.onclick = (e) => window.editBranch(e, sc.id, idx);
+              // 큐브 클릭 시 카드 클릭 이벤트가 발생하지 않도록 stopPropagation 추가
+              cb.onclick = (e) => { e.stopPropagation(); window.editBranch(e, sc.id, idx); };
               bCont.appendChild(cb);
             });
             wrap.appendChild(bCont); zone.appendChild(wrap);
@@ -299,7 +299,6 @@
   window.confirmDeleteScene = () => { window.customUI("삭제", "사건을 삭제할까요?", "confirm", (r) => { if(r) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } }); };
   window.confirmDelChar = (c) => { window.customUI("삭제", `${c} 삭제?`, "confirm", (r) => { if(r) { chars = chars.filter(x => x !== c); delete charDetails[c]; window.sync(); window.openCharModal(); } }); };
   
-  /* 사건 상세 뷰어 (수정/가지추가 전용) */
   window.openViewer = (id) => { 
     editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; 
     document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`; 
@@ -330,13 +329,16 @@
     alertCallback = callback; window.openModal('customAlert');
   };
 
-  /* 드래그 앤 드롭 로직 (클릭/드래그 구분 정교화) */
+  /* 터치 간섭 완전 해결 버전 */
   let dragItem = null, startX, startY, currentTarget = null, dragId = null, isMoving = false;
   document.addEventListener('touchstart', (e) => {
+    // 1. 버튼이나 가지 큐브를 직접 터치한 경우 드래그/상세보기 방지
     if(e.target.closest('button') || e.target.closest('.branch-cube')) return;
+    
     const card = e.target.closest('.card'); if(!card) return;
     const touch = e.touches[0]; startX = touch.clientX; startY = touch.clientY;
     dragId = card.dataset.id; isMoving = false;
+    
     const move = (me) => {
       const mt = me.touches[0];
       if(!isMoving && (Math.abs(mt.clientX - startX) > 10 || Math.abs(mt.clientY - startY) > 10)) {
@@ -351,8 +353,10 @@
       }
     };
     const end = () => {
-      // 드래그가 아닐 때(단순 클릭) 무조건 openViewer 호출
-      if(!isMoving) { window.openViewer(dragId); }
+      if(!isMoving) { 
+        // 드래그가 아니고 카드를 터치한 경우라면 확실하게 상세보기만 실행
+        window.openViewer(dragId); 
+      }
       else if(currentTarget && dragId) {
         const idx = storyboard.findIndex(s => s.id == dragId);
         if(idx !== -1) {
