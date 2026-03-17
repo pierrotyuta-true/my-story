@@ -42,11 +42,11 @@
     .dropzone[data-side="right"] .branch-outer-container { left: 100%; margin-left: 10px; align-items: flex-start; }
     .branch-cube { width: 16px; height: 16px; background: var(--branch); border-radius: 5px; cursor: pointer; border: 2.5px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-    /* 모달 시스템 */
+    /* 모달 공통 */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
     .modal-content { background: white; width: 90%; max-width: 340px; padding: 20px; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; position: relative; }
     
-    /* 캐릭터 편집창 */
+    /* 캐릭터 편집창 UI */
     .char-edit-body { display: flex; flex-direction: column; gap: 12px; width: 100%; }
     .char-img-box { width: 100px; height: 100px; border-radius: 50%; background: #f8f9fa; margin: 0 auto 10px; overflow: hidden; border: 2px dashed #dee2e6; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
     .char-img-box img { width: 100%; height: 100%; object-fit: cover; }
@@ -55,7 +55,7 @@
     input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; background: #f8f9fa; font-size: 14px; font-family: inherit; outline: none; }
     .input-row { display: flex; gap: 8px; }
 
-    /* 리스트 디자인 */
+    /* 캐릭터 리스트 아이템 */
     .char-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 16px; margin-bottom: 8px; }
     .char-info { display: flex; align-items: center; gap: 10px; }
     .char-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; background: #eee; }
@@ -88,6 +88,13 @@
 
 <div class="timeline-container" id="timeline"></div>
 
+<div id="charModal" class="modal"><div class="modal-content">
+    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 관리</h3>
+    <div id="charListGrid" style="margin-bottom:15px; max-height:40vh; overflow-y:auto;"></div>
+    <button class="btn-save" onclick="window.openCharAdd()">+ 신규 캐릭터 추가</button>
+    <button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button>
+</div></div>
+
 <div id="charEditModal" class="modal"><div class="modal-content">
     <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 프로필</h3>
     <div class="char-edit-body">
@@ -104,13 +111,6 @@
     </div>
     <button class="btn-save" onclick="window.saveCharDetail()">저장하기</button>
     <button class="btn-close-text" onclick="window.closeModal('charEditModal')">취소</button>
-</div></div>
-
-<div id="charModal" class="modal"><div class="modal-content">
-    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 관리</h3>
-    <div id="charListGrid" style="margin-bottom:15px; max-height:40vh; overflow-y:auto;"></div>
-    <button class="btn-save" onclick="window.openCharAdd()">+ 신규 캐릭터 추가</button>
-    <button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button>
 </div></div>
 
 <div id="viewModal" class="modal"><div class="modal-content">
@@ -188,7 +188,9 @@
     }
   };
 
+  /* 캐릭터 관리 - 창 자동 닫기 로직 포함 */
   window.openCharAdd = () => {
+    window.closeModal('charModal'); // 목록창 닫기
     document.getElementById('cName').value = ""; document.getElementById('cAge').value = ""; document.getElementById('cOrigin').value = "";
     document.getElementById('cLook').value = ""; document.getElementById('cPers').value = "";
     document.getElementById('charImgPreview').innerHTML = "<span>사진 업로드</span>";
@@ -197,6 +199,7 @@
   };
 
   window.editCharDetail = (name) => {
+    window.closeModal('charModal'); // 목록창 닫기
     const d = charDetails[name] || {};
     document.getElementById('cName').value = name;
     document.getElementById('cAge').value = d.age || "";
@@ -219,10 +222,10 @@
       pers: document.getElementById('cPers').value,
       img: document.getElementById('charImgPreview').dataset.img || ""
     };
-    window.sync(); window.closeModal('charEditModal'); window.openCharModal();
+    window.sync(); window.closeModal('charEditModal'); window.openCharModal(); // 저장 후 다시 목록으로
   };
 
-  /* 공통 기능들 (동기화, 렌더링 등) */
+  /* 타임라인 렌더링 및 기능 */
   window.render = () => {
     const container = document.getElementById('timeline');
     if(!currentProject) return;
@@ -288,19 +291,24 @@
   window.saveToCloud = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(() => { const t = document.getElementById('toast'); t.className = 'show'; setTimeout(() => t.className = '', 2000); }); };
   window.loadP = (k) => { currentProject = k; localStorage.setItem('lastProject', k); document.getElementById('projectTitle').innerText = k; db.ref('projects/'+k).on('value', s => { const d = s.val(); if(d){ storyboard=d.data||[]; eras=d.eras||["공통"]; chars=d.chars||[]; charDetails=d.charDetails||{}; window.render(); } }); window.closeModal('loadModal'); };
   window.openLoadModal = () => { db.ref('projects').once('value').then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<div class="char-list-item"><span>${k}</span><div><button class="btn-icon" style="background:var(--primary); color:white;" onclick="window.loadP('${k}')">열기</button><button class="btn-icon" onclick="window.confirmDeleteProject('${k}')">삭제</button></div></div>`).join('') : ''; window.openModal('loadModal'); }); };
+  
+  /* 사건 편집/관리 */
   window.openEdit = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); document.getElementById('eContent').value = s ? s.text : ""; document.getElementById('eYear').value = s ? s.year : "1000"; document.getElementById('eMonth').value = s ? s.month : "1"; document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); if(s) document.getElementById('eraType').value = s.era; document.getElementById('delBtn').style.display = id ? "block" : "none"; selectedColor = s ? (s.color || "#eee") : "#eee"; selectedChars = s ? (s.chars || []) : []; window.updateColorUI(); window.updateCharUI(); window.openModal('editModal'); };
   window.updateCharUI = () => { document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div class="filter-tag ${selectedChars.includes(c)?'active':''}" style="font-size:10px;" onclick="window.toggleChar('${c}')">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join(''); };
   window.toggleChar = (c) => { if(selectedChars.includes(c)) selectedChars = selectedChars.filter(x=>x!==c); else selectedChars.push(c); window.updateCharUI(); };
   window.updateColorUI = () => { document.getElementById('colorPicker').innerHTML = userColors.map(c => `<div style="background:${c}; width:22px; height:22px; border-radius:50%; border:2px solid ${selectedColor===c?'#4dabf7':'transparent'};" onclick="window.selectColor('${c}')"></div>`).join(''); };
   window.selectColor = (c) => { selectedColor = c; window.updateColorUI(); };
   window.saveScene = () => { const text = document.getElementById('eContent').value.trim(); if(!text) return; const year = parseInt(document.getElementById('eYear').value), month = parseInt(document.getElementById('eMonth').value), era = document.getElementById('eraType').value; if(editingId) storyboard = storyboard.map(s => s.id == editingId ? {...s, text, year, month, era, color: selectedColor, chars: selectedChars} : s); else storyboard.push({ id: Date.now().toString(), era, year, month, text, color: selectedColor, chars: selectedChars, side: 'left', branches: [] }); window.sync(); window.closeModal('editModal'); };
+  
   window.confirmDeleteScene = () => { window.customUI("삭제", "사건을 삭제할까요?", "confirm", (r) => { if(r) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } }); };
   window.confirmDelChar = (c) => { window.customUI("삭제", `${c} 삭제?`, "confirm", (r) => { if(r) { chars = chars.filter(x => x !== c); delete charDetails[c]; window.sync(); window.openCharModal(); } }); };
   window.openViewer = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`; document.getElementById('viewText').innerText = s.text; document.getElementById('viewTags').innerHTML = (s.chars || []).map(c => `<div class="filter-tag">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join(''); const addBtn = document.getElementById('addBranchBtn'); if(s.branches && s.branches.length >= 2) { addBtn.style.opacity = '0.4'; addBtn.innerText = "가득참"; } else { addBtn.style.opacity = '1'; addBtn.innerText = "가지 추가"; } window.openModal('viewModal'); };
   window.goToEdit = () => { window.closeModal('viewModal'); window.openEdit(editingId); };
   window.addScene = () => { if(!currentProject) return; window.openEdit(null); };
+  
   window.editBranch = (e, id, bIdx) => { e.stopPropagation(); const s = storyboard.find(x => x.id == id); window.customUI("가지 수정", "수정/삭제", "prompt", (val) => { if(val === false) return; if(val === true || (typeof val === 'string' && val.trim() === '')) s.branches.splice(bIdx, 1); else s.branches[bIdx] = val; window.sync(); }, s.branches[bIdx]); };
   window.addBranchFromView = () => { const s = storyboard.find(x => x.id == editingId); if(s.branches && s.branches.length >= 2) { alert("최대 2개"); return; } window.closeModal('viewModal'); setTimeout(() => { window.customUI("가지 추가", "내용 입력", "prompt", (val) => { if(val && typeof val === 'string' && val.trim() !== '') { if(!s.branches) s.branches = []; s.branches.push(val); window.sync(); } else { window.openViewer(editingId); } }); }, 200); };
+  
   window.openEraModal = () => { document.getElementById('eraListGrid').innerHTML = eras.map(e => `<div class="char-list-item"><span>${e}</span><button class="btn-icon" onclick="window.confirmDelEra('${e}')">삭제</button></div>`).join(''); window.openModal('eraModal'); };
   window.promptNewEra = () => { window.customUI("시대 추가", "이름 입력", "prompt", (n) => { if(n && typeof n === 'string' && !eras.includes(n)) { eras.push(n); window.sync(); window.openEraModal(); } }); };
   window.confirmDelEra = (e) => { window.customUI("삭제", `${e} 삭제?`, "confirm", (r) => { if(r) { storyboard = storyboard.map(s => s.era === e ? {...s, era: '공통'} : s); eras = eras.filter(x => x !== e); window.sync(); window.openEraModal(); } }); };
