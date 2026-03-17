@@ -88,31 +88,6 @@
 
 <div class="timeline-container" id="timeline"></div>
 
-<div id="charModal" class="modal"><div class="modal-content">
-    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 관리</h3>
-    <div id="charListGrid" style="margin-bottom:15px; max-height:40vh; overflow-y:auto;"></div>
-    <button class="btn-save" onclick="window.openCharAdd()">+ 신규 캐릭터 추가</button>
-    <button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button>
-</div></div>
-
-<div id="charEditModal" class="modal"><div class="modal-content">
-    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 프로필</h3>
-    <div class="char-edit-body">
-        <div class="char-img-box" id="charImgPreview" onclick="document.getElementById('imageInput').click()">
-            <span>사진 업로드</span>
-        </div>
-        <input type="text" id="cName" placeholder="이름 (필수)">
-        <div class="input-row">
-            <input type="text" id="cAge" placeholder="나이" style="flex:1;">
-            <input type="text" id="cOrigin" placeholder="출신지" style="flex:1;">
-        </div>
-        <textarea id="cLook" rows="2" placeholder="외형 묘사"></textarea>
-        <textarea id="cPers" rows="2" placeholder="성격/특징"></textarea>
-    </div>
-    <button class="btn-save" onclick="window.saveCharDetail()">저장하기</button>
-    <button class="btn-close-text" onclick="window.closeModal('charEditModal')">취소</button>
-</div></div>
-
 <div id="viewModal" class="modal"><div class="modal-content">
     <div id="viewMonth" style="font-size:11px; font-weight:900; color:var(--primary); margin-bottom:10px;"></div>
     <div id="viewText" style="font-size:14px; line-height:1.7; color:#333; margin-bottom:20px; white-space:pre-wrap; font-weight:600;"></div>
@@ -139,6 +114,31 @@
         <button id="delBtn" style="flex:1; background:#fff0f0; color:#ff8787; border:none; border-radius:14px; font-weight:800;" onclick="window.confirmDeleteScene()">삭제</button>
     </div>
     <button class="btn-close-text" onclick="window.closeModal('editModal')">닫기</button>
+</div></div>
+
+<div id="charModal" class="modal"><div class="modal-content">
+    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 관리</h3>
+    <div id="charListGrid" style="margin-bottom:15px; max-height:40vh; overflow-y:auto;"></div>
+    <button class="btn-save" onclick="window.openCharAdd()">+ 신규 캐릭터 추가</button>
+    <button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button>
+</div></div>
+
+<div id="charEditModal" class="modal"><div class="modal-content">
+    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 프로필</h3>
+    <div class="char-edit-body">
+        <div class="char-img-box" id="charImgPreview" onclick="document.getElementById('imageInput').click()">
+            <span>사진 업로드</span>
+        </div>
+        <input type="text" id="cName" placeholder="이름 (필수)">
+        <div class="input-row">
+            <input type="text" id="cAge" placeholder="나이" style="flex:1;">
+            <input type="text" id="cOrigin" placeholder="출신지" style="flex:1;">
+        </div>
+        <textarea id="cLook" rows="2" placeholder="외형 묘사"></textarea>
+        <textarea id="cPers" rows="2" placeholder="성격/특징"></textarea>
+    </div>
+    <button class="btn-save" onclick="window.saveCharDetail()">저장하기</button>
+    <button class="btn-close-text" onclick="window.closeModal('charEditModal')">취소</button>
 </div></div>
 
 <div id="customAlert" class="modal" style="z-index: 6000;"><div class="modal-content">
@@ -174,7 +174,6 @@
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
   window.openModal = (id) => document.getElementById(id).style.display = 'flex';
   
-  /* 이미지 업로드 핸들러 */
   window.handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -188,9 +187,8 @@
     }
   };
 
-  /* 캐릭터 관리 - 창 자동 닫기 로직 포함 */
   window.openCharAdd = () => {
-    window.closeModal('charModal'); // 목록창 닫기
+    window.closeModal('charModal');
     document.getElementById('cName').value = ""; document.getElementById('cAge').value = ""; document.getElementById('cOrigin').value = "";
     document.getElementById('cLook').value = ""; document.getElementById('cPers').value = "";
     document.getElementById('charImgPreview').innerHTML = "<span>사진 업로드</span>";
@@ -199,7 +197,7 @@
   };
 
   window.editCharDetail = (name) => {
-    window.closeModal('charModal'); // 목록창 닫기
+    window.closeModal('charModal');
     const d = charDetails[name] || {};
     document.getElementById('cName').value = name;
     document.getElementById('cAge').value = d.age || "";
@@ -222,10 +220,9 @@
       pers: document.getElementById('cPers').value,
       img: document.getElementById('charImgPreview').dataset.img || ""
     };
-    window.sync(); window.closeModal('charEditModal'); window.openCharModal(); // 저장 후 다시 목록으로
+    window.sync(); window.closeModal('charEditModal'); window.openCharModal();
   };
 
-  /* 타임라인 렌더링 및 기능 */
   window.render = () => {
     const container = document.getElementById('timeline');
     if(!currentProject) return;
@@ -292,7 +289,6 @@
   window.loadP = (k) => { currentProject = k; localStorage.setItem('lastProject', k); document.getElementById('projectTitle').innerText = k; db.ref('projects/'+k).on('value', s => { const d = s.val(); if(d){ storyboard=d.data||[]; eras=d.eras||["공통"]; chars=d.chars||[]; charDetails=d.charDetails||{}; window.render(); } }); window.closeModal('loadModal'); };
   window.openLoadModal = () => { db.ref('projects').once('value').then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<div class="char-list-item"><span>${k}</span><div><button class="btn-icon" style="background:var(--primary); color:white;" onclick="window.loadP('${k}')">열기</button><button class="btn-icon" onclick="window.confirmDeleteProject('${k}')">삭제</button></div></div>`).join('') : ''; window.openModal('loadModal'); }); };
   
-  /* 사건 편집/관리 */
   window.openEdit = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); document.getElementById('eContent').value = s ? s.text : ""; document.getElementById('eYear').value = s ? s.year : "1000"; document.getElementById('eMonth').value = s ? s.month : "1"; document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); if(s) document.getElementById('eraType').value = s.era; document.getElementById('delBtn').style.display = id ? "block" : "none"; selectedColor = s ? (s.color || "#eee") : "#eee"; selectedChars = s ? (s.chars || []) : []; window.updateColorUI(); window.updateCharUI(); window.openModal('editModal'); };
   window.updateCharUI = () => { document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div class="filter-tag ${selectedChars.includes(c)?'active':''}" style="font-size:10px;" onclick="window.toggleChar('${c}')">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join(''); };
   window.toggleChar = (c) => { if(selectedChars.includes(c)) selectedChars = selectedChars.filter(x=>x!==c); else selectedChars.push(c); window.updateCharUI(); };
@@ -302,7 +298,19 @@
   
   window.confirmDeleteScene = () => { window.customUI("삭제", "사건을 삭제할까요?", "confirm", (r) => { if(r) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } }); };
   window.confirmDelChar = (c) => { window.customUI("삭제", `${c} 삭제?`, "confirm", (r) => { if(r) { chars = chars.filter(x => x !== c); delete charDetails[c]; window.sync(); window.openCharModal(); } }); };
-  window.openViewer = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`; document.getElementById('viewText').innerText = s.text; document.getElementById('viewTags').innerHTML = (s.chars || []).map(c => `<div class="filter-tag">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join(''); const addBtn = document.getElementById('addBranchBtn'); if(s.branches && s.branches.length >= 2) { addBtn.style.opacity = '0.4'; addBtn.innerText = "가득참"; } else { addBtn.style.opacity = '1'; addBtn.innerText = "가지 추가"; } window.openModal('viewModal'); };
+  
+  /* 사건 상세 뷰어 (수정/가지추가 전용) */
+  window.openViewer = (id) => { 
+    editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; 
+    document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`; 
+    document.getElementById('viewText').innerText = s.text; 
+    document.getElementById('viewTags').innerHTML = (s.chars || []).map(c => `<div class="filter-tag">${charDetails[c]?.img?`<img src="${charDetails[c].img}" class="tag-thumb">`:''} ${c}</div>`).join(''); 
+    const addBtn = document.getElementById('addBranchBtn'); 
+    if(s.branches && s.branches.length >= 2) { addBtn.style.opacity = '0.4'; addBtn.innerText = "가득참"; } 
+    else { addBtn.style.opacity = '1'; addBtn.innerText = "가지 추가"; } 
+    window.openModal('viewModal'); 
+  };
+  
   window.goToEdit = () => { window.closeModal('viewModal'); window.openEdit(editingId); };
   window.addScene = () => { if(!currentProject) return; window.openEdit(null); };
   
@@ -322,7 +330,7 @@
     alertCallback = callback; window.openModal('customAlert');
   };
 
-  /* 드래그 앤 드롭 */
+  /* 드래그 앤 드롭 로직 (클릭/드래그 구분 정교화) */
   let dragItem = null, startX, startY, currentTarget = null, dragId = null, isMoving = false;
   document.addEventListener('touchstart', (e) => {
     if(e.target.closest('button') || e.target.closest('.branch-cube')) return;
@@ -343,6 +351,7 @@
       }
     };
     const end = () => {
+      // 드래그가 아닐 때(단순 클릭) 무조건 openViewer 호출
       if(!isMoving) { window.openViewer(dragId); }
       else if(currentTarget && dragId) {
         const idx = storyboard.findIndex(s => s.id == dragId);
