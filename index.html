@@ -11,7 +11,7 @@
     body { font-family: 'Pretendard', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; padding-bottom: 70px; -webkit-user-select: none; user-select: none; touch-action: pan-y; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    /* 헤더 슬림화 */
+    /* 헤더 */
     .header-container { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05); }
     .header { height: 50px; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; }
     .project-title { font-size: 15px; font-weight: 900; color: var(--primary); }
@@ -26,29 +26,30 @@
     .row { display: grid; grid-template-columns: 1fr 1fr; position: relative; margin-bottom: 25px; min-height: 80px; }
     .node { width: 10px; height: 10px; background: white; border: 2px solid var(--primary); border-radius: 50%; position: absolute; left: 50%; transform: translateX(-50%); top: 30px; z-index: 5; }
     .dropzone { display: flex; flex-direction: column; gap: 15px; padding: 0 5px; min-height: 80px; }
-    .dropzone[data-side="left"] { align-items: flex-end; padding-right: 25px; }
-    .dropzone[data-side="right"] { align-items: flex-start; padding-left: 25px; }
+    .dropzone[data-side="left"] { align-items: flex-end; padding-right: 35px; }
+    .dropzone[data-side="right"] { align-items: flex-start; padding-left: 35px; }
 
-    /* 카드 & 일체형 흰색 탭 */
-    .card-wrapper { position: relative; width: 105px; z-index: 10; touch-action: none; cursor: pointer; }
-    .side-tabs { position: absolute; top: 10px; display: flex; flex-direction: column; gap: 2px; pointer-events: none; }
+    /* 카드 & 키워진 탭 */
+    .card-wrapper { position: relative; width: 105px; z-index: 10; touch-action: none; }
+    .side-tabs { position: absolute; top: 8px; display: flex; flex-direction: column; gap: 2px; pointer-events: none; }
     .dropzone[data-side="left"] .side-tabs { right: 100%; align-items: flex-end; }
     .dropzone[data-side="right"] .side-tabs { left: 100%; align-items: flex-start; }
     
-    .tab-idx { width: 8px; height: 16px; }
-    .tab-white { background: #fff; border: 1px solid rgba(0,0,0,0.03); width: 9px; position: relative; z-index: 12; }
+    /* 탭 크기 확대 */
+    .tab-idx { width: 12px; height: 18px; }
+    .tab-white { background: #fff; border: 1px solid rgba(0,0,0,0.03); width: 13px; position: relative; z-index: 12; }
     .dropzone[data-side="left"] .tab-white { border-right: none !important; margin-right: -1px; }
     .dropzone[data-side="right"] .tab-white { border-left: none !important; margin-left: -1px; }
 
-    .dropzone[data-side="left"] .tab-idx { border-radius: 4px 0 0 4px; }
-    .dropzone[data-side="right"] .tab-idx { border-radius: 0 4px 4px 0; }
+    .dropzone[data-side="left"] .tab-idx { border-radius: 6px 0 0 6px; }
+    .dropzone[data-side="right"] .tab-idx { border-radius: 0 6px 6px 0; }
     .tab-blue { background: #d0ebff; } .tab-yellow { background: #fff9db; } .tab-green { background: #d3f9d8; } .tab-pink { background: #ffdeeb; }
 
-    .card { background: #fff; width: 100%; min-height: 60px; border-radius: 10px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03); position: relative; z-index: 11; }
+    .card { background: #fff; width: 100%; min-height: 60px; border-radius: 10px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03); position: relative; z-index: 11; pointer-events: none; }
     .card-month { font-size: 8px; font-weight: 900; color: var(--primary); margin-bottom: 3px; }
     .card-content { font-size: 10.5px; line-height: 1.4; font-weight: 700; color: #444; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
-    /* 모달 심플화 */
+    /* 모달 */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: flex-end; backdrop-filter: blur(5px); }
     .modal-content { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; }
     
@@ -66,9 +67,22 @@
     .nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; }
     .nav-btn { border: none; background: none; font-size: 10px; font-weight: 800; color: #adb5bd; }
     .add-btn-main { width: 48px; height: 48px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 25px; border: 3px solid white; box-shadow: 0 4px 12px rgba(77,171,247,0.3); }
+
+    /* 커스텀 프롬프트 (영문 주소 방지용) */
+    #inputModal { align-items: center; }
+    #inputModal .modal-content { border-radius: 20px; width: 90%; }
   </style>
 </head>
 <body>
+
+<div id="inputModal" class="modal"><div class="modal-content">
+    <h4 id="inputTitle" style="margin:0 0 15px 0; text-align:center;">입력</h4>
+    <textarea id="customInput" rows="4" placeholder="내용을 입력하세요"></textarea>
+    <div style="display:flex; gap:10px;">
+        <button class="btn-pill" id="inputConfirmBtn">확인</button>
+        <button class="btn-ghost" onclick="window.closeModal('inputModal')">취소</button>
+    </div>
+</div></div>
 
 <div id="viewModal" class="modal"><div class="modal-content">
     <div class="view-tab-menu" id="viewTabMenu"></div>
@@ -78,7 +92,7 @@
     </div>
     <div style="display:flex; gap:8px; margin-bottom:8px;">
         <button class="btn-pill" style="flex:1.5;" onclick="window.handleTabEdit()">편집</button>
-        <button class="btn-ghost" style="flex:1;" onclick="window.addBranchUI()">+ 가지</button>
+        <button class="btn-ghost" style="flex:1;" onclick="window.showBranchInput()">+ 가지</button>
     </div>
     <button class="btn-ghost" onclick="window.closeModal('viewModal')">닫기</button>
 </div></div>
@@ -93,7 +107,7 @@
     <div id="charTagSelector" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px;"></div>
     <textarea id="eContent" rows="5" placeholder="내용을 입력하세요"></textarea>
     <button class="btn-pill" onclick="window.saveScene()">저장</button>
-    <button class="btn-ghost" style="margin-top:8px; color:#ff6b6b;" onclick="window.confirmDeleteScene()">삭제</button>
+    <button class="btn-ghost" style="margin-top:8px; color:#ff6b6b;" id="delBtn">삭제</button>
     <button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('editModal')">취소</button>
 </div></div>
 
@@ -119,8 +133,8 @@
   <button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('charModal')">닫기</button>
 </div></div>
 
-<div id="eraModal" class="modal"><div class="modal-content"><h4>시대 순서</h4><div id="eraListGrid"></div><button class="btn-pill" style="margin-top:10px;" onclick="window.promptNewEra()">+ 시대 추가</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('eraModal')">닫기</button></div></div>
-<div id="loadModal" class="modal"><div class="modal-content"><h4>프로젝트 목록</h4><div id="projectList"></div><button class="btn-pill" style="margin-top:10px;" onclick="window.promptNewProject()">+ 새 프로젝트</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('loadModal')">닫기</button></div></div>
+<div id="eraModal" class="modal"><div class="modal-content"><h4>시대 순서</h4><div id="eraListGrid"></div><button class="btn-pill" style="margin-top:10px;" id="addEraBtn">+ 시대 추가</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('eraModal')">닫기</button></div></div>
+<div id="loadModal" class="modal"><div class="modal-content"><h4>프로젝트 목록</h4><div id="projectList"></div><button class="btn-pill" style="margin-top:10px;" id="addProjBtn">+ 새 프로젝트</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('loadModal')">닫기</button></div></div>
 
 <div class="header-container">
   <div class="header"><div class="project-title" id="projectTitle">STORY MASTER</div><button class="btn-pill" style="width:auto; padding:5px 12px; font-size:11px;" onclick="window.saveToCloud()">클라우드 저장</button></div>
@@ -146,6 +160,18 @@
 
   window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; };
   window.openModal = (id) => { document.getElementById(id).style.display = 'flex'; };
+
+  // 커스텀 프롬프트 로직
+  window.customPrompt = (title, defaultVal, callback) => {
+    document.getElementById('inputTitle').innerText = title;
+    document.getElementById('customInput').value = defaultVal || "";
+    window.openModal('inputModal');
+    document.getElementById('inputConfirmBtn').onclick = () => {
+        const val = document.getElementById('customInput').value;
+        window.closeModal('inputModal');
+        callback(val);
+    };
+  };
 
   window.render = () => {
     const container = document.getElementById('timeline');
@@ -185,15 +211,8 @@
     window.updateSearchBar();
   };
 
-  // 상세 보기 및 탭 시스템 (통합 클릭)
-  window.openViewer = (id) => { 
-    editingId = id; 
-    const s = storyboard.find(x => x.id == id); 
-    if(!s) return; 
-    currentViewTab = 0; 
-    window.renderTabs(s); 
-    window.openModal('viewModal'); 
-  };
+  // 상세보기 및 탭 시스템
+  window.openViewer = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); if(!s) return; currentViewTab = 0; window.renderTabs(s); window.openModal('viewModal'); };
   window.renderTabs = (s) => {
     const menu = document.getElementById('viewTabMenu');
     let tabs = [`<div class="v-tab active" onclick="window.switchTab(0)">사건</div>`];
@@ -207,19 +226,21 @@
     const s = storyboard.find(x => x.id == editingId);
     if(currentViewTab === 0) { window.closeModal('viewModal'); window.openEdit(editingId); }
     else {
-      const val = prompt("수정할 내용 (비우면 삭제)", s.branches[currentViewTab-1]);
-      if(val === "") s.branches.splice(currentViewTab-1, 1); else if(val) s.branches[currentViewTab-1] = val;
-      window.sync(); window.renderTabs(s);
+      window.customPrompt("탭 내용 수정 (비우면 삭제)", s.branches[currentViewTab-1], (val) => {
+          if(val === "") s.branches.splice(currentViewTab-1, 1); else if(val) s.branches[currentViewTab-1] = val;
+          window.sync(); window.renderTabs(s);
+      });
     }
   };
-  window.addBranchUI = () => {
+  window.showBranchInput = () => {
     const s = storyboard.find(x => x.id == editingId);
     if((s.branches||[]).length >= 4) return alert("최대 4개까지만 가능합니다.");
-    const val = prompt("새로운 가지 내용");
-    if(val) { if(!s.branches) s.branches = []; s.branches.push(val); window.sync(); window.renderTabs(s); }
+    window.customPrompt("새로운 가지 내용 입력", "", (val) => {
+        if(val) { if(!s.branches) s.branches = []; s.branches.push(val); window.sync(); window.renderTabs(s); }
+    });
   };
 
-  // 드래그 및 클릭 정밀 제어 (수정됨)
+  // 드래그 제어 (박스 전체 클릭)
   let dragItem = null, startX, startY, currentTarget = null, dragId = null, isMoving = false;
   document.addEventListener('touchstart', (e) => {
     const wrap = e.target.closest('.card-wrapper'); 
@@ -230,7 +251,8 @@
       const mt = me.touches[0];
       if(!isMoving && (Math.abs(mt.clientX - startX) > 10 || Math.abs(mt.clientY - startY) > 10)) {
         isMoving = true;
-        dragItem = wrap.cloneNode(true); dragItem.style.position = 'fixed'; dragItem.style.zIndex = '5000'; dragItem.style.width = '105px'; dragItem.style.pointerEvents = 'none'; dragItem.style.opacity = '0.7';
+        dragItem = wrap.cloneNode(true); dragItem.className = 'card-wrapper drag-clone';
+        dragItem.style.position = 'fixed'; dragItem.style.zIndex = '5000'; dragItem.style.width = '105px'; dragItem.style.pointerEvents = 'none'; dragItem.style.opacity = '0.7';
         document.body.appendChild(dragItem);
       }
       if(isMoving && dragItem) {
@@ -241,10 +263,8 @@
       }
     };
     const end = () => {
-      if(!isMoving && dragId) {
-        // 모든 카드는 클릭 시 무조건 Viewer를 띄움
-        window.openViewer(dragId);
-      } else if(isMoving && currentTarget && dragId) {
+      if(!isMoving && dragId) window.openViewer(dragId);
+      else if(isMoving && currentTarget && dragId) {
         const idx = storyboard.findIndex(s => s.id == dragId);
         const p = currentTarget.dataset.gkey.split(' ');
         storyboard[idx].year = parseInt(p.pop()); storyboard[idx].era = p.join(' ');
@@ -257,20 +277,25 @@
     document.addEventListener('touchmove', move, { passive: false }); document.addEventListener('touchend', end);
   }, { passive: true });
 
-  // 캐릭터/시대 등 기타 기능
+  // 캐릭터/시대 관리
   window.openCharAdd = () => { window.closeModal('charModal'); editingCharName = null; tempCharImg = ""; document.getElementById('charPrevImg').style.display = "none"; document.getElementById('charEmptySym').style.display = "flex"; document.getElementById('cName').value = ""; document.getElementById('cAge').value = ""; document.getElementById('cLook').value = ""; document.getElementById('cNote').value = ""; window.openModal('charEditModal'); };
   let editingCharName = null;
   window.editCharExist = (name) => { window.closeModal('charModal'); editingCharName = name; const d = charDetails[name] || {}; document.getElementById('cName').value = name; document.getElementById('cAge').value = d.age || ""; document.getElementById('cLook').value = d.look || ""; document.getElementById('cNote').value = d.note || ""; tempCharImg = d.img || ""; if(tempCharImg) { document.getElementById('charPrevImg').src = tempCharImg; document.getElementById('charPrevImg').style.display = "block"; document.getElementById('charEmptySym').style.display = "none"; } else { document.getElementById('charPrevImg').style.display = "none"; document.getElementById('charEmptySym').style.display = "flex"; } window.openModal('charEditModal'); };
   window.saveCharInfo = () => { const name = document.getElementById('cName').value.trim(); if(!name) return; if(editingCharName && editingCharName !== name) { delete charDetails[editingCharName]; chars = chars.filter(c => c !== editingCharName); } charDetails[name] = { img: tempCharImg, age: document.getElementById('cAge').value, look: document.getElementById('cLook').value, note: document.getElementById('cNote').value }; if(!chars.includes(name)) chars.push(name); window.sync(); window.closeModal('charEditModal'); setTimeout(window.openCharModal, 200); };
   window.openCharModal = () => { const grid = document.getElementById('charListGrid'); grid.innerHTML = chars.map(c => `<div style="display:flex; align-items:center; gap:10px; background:#f8f9fa; padding:10px; border-radius:12px; margin-bottom:8px;"><div style="width:40px; height:40px; background:#eee; border-radius:8px; overflow:hidden;">${charDetails[c]?.img ? `<img src="${charDetails[c].img}" style="width:100%; height:100%; object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">👤</div>'}</div><div style="flex:1;"><b style="font-size:13px;">${c}</b></div><button class="btn-ghost" style="width:auto; padding:4px 8px; font-size:11px;" onclick="window.editCharExist('${c}')">편집</button></div>`).join(''); window.openModal('charModal'); };
+
+  // 시대 추가 & 삭제 버튼 리스너
+  document.getElementById('addEraBtn').onclick = () => window.customPrompt("새 시대 이름", "", (n) => { if(n) { eras.push(n); window.sync(); window.openEraModal(); } });
+  document.getElementById('addProjBtn').onclick = () => window.customPrompt("새 프로젝트 이름", "", (n) => { if(n) window.loadP(n); });
+  document.getElementById('delBtn').onclick = () => { if(confirm("정말 삭제할까요?")) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } };
+
   window.sync = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(window.render); };
-  window.saveToCloud = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(() => alert('클라우드 저장 완료!')); };
+  window.saveToCloud = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(() => alert('저장 완료!')); };
   window.loadP = (k) => { currentProject = k; localStorage.setItem('lastProject', k); document.getElementById('projectTitle').innerText = k; db.ref('projects/'+k).on('value', s => { const d = s.val(); if(d){ storyboard=d.data||[]; eras=d.eras||["공통"]; chars=d.chars||[]; charDetails=d.charDetails||{}; window.render(); } }); window.closeModal('loadModal'); };
   window.openEdit = (id) => { editingId = id; const s = storyboard.find(x => x.id == id); document.getElementById('eContent').value = s ? s.text : ""; document.getElementById('eYear').value = s ? s.year : "1000"; document.getElementById('eraType').innerHTML = eras.map(e => `<option value="${e}">${e}</option>`).join(''); if(s) { document.getElementById('eraType').value = s.era; document.getElementById('eMonth').value = s.month; selectedChars = s.chars || []; } else { selectedChars = []; } window.updateCharUI(); window.openModal('editModal'); };
   window.updateCharUI = () => { document.getElementById('charTagSelector').innerHTML = chars.map(c => `<div style="padding:4px 10px; border-radius:12px; border:1px solid #eee; font-size:10px; background:${selectedChars.includes(c)?'#4dabf7':'#fff'}; color:${selectedChars.includes(c)?'#fff':'#868e96'}" onclick="window.toggleChar('${c}')">${c}</div>`).join(''); };
   window.toggleChar = (c) => { if(selectedChars.includes(c)) selectedChars = selectedChars.filter(x=>x!==c); else selectedChars.push(c); window.updateCharUI(); };
   window.saveScene = () => { const text = document.getElementById('eContent').value.trim(); if(!text) return; const year = parseInt(document.getElementById('eYear').value), era = document.getElementById('eraType').value, month = parseInt(document.getElementById('eMonth').value); if(editingId) storyboard = storyboard.map(s => s.id == editingId ? {...s, text, year, month, era, chars: selectedChars} : s); else storyboard.push({ id: Date.now().toString(), era, year, month, text, chars: selectedChars, side: 'left', branches: [] }); window.sync(); window.closeModal('editModal'); };
-  window.confirmDeleteScene = () => { if(confirm("정말 삭제하시겠습니까?")) { storyboard = storyboard.filter(s => s.id != editingId); window.sync(); window.closeModal('editModal'); } };
   window.handleCharImg = (e) => { const file = e.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (re) => { tempCharImg = re.target.result; document.getElementById('charPrevImg').src = tempCharImg; document.getElementById('charPrevImg').style.display = "block"; document.getElementById('charEmptySym').style.display = "none"; }; reader.readAsDataURL(file); } };
   window.updateSearchBar = () => { document.getElementById('searchBar').innerHTML = `<div onclick="window.filterByChar(null)" class="filter-tag" style="${selectedFilter===null?'background:#4dabf7;color:#fff;border-color:#4dabf7':''}">전체</div>` + chars.map(c => `<div onclick="window.filterByChar('${c}')" class="filter-tag" style="${selectedFilter===c?'background:#4dabf7;color:#fff;border-color:#4dabf7':''}">${c}</div>`).join(''); };
   window.filterByChar = (name) => { selectedFilter = name; window.render(); };
@@ -278,8 +303,6 @@
   window.openLoadModal = () => { db.ref('projects').once('value').then(s => { const d = s.val(); document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `<div style="display:flex; justify-content:space-between; padding:12px; background:#f8f9fa; border-radius:12px; margin-bottom:8px;"><b style="font-size:13px;">${k}</b><button class="btn-pill" style="width:auto; padding:4px 12px; font-size:11px;" onclick="window.loadP('${k}')">열기</button></div>`).join('') : ''; window.openModal('loadModal'); }); };
   window.openEraModal = () => { const grid = document.getElementById('eraListGrid'); grid.innerHTML = eras.map((e, i) => `<div style="display:flex; justify-content:space-between; padding:10px; background:#f8f9fa; border-radius:12px; margin-bottom:8px;"><b style="font-size:12px;">${e}</b><div style="display:flex; gap:5px;"><button class="btn-ghost" style="width:auto; padding:4px 8px;" onclick="window.moveEra(${i}, -1)">▲</button><button class="btn-ghost" style="width:auto; padding:4px 8px;" onclick="window.moveEra(${i}, 1)">▼</button></div></div>`).join(''); window.openModal('eraModal'); };
   window.moveEra = (idx, dir) => { const target = idx + dir; if(target < 0 || target >= eras.length) return; const temp = eras[idx]; eras[idx] = eras[target]; eras[target] = temp; window.sync(); window.openEraModal(); };
-  window.promptNewEra = () => { const n = prompt("새 시대 이름"); if(n) { eras.push(n); window.sync(); window.openEraModal(); } };
-  window.promptNewProject = () => { const n = prompt("새 프로젝트 이름"); if(n) window.loadP(n); };
 
   window.onload = () => { const last = localStorage.getItem('lastProject'); if(last) window.loadP(last); else window.openLoadModal(); };
 </script>
