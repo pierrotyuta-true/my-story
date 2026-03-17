@@ -46,29 +46,28 @@
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
     .modal-content { background: white; width: 90%; max-width: 340px; padding: 20px; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; position: relative; }
     
-    /* 캐릭터 편집창 최적화 */
+    /* 캐릭터 편집창 */
     .char-edit-body { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-    .char-img-box { width: 100px; height: 100px; border-radius: 24px; background: #f8f9fa; margin: 0 auto 10px; overflow: hidden; border: 2px dashed #dee2e6; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
+    .char-img-box { width: 100px; height: 100px; border-radius: 50%; background: #f8f9fa; margin: 0 auto 10px; overflow: hidden; border: 2px dashed #dee2e6; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
     .char-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .char-img-box span { font-size: 10px; color: #adb5bd; text-align: center; font-weight: 700; }
     
     input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; background: #f8f9fa; font-size: 14px; font-family: inherit; outline: none; }
     .input-row { display: flex; gap: 8px; }
 
-    /* 캐릭터 관리 리스트 */
-    .char-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 16px; margin-bottom: 8px; width: 100%; }
+    /* 리스트 디자인 */
+    .char-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 16px; margin-bottom: 8px; }
     .char-info { display: flex; align-items: center; gap: 10px; }
-    .char-thumb { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; background: #eee; }
-    .char-btns { display: flex; gap: 6px; }
-    .btn-icon { border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .char-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; background: #eee; }
+    .btn-icon { border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
 
-    /* 버튼 모음 */
     .btn-save { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 14px; width: 100%; margin-top: 10px; }
     .btn-close-text { width: 100%; background: none; border: none; color: #adb5bd; font-size: 13px; font-weight: 700; padding: 10px; margin-top: 5px; }
 
     .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
     .nav-btn { border: none; background: none; font-size: 10px; font-weight: 800; color: #adb5bd; display: flex; flex-direction: column; align-items: center; gap: 6px; }
     
-    .tag-thumb { width: 16px; height: 16px; border-radius: 4px; object-fit: cover; }
+    .tag-thumb { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; }
     #toast { visibility: hidden; min-width: 150px; background-color: #333; color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 5000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 13px; opacity: 0; transition: 0.3s; }
     #toast.show { visibility: visible; opacity: 1; }
   </style>
@@ -77,17 +76,7 @@
 
 <div id="toast">변경사항 저장됨</div>
 
-<div id="customAlert" class="modal" style="z-index: 6000;">
-    <div class="modal-content">
-        <div id="alertTitle" style="font-size:16px; font-weight:900; margin-bottom:12px; text-align:center;">알림</div>
-        <div id="alertMsg" style="font-size:14px; color:#555; text-align:center; margin-bottom:20px;"></div>
-        <div id="alertInputWrap" style="display:none;"><textarea id="alertInput" rows="4" placeholder="내용을 입력하세요"></textarea></div>
-        <div style="display:flex; gap:10px;">
-            <button class="btn-close-text" style="flex:1; background:#f1f3f5; border-radius:12px;" onclick="window.closeAlert(false)">취소</button>
-            <button id="alertConfirm" class="btn-save" style="flex:1; margin-top:0;" onclick="window.closeAlert(true)">확인</button>
-        </div>
-    </div>
-</div>
+<input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="window.handleImageUpload(event)">
 
 <div class="header-container">
   <div class="header">
@@ -99,13 +88,30 @@
 
 <div class="timeline-container" id="timeline"></div>
 
-<div class="nav">
-  <button class="nav-btn" onclick="window.openLoadModal()">목록</button>
-  <button class="nav-btn" onclick="window.openEraModal()">시대</button>
-  <button class="nav-btn" style="font-size:40px; color:var(--primary);" onclick="window.addScene()">+</button>
-  <button class="nav-btn" onclick="window.openCharModal()">캐릭터</button>
-  <button class="nav-btn" onclick="location.reload()">갱신</button>
-</div>
+<div id="charEditModal" class="modal"><div class="modal-content">
+    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 프로필</h3>
+    <div class="char-edit-body">
+        <div class="char-img-box" id="charImgPreview" onclick="document.getElementById('imageInput').click()">
+            <span>사진 업로드</span>
+        </div>
+        <input type="text" id="cName" placeholder="이름 (필수)">
+        <div class="input-row">
+            <input type="text" id="cAge" placeholder="나이" style="flex:1;">
+            <input type="text" id="cOrigin" placeholder="출신지" style="flex:1;">
+        </div>
+        <textarea id="cLook" rows="2" placeholder="외형 묘사"></textarea>
+        <textarea id="cPers" rows="2" placeholder="성격/특징"></textarea>
+    </div>
+    <button class="btn-save" onclick="window.saveCharDetail()">저장하기</button>
+    <button class="btn-close-text" onclick="window.closeModal('charEditModal')">취소</button>
+</div></div>
+
+<div id="charModal" class="modal"><div class="modal-content">
+    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 관리</h3>
+    <div id="charListGrid" style="margin-bottom:15px; max-height:40vh; overflow-y:auto;"></div>
+    <button class="btn-save" onclick="window.openCharAdd()">+ 신규 캐릭터 추가</button>
+    <button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button>
+</div></div>
 
 <div id="viewModal" class="modal"><div class="modal-content">
     <div id="viewMonth" style="font-size:11px; font-weight:900; color:var(--primary); margin-bottom:10px;"></div>
@@ -135,31 +141,26 @@
     <button class="btn-close-text" onclick="window.closeModal('editModal')">닫기</button>
 </div></div>
 
-<div id="charModal" class="modal"><div class="modal-content">
-    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 관리</h3>
-    <div id="charListGrid" style="margin-bottom:15px;"></div>
-    <button class="btn-save" onclick="window.openCharAdd()">+ 신규 캐릭터 추가</button>
-    <button class="btn-close-text" onclick="window.closeModal('charModal')">닫기</button>
-</div></div>
-
-<div id="charEditModal" class="modal" style="z-index: 5000;"><div class="modal-content">
-    <h3 style="margin:0 0 20px 0; font-size:17px; text-align:center;">캐릭터 프로필</h3>
-    <div class="char-edit-body">
-        <div class="char-img-box" id="charImgPreview" onclick="window.promptCharImg()">이미지 추가</div>
-        <input type="text" id="cName" placeholder="이름 (필수)">
-        <div class="input-row">
-            <input type="text" id="cAge" placeholder="나이" style="flex:1;">
-            <input type="text" id="cOrigin" placeholder="출신지" style="flex:1;">
-        </div>
-        <textarea id="cLook" rows="2" placeholder="외형 묘사"></textarea>
-        <textarea id="cPers" rows="2" placeholder="성격/특징"></textarea>
+<div id="customAlert" class="modal" style="z-index: 6000;"><div class="modal-content">
+    <div id="alertTitle" style="font-size:16px; font-weight:900; margin-bottom:12px; text-align:center;">알림</div>
+    <div id="alertMsg" style="font-size:14px; color:#555; text-align:center; margin-bottom:20px;"></div>
+    <div id="alertInputWrap" style="display:none;"><textarea id="alertInput" rows="4"></textarea></div>
+    <div style="display:flex; gap:10px;">
+        <button class="btn-close-text" style="flex:1; background:#f1f3f5; border-radius:12px;" onclick="window.closeAlert(false)">취소</button>
+        <button class="btn-save" style="flex:1; margin-top:0;" onclick="window.closeAlert(true)">확인</button>
     </div>
-    <button class="btn-save" onclick="window.saveCharDetail()">저장하기</button>
-    <button class="btn-close-text" onclick="window.closeModal('charEditModal')">취소</button>
 </div></div>
 
 <div id="loadModal" class="modal"><div class="modal-content"><h3>연력표 목록</h3><div id="projectList"></div><button class="btn-save" onclick="window.promptNewProject()">+ 새 연력표</button><button class="btn-close-text" onclick="window.closeModal('loadModal')">닫기</button></div></div>
 <div id="eraModal" class="modal"><div class="modal-content"><h3>시대 관리</h3><div id="eraListGrid"></div><button class="btn-save" onclick="window.promptNewEra()">+ 시대 추가</button><button class="btn-close-text" onclick="window.closeModal('eraModal')">닫기</button></div></div>
+
+<div class="nav">
+  <button class="nav-btn" onclick="window.openLoadModal()">목록</button>
+  <button class="nav-btn" onclick="window.openEraModal()">시대</button>
+  <button class="nav-btn" style="font-size:40px; color:var(--primary);" onclick="window.addScene()">+</button>
+  <button class="nav-btn" onclick="window.openCharModal()">캐릭터</button>
+  <button class="nav-btn" onclick="location.reload()">갱신</button>
+</div>
 
 <script>
   const config = { apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", authDomain: "true-s.firebaseapp.com", databaseURL: "https://true-s-default-rtdb.firebaseio.com", projectId: "true-s" };
@@ -172,14 +173,56 @@
 
   window.closeModal = (id) => document.getElementById(id).style.display = 'none';
   window.openModal = (id) => document.getElementById(id).style.display = 'flex';
-  window.closeAlert = (res) => { window.closeModal('customAlert'); if(alertCallback) { const val = document.getElementById('alertInput').value; alertCallback(res ? (val || true) : false); } };
-  window.customUI = (title, msg, type, callback, defaultVal = "") => {
-    document.getElementById('alertTitle').innerText = title; document.getElementById('alertMsg').innerText = msg;
-    const wrap = document.getElementById('alertInputWrap'); wrap.style.display = (type==='prompt'?'block':'none');
-    if(type==='prompt') document.getElementById('alertInput').value = defaultVal;
-    alertCallback = callback; window.openModal('customAlert');
+  
+  /* 이미지 업로드 핸들러 */
+  window.handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Img = e.target.result;
+        document.getElementById('charImgPreview').innerHTML = `<img src="${base64Img}">`;
+        document.getElementById('charImgPreview').dataset.img = base64Img;
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
+  window.openCharAdd = () => {
+    document.getElementById('cName').value = ""; document.getElementById('cAge').value = ""; document.getElementById('cOrigin').value = "";
+    document.getElementById('cLook').value = ""; document.getElementById('cPers').value = "";
+    document.getElementById('charImgPreview').innerHTML = "<span>사진 업로드</span>";
+    delete document.getElementById('charImgPreview').dataset.img;
+    window.openModal('charEditModal');
+  };
+
+  window.editCharDetail = (name) => {
+    const d = charDetails[name] || {};
+    document.getElementById('cName').value = name;
+    document.getElementById('cAge').value = d.age || "";
+    document.getElementById('cOrigin').value = d.origin || "";
+    document.getElementById('cLook').value = d.look || "";
+    document.getElementById('cPers').value = d.pers || "";
+    document.getElementById('charImgPreview').innerHTML = d.img ? `<img src="${d.img}">` : "<span>사진 업로드</span>";
+    document.getElementById('charImgPreview').dataset.img = d.img || "";
+    window.openModal('charEditModal');
+  };
+
+  window.saveCharDetail = () => {
+    const name = document.getElementById('cName').value.trim();
+    if(!name) return;
+    if(!chars.includes(name)) chars.push(name);
+    charDetails[name] = {
+      age: document.getElementById('cAge').value,
+      origin: document.getElementById('cOrigin').value,
+      look: document.getElementById('cLook').value,
+      pers: document.getElementById('cPers').value,
+      img: document.getElementById('charImgPreview').dataset.img || ""
+    };
+    window.sync(); window.closeModal('charEditModal'); window.openCharModal();
+  };
+
+  /* 공통 기능들 (동기화, 렌더링 등) */
   window.render = () => {
     const container = document.getElementById('timeline');
     if(!currentProject) return;
@@ -217,64 +260,21 @@
     window.updateSearchBar();
   };
 
-  /* 캐릭터 관리 관련 */
   window.openCharModal = () => {
     const grid = document.getElementById('charListGrid');
     grid.innerHTML = chars.map(c => `
       <div class="char-list-item">
         <div class="char-info">
           <img src="${charDetails[c]?.img || ''}" class="char-thumb" onerror="this.src='https://via.placeholder.com/50?text=?'">
-          <span style="font-weight:700; font-size:14px;">${c}</span>
+          <span style="font-weight:700;">${c}</span>
         </div>
-        <div class="char-btns">
-          <button class="btn-icon" style="background:#e9ecef; color:#495057;" onclick="window.editCharDetail('${c}')">편집</button>
+        <div>
+          <button class="btn-icon" style="background:#e9ecef;" onclick="window.editCharDetail('${c}')">편집</button>
           <button class="btn-icon" style="background:#fff0f0; color:#ff8787;" onclick="window.confirmDelChar('${c}')">삭제</button>
         </div>
       </div>
     `).join('');
     window.openModal('charModal');
-  };
-
-  window.openCharAdd = () => {
-    document.getElementById('cName').value = ""; document.getElementById('cAge').value = ""; document.getElementById('cOrigin').value = "";
-    document.getElementById('cLook').value = ""; document.getElementById('cPers').value = "";
-    document.getElementById('charImgPreview').innerHTML = "이미지 추가"; delete document.getElementById('charImgPreview').dataset.img;
-    window.openModal('charEditModal');
-  };
-
-  window.editCharDetail = (name) => {
-    const d = charDetails[name] || {};
-    document.getElementById('cName').value = name;
-    document.getElementById('cAge').value = d.age || "";
-    document.getElementById('cOrigin').value = d.origin || "";
-    document.getElementById('cLook').value = d.look || "";
-    document.getElementById('cPers').value = d.pers || "";
-    document.getElementById('charImgPreview').innerHTML = d.img ? `<img src="${d.img}">` : "이미지 추가";
-    document.getElementById('charImgPreview').dataset.img = d.img || "";
-    window.openModal('charEditModal');
-  };
-
-  window.promptCharImg = () => {
-    window.customUI("이미지 설정", "이미지 주소(URL)를 입력하세요", "prompt", (url) => {
-      if(url && typeof url === 'string') {
-        document.getElementById('charImgPreview').innerHTML = `<img src="${url}">`;
-        document.getElementById('charImgPreview').dataset.img = url;
-      }
-    });
-  };
-
-  window.saveCharDetail = () => {
-    const name = document.getElementById('cName').value.trim();
-    if(!name) return;
-    if(!chars.includes(name)) chars.push(name);
-    charDetails[name] = {
-      age: document.getElementById('cAge').value,
-      origin: document.getElementById('cOrigin').value,
-      look: document.getElementById('cLook').value,
-      pers: document.getElementById('cPers').value,
-      img: document.getElementById('charImgPreview').dataset.img || ""
-    };
-    window.sync(); window.closeModal('charEditModal'); window.openCharModal();
   };
 
   window.updateSearchBar = () => {
@@ -284,7 +284,6 @@
   };
   window.filterByChar = (name) => { selectedFilter = name; window.render(); };
 
-  /* 기존 시스템 연동 */
   window.sync = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(window.render); };
   window.saveToCloud = () => { if(currentProject) db.ref('projects/'+currentProject).set({ data: storyboard, eras, chars, charDetails }).then(() => { const t = document.getElementById('toast'); t.className = 'show'; setTimeout(() => t.className = '', 2000); }); };
   window.loadP = (k) => { currentProject = k; localStorage.setItem('lastProject', k); document.getElementById('projectTitle').innerText = k; db.ref('projects/'+k).on('value', s => { const d = s.val(); if(d){ storyboard=d.data||[]; eras=d.eras||["공통"]; chars=d.chars||[]; charDetails=d.charDetails||{}; window.render(); } }); window.closeModal('loadModal'); };
@@ -307,6 +306,13 @@
   window.confirmDelEra = (e) => { window.customUI("삭제", `${e} 삭제?`, "confirm", (r) => { if(r) { storyboard = storyboard.map(s => s.era === e ? {...s, era: '공통'} : s); eras = eras.filter(x => x !== e); window.sync(); window.openEraModal(); } }); };
   window.promptNewProject = () => { window.customUI("새 연력표", "제목 입력", "prompt", (n) => { if(n && typeof n === 'string') { currentProject = n; storyboard = []; eras = ["공통"]; chars = []; charDetails = {}; window.sync(); window.closeModal('loadModal'); } }); };
   window.confirmDeleteProject = (k) => { window.customUI("삭제", "영구 삭제하시겠습니까?", "confirm", (r) => { if(r) db.ref('projects/'+k).remove().then(window.openLoadModal); }); };
+  window.closeAlert = (res) => { window.closeModal('customAlert'); if(alertCallback) { const val = document.getElementById('alertInput').value; alertCallback(res ? (val || true) : false); } };
+  window.customUI = (title, msg, type, callback, defaultVal = "") => {
+    document.getElementById('alertTitle').innerText = title; document.getElementById('alertMsg').innerText = msg;
+    const wrap = document.getElementById('alertInputWrap'); wrap.style.display = (type==='prompt'?'block':'none');
+    if(type==='prompt') document.getElementById('alertInput').value = defaultVal;
+    alertCallback = callback; window.openModal('customAlert');
+  };
 
   /* 드래그 앤 드롭 */
   let dragItem = null, startX, startY, currentTarget = null, dragId = null, isMoving = false;
