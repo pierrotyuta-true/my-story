@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>스토리마스터 Pro - 선 디자인 업데이트</title>
+  <title>스토리마스터 Pro - 자연스러운 선 업데이트</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
@@ -41,7 +41,8 @@
     /* 노드 스타일 수정 (굵기 통일 및 배경색 조정) */
     .node { width: 10px; height: 10px; background: white; border: var(--stroke-width) solid var(--primary); border-radius: 50%; position: absolute; left: 50%; transform: translateX(-50%); top: 30px; z-index: 50; }
     
-    .dropzone { display: flex; flex-direction: column; gap: 25px; padding: 0 5px; min-height: 80px; position: relative; }
+    /* 여백(gap)을 반으로 줄임 (25px -> 12.5px) */
+    .dropzone { display: flex; flex-direction: column; gap: 12.5px; padding: 0 5px; min-height: 80px; position: relative; }
     .dropzone[data-side="left"] { align-items: flex-end; padding-right: 35px; }
     .dropzone[data-side="right"] { align-items: flex-start; padding-left: 35px; }
 
@@ -50,19 +51,13 @@
     .dropzone[data-side="left"] .connector-svg { right: 0; }
     .dropzone[data-side="right"] .connector-svg { left: 0; }
 
-    /* 연결선 디자인 업데이트: 세련된 곡선 사용 */
-    .dropzone[data-side="left"] .connector-path { 
-        stroke: var(--line); 
-        stroke-width: var(--stroke-width); 
-        fill: none;
-        /* 끝 부분을 둥글게 처리 */
-        stroke-linecap: round; 
-    }
-    .dropzone[data-side="right"] .connector-path { 
+    /* 연결선 디자인 업데이트: S자 Bezier 곡선 사용 */
+    .connector-path { 
         stroke: var(--line); 
         stroke-width: var(--stroke-width); 
         fill: none;
         stroke-linecap: round;
+        transition: d 0.2s ease; /* 드래그 시 선 이동 애니메이션 */
     }
 
     /* 탭 디자인 (이전과 동일하게 유지) */
@@ -177,7 +172,7 @@
     };
   };
 
-  // 렌더링 함수 (선 디자인 업데이트 포함)
+  // 렌더링 함수 (S자 곡선 및 여백 축소 적용)
   window.render = () => {
     const container = document.getElementById('timeline');
     if(!currentProject) return;
@@ -216,19 +211,23 @@
                             wrap.innerHTML = `<div class="side-tabs">${tabsHtml}</div><div class="card"><div class="card-month">${m}월</div><div class="card-content">${sc.text}</div></div>`;
                             zone.appendChild(wrap);
 
-                            // 선 그리기 (SVG 곡선 및 직선 사용)
+                            // 선 그리기 (S자 곡선 사용)
                             const path = document.createElementNS(svgNS, "path");
                             path.setAttribute("class", "connector-path");
                             
-                            // 카드 위치 계산 (카드 높이 + 여백 고려)
-                            const yPos = idx * 85; 
+                            // 카드 위치 계산 (카드 높이 + 여백 고려, gap 12.5)
+                            const cardHeightWithGap = 60 + 12.5;
+                            const yPos = idx * cardHeightWithGap; 
+
                             let d = "";
                             if(side === "left") {
-                                // 왼쪽 박스로 가는 곡선 (노드 -> 박스 왼쪽 상단)
-                                d = `M 35 0 L 15 0 Q 0 0, 0 ${yPos} L 0 ${yPos + 30}`;
+                                // 왼쪽 박스로 가는 S자 곡선 (Cubic Bezier)
+                                // M {start} C {control1} {control2} {end}
+                                // d = `M 35 0 C 25 0, 10 ${yPos}, 0 ${yPos}`;
+                                d = `M 35 0 C 17.5 0, 17.5 ${yPos}, 0 ${yPos}`;
                             } else {
-                                // 오른쪽 박스로 가는 곡선 (노드 -> 박스 오른쪽 상단)
-                                d = `M 0 0 L 20 0 Q 35 0, 35 ${yPos} L 35 ${yPos + 30}`;
+                                // 오른쪽 박스로 가는 S자 곡선 (Cubic Bezier)
+                                d = `M 0 0 C 17.5 0, 17.5 ${yPos}, 35 ${yPos}`;
                             }
                             path.setAttribute("d", d);
                             svg.appendChild(path);
