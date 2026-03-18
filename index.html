@@ -11,7 +11,6 @@
     body { font-family: 'Pretendard', sans-serif; margin: 0; background-color: var(--bg); background-image: radial-gradient(#e9ecef 1.5px, transparent 1.5px); background-size: 25px 25px; color: var(--text); overflow-x: hidden; padding-bottom: 70px; -webkit-user-select: none; user-select: none; touch-action: pan-y; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    /* 스크롤바 숨기기 */
     ::-webkit-scrollbar { display: none; }
     
     .header-container { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05); }
@@ -46,68 +45,26 @@
     .card-month { font-size: 8px; font-weight: 900; color: var(--primary); margin-bottom: 3px; }
     .card-content { font-size: 10.5px; line-height: 1.4; font-weight: 700; color: #444; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
-    /* 상세보기 모달 내부 탭 스타일 수정: 이미지처럼 완벽하게 튀어나오게 */
+    /* 모달 기본 스타일 */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: flex-end; backdrop-filter: blur(5px); }
-    /* 모달 콘텐츠 자체 배경을 투명하게 하여 탭 뒤를 비움 */
-    .modal-content { background: transparent; width: 100%; max-width: 450px; padding: 0 20px 20px 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; box-shadow: none; border: none; }
     
-    /* 탭 메뉴 영역: 배경 없음 (비어있음) */
+    /* 상세보기 모달 전용 스타일 (탭 튀어나오게) */
+    #viewModal .modal-content { background: transparent; width: 100%; max-width: 450px; padding: 0 20px 20px 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; box-shadow: none; border: none; }
+    
+    /* 일반 입력 모달 스타일 (흰 배경 박스) */
+    .input-modal-content { background: white; border-radius: 20px; padding: 20px; width: 90%; max-width: 400px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    
     .view-tab-menu { display: flex; align-items: flex-end; gap: 4px; padding-left: 15px; background: transparent; position: relative; z-index: 2; }
+    .v-tab { padding: 8px 16px; border-radius: 10px 10px 0 0; font-size: 12px; font-weight: 800; border: 1px solid #ddd; border-bottom: none; background: #e9ecef; color: #adb5bd; cursor: pointer; position: relative; bottom: -1px; transition: all 0.2s ease; }
+    .v-tab.active { background: white !important; color: #333 !important; border-color: #ddd; border-bottom: 1px solid white; z-index: 3; padding-top: 12px; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
     
-    .v-tab { 
-      padding: 8px 16px; 
-      border-radius: 10px 10px 0 0; 
-      font-size: 12px; 
-      font-weight: 800; 
-      border: 1px solid #ddd; 
-      border-bottom: none; 
-      background: #e9ecef; /* 선택 안된 탭은 회색 */
-      color: #adb5bd; 
-      cursor: pointer;
-      position: relative;
-      /* 탭이 본체 테두리 위에 살짝 겹치도록 설정 */
-      bottom: -1px; 
-      transition: all 0.2s ease;
-    }
-    
-    /* 활성화된 탭: 하얗게 변하고 튀어나옴 */
-    .v-tab.active { 
-      background: white !important; 
-      color: #333 !important; 
-      /* 본체와 자연스럽게 연결되도록 아래쪽 테두리 제거 */
-      border-color: #ddd; 
-      border-bottom: 1px solid white; 
-      z-index: 3; /* 본체보다 위에 위치 */
-      padding-top: 12px; 
-      box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
-    }
-    
-    /* 활성화된 탭 상단 포인트 컬러 (요청하신 순서) */
     .v-tab.t-blue.active { border-top: 3px solid #a5d8ff; }
     .v-tab.t-green.active { border-top: 3px solid #b2f2bb; }
     .v-tab.t-yellow.active { border-top: 3px solid #ffec99; }
     .v-tab.t-pink.active { border-top: 3px solid #ffdeeb; }
 
-    /* 본체 영역: 하얀색 상자 */
-    .view-body { 
-      border: 1px solid #ddd; 
-      border-radius: 12px; 
-      padding: 20px; 
-      background: white; 
-      margin-bottom: 15px; 
-      position: relative; 
-      z-index: 1; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-    
-    /* 모달 내 하단 버튼 영역 배경 처리 */
-    .view-action-area {
-        background: white;
-        padding: 15px;
-        border-radius: 12px;
-        margin-top: -5px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
+    .view-body { border: 1px solid #ddd; border-radius: 12px; padding: 20px; background: white; margin-bottom: 15px; position: relative; z-index: 1; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .view-action-area { background: white; padding: 15px; border-radius: 12px; margin-top: -5px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
     .btn-pill { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; width: 100%; outline: none; cursor: pointer;}
     .btn-ghost { background: #f1f3f5; color: #495057; border: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 12px; width: 100%; outline: none; cursor: pointer;}
@@ -118,17 +75,20 @@
     .nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; }
     .nav-btn { border: none; background: none; font-size: 10px; font-weight: 800; color: #adb5bd; cursor: pointer; }
     .add-btn-main { width: 48px; height: 48px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 25px; border: 3px solid white; box-shadow: 0 4px 12px rgba(77,171,247,0.3); cursor: pointer; }
+    
+    /* 겹치는 모달 처리: 입력창이 항상 맨 위로 */
+    #inputModal, #confirmModal { z-index: 3000; }
   </style>
 </head>
 <body>
 
-<div id="confirmModal" class="modal"><div class="modal-content" style="background:white; border-radius:20px; padding:20px; text-align:center;">
+<div id="confirmModal" class="modal"><div class="input-modal-content" style="text-align:center;">
     <h4 id="confirmTitle" style="margin:0 0 10px 0;">알림</h4>
     <p id="confirmMsg" style="font-size:13px; color:#666; margin-bottom:20px; line-height:1.5;"></p>
     <div style="display:flex; gap:8px;"><button class="btn-pill" id="confirmOkBtn">확인</button><button class="btn-ghost" id="confirmCancelBtn">취소</button></div>
 </div></div>
 
-<div id="inputModal" class="modal"><div class="modal-content" style="background:white; border-radius:20px; padding:20px;">
+<div id="inputModal" class="modal"><div class="input-modal-content">
     <h4 id="inputTitle" style="margin:0 0 15px 0; text-align:center;">입력</h4>
     <textarea id="customInput" rows="4" placeholder="내용을 입력하세요"></textarea>
     <div style="display:flex; gap:10px;"><button class="btn-pill" id="inputConfirmBtn">확인</button><button class="btn-ghost" onclick="window.closeModal('inputModal')">취소</button></div>
@@ -146,7 +106,7 @@
     </div>
 </div></div>
 
-<div id="editModal" class="modal"><div class="modal-content" style="background:white; border-radius:20px; padding:20px;">
+<div id="editModal" class="modal"><div class="input-modal-content" style="width:100%; max-width:450px;">
     <h4 style="text-align:center; margin:0 0 15px 0;">기록 편집</h4>
     <div style="display:flex; gap:6px;"><select id="eraType" style="flex:1.5;"></select><input type="number" id="eYear" style="flex:1;" placeholder="연도"><select id="eMonth" style="flex:1;"><script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}월</option>`)</script></select></div>
     <div id="charTagSelector" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px;"></div>
@@ -156,7 +116,7 @@
     <button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('editModal')">취소</button>
 </div></div>
 
-<div id="charEditModal" class="modal"><div class="modal-content" style="background:white; border-radius:20px; padding:20px;">
+<div id="charEditModal" class="modal"><div class="input-modal-content">
   <h4 style="text-align:center; margin:0 0 15px 0;">캐릭터 정보</h4>
   <div style="display:flex; justify-content:center; margin-bottom:15px;" onclick="document.getElementById('charImgInput').click()">
     <img id="charPrevImg" style="width:80px; height:80px; border-radius:20px; object-fit:cover; border:3px solid var(--primary); display:none;">
@@ -168,15 +128,15 @@
   <button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('charEditModal')">취소</button>
 </div></div>
 
-<div id="charModal" class="modal"><div class="modal-content" style="background:white; border-radius:20px; padding:20px;">
+<div id="charModal" class="modal"><div class="input-modal-content">
   <h4 style="text-align:center; margin:0 0 15px 0;">캐릭터 도감</h4>
   <div id="charListGrid" style="max-height:300px; overflow-y:auto;"></div>
   <button class="btn-pill" style="margin-top:10px;" onclick="window.openCharAdd()">+ 새 캐릭터 추가</button>
   <button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('charModal')">닫기</button>
 </div></div>
 
-<div id="eraModal" class="modal"><div class="modal-content" style="background:white; border-radius:20px; padding:20px;"><h4>시대 순서</h4><div id="eraListGrid"></div><button class="btn-pill" style="margin-top:10px;" id="addEraBtn">+ 시대 추가</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('eraModal')">닫기</button></div></div>
-<div id="loadModal" class="modal"><div class="modal-content" style="background:white; border-radius:20px; padding:20px;"><h4>프로젝트 목록</h4><div id="projectList"></div><button class="btn-pill" style="margin-top:10px;" id="addProjBtn">+ 새 프로젝트</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('loadModal')">닫기</button></div></div>
+<div id="eraModal" class="modal"><div class="input-modal-content"><h4>시대 순서</h4><div id="eraListGrid"></div><button class="btn-pill" style="margin-top:10px;" id="addEraBtn">+ 시대 추가</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('eraModal')">닫기</button></div></div>
+<div id="loadModal" class="modal"><div class="input-modal-content"><h4>프로젝트 목록</h4><div id="projectList"></div><button class="btn-pill" style="margin-top:10px;" id="addProjBtn">+ 새 프로젝트</button><button class="btn-ghost" style="margin-top:8px;" onclick="window.closeModal('loadModal')">닫기</button></div></div>
 
 <div class="header-container">
   <div class="header"><div class="project-title" id="projectTitle">STORY MASTER</div><button class="btn-pill" style="width:auto; padding:5px 12px; font-size:11px;" onclick="window.saveToCloud()">클라우드 저장</button></div>
@@ -273,15 +233,12 @@
   window.renderTabs = (s) => {
     const menu = document.getElementById('viewTabMenu');
     const colorClasses = ['t-blue', 't-green', 't-yellow', 't-pink']; 
-    
     let tabs = [`<div class="v-tab ${currentViewTab === 0 ? 'active' : ''}" onclick="window.switchTab(0)">사건</div>`];
-    
     (s.branches || []).forEach((_, i) => {
       const colorClass = colorClasses[i] || 't-blue';
       const isActive = currentViewTab === (i + 1);
       tabs.push(`<div class="v-tab ${colorClass} ${isActive ? 'active' : ''}" onclick="window.switchTab(${i+1})">탭 ${i+1}</div>`);
     });
-    
     menu.innerHTML = tabs.join('');
     document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`;
     document.getElementById('viewText').innerText = currentViewTab === 0 ? s.text : s.branches[currentViewTab-1];
@@ -294,12 +251,17 @@
 
   window.handleTabEdit = () => {
     const s = storyboard.find(x => x.id == editingId);
-    if(currentViewTab === 0) { window.closeModal('viewModal'); window.openEdit(editingId); }
-    else {
-      window.customPrompt("탭 내용 수정 (비우면 삭제)", s.branches[currentViewTab-1], (val) => {
-          if(val === "") s.branches.splice(currentViewTab-1, 1); else if(val) s.branches[currentViewTab-1] = val;
-          window.sync(); window.openViewer(editingId);
-      });
+    if(currentViewTab === 0) { 
+        // 본문 편집 시에는 뷰어 닫고 편집창 열기
+        window.closeModal('viewModal'); 
+        window.openEdit(editingId); 
+    } else {
+        // 가지 편집 시에는 뷰어 위로 팝업 띄우기
+        window.customPrompt("탭 내용 수정 (비우면 삭제)", s.branches[currentViewTab-1], (val) => {
+            if(val === "") s.branches.splice(currentViewTab-1, 1); else if(val) s.branches[currentViewTab-1] = val;
+            window.sync(); 
+            window.openViewer(editingId); // 내용 갱신
+        });
     }
   };
 
@@ -308,7 +270,7 @@
     if((s.branches||[]).length >= 4) return window.customConfirm("알림", "최대 4개까지만 가능합니다.", null, true);
     window.customPrompt("새로운 가지 내용 입력", "", (val) => {
         if(val) { if(!s.branches) s.branches = []; s.branches.push(val); window.sync(); }
-        window.openViewer(editingId);
+        window.openViewer(editingId); // 탭 추가 후 갱신
     });
   };
 
