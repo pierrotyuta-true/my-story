@@ -7,7 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
-    :root { --primary: #4dabf7; --bg: #f1f3f5; --card-bg: #ffffff; --line: #dee2e6; --text: #212529; --gray: #868e96; --danger: #ff6b6b; }
+    :root { --primary: #4dabf7; --bg: #f1f3f5; --card-bg: #ffffff; --line: #dee2e6; --text: #212529; --gray: #868e96; --danger: #ff6b6b; --inactive-tab: #e9ecef; }
     body { font-family: 'Pretendard', sans-serif; margin: 0; background-color: var(--bg); background-image: radial-gradient(#e9ecef 1.5px, transparent 1.5px); background-size: 25px 25px; color: var(--text); overflow-x: hidden; padding-bottom: 70px; -webkit-user-select: none; user-select: none; touch-action: pan-y; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -28,7 +28,8 @@
     .dropzone[data-side="right"] { align-items: flex-start; padding-left: 35px; }
 
     .card-wrapper { position: relative; width: 105px; z-index: 10; touch-action: none; cursor: pointer; }
-    .side-tabs { position: absolute; top: 8px; display: flex; flex-direction: column; gap: 2px; pointer-events: none; }
+    /* 탭 위치 수정: top을 0으로 설정하여 상단에 맞춤 */
+    .side-tabs { position: absolute; top: 0; display: flex; flex-direction: column; gap: 2px; pointer-events: none; }
     .dropzone[data-side="left"] .side-tabs { right: 100%; align-items: flex-end; }
     .dropzone[data-side="right"] .side-tabs { left: 100%; align-items: flex-start; }
     .tab-idx { width: 12px; height: 18px; }
@@ -44,14 +45,33 @@
     .card-content { font-size: 10.5px; line-height: 1.4; font-weight: 700; color: #444; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: flex-end; backdrop-filter: blur(5px); }
-    .modal-content { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; box-shadow: 0 -5px 25px rgba(0,0,0,0.1); }
+    .modal-content { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; box-shadow: 0 -5px 25px rgba(0,0,0,0.1); position: relative; }
     #inputModal, #confirmModal { align-items: center; z-index: 4000; }
     #inputModal .modal-content, #confirmModal .modal-content { border-radius: 20px; width: 85%; }
 
-    .view-tab-menu { display: flex; align-items: flex-end; gap: 4px; }
-    .v-tab { padding: 6px 12px; border-radius: 8px 8px 0 0; font-size: 11px; font-weight: 800; border: 1px solid #eee; border-bottom: none; background: #f1f3f5; color: #adb5bd; }
-    .v-tab.active { background: white !important; color: #333 !important; border-color: #ddd; z-index: 2; padding-top: 10px; }
-    .view-body { border: 1px solid #ddd; border-radius: 0 12px 12px 12px; padding: 20px; background: white; margin-bottom: 15px; }
+    /* 모달 탭 디자인 수정 (포스트잇/인덱스 스타일) */
+    .view-tab-menu { display: flex; flex-direction: column; gap: 5px; position: absolute; left: -35px; top: 20px; }
+    .v-tab { 
+      padding: 10px 8px; 
+      border-radius: 8px 0 0 8px; 
+      font-size: 11px; 
+      font-weight: 800; 
+      background: var(--inactive-tab); 
+      color: #adb5bd; 
+      writing-mode: vertical-lr; 
+      text-orientation: upright;
+      border: none;
+      box-shadow: -2px 2px 5px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+    .v-tab.active { background: white !important; color: #333 !important; width: 40px; transform: translateX(5px); z-index: 2100; }
+    .v-tab.tab-blue.active { background: #d0ebff !important; }
+    .v-tab.tab-yellow.active { background: #fff9db !important; }
+    .v-tab.tab-green.active { background: #d3f9d8 !important; }
+    .v-tab.tab-pink.active { background: #ffdeeb !important; }
+
+    /* 사건 하단 선 제거 및 본문 스타일 */
+    .view-body { border: none; padding: 10px 5px; background: transparent; margin-bottom: 15px; }
 
     .btn-pill { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; width: 100%; outline: none; }
     .btn-ghost { background: #f1f3f5; color: #495057; border: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 12px; width: 100%; outline: none; }
@@ -78,15 +98,17 @@
     <div style="display:flex; gap:10px;"><button class="btn-pill" id="inputConfirmBtn">확인</button><button class="btn-ghost" onclick="window.closeModal('inputModal')">취소</button></div>
 </div></div>
 
-<div id="viewModal" class="modal"><div class="modal-content">
-    <div class="view-tab-menu" id="viewTabMenu"></div>
+<div id="viewModal" class="modal">
+  <div class="view-tab-menu" id="viewTabMenu"></div>
+  <div class="modal-content">
     <div class="view-body">
-      <div id="viewMonth" style="font-size:11px; font-weight:900; color:var(--primary); margin-bottom:8px;"></div>
+      <div id="viewMonth" style="font-size:11px; font-weight:900; color:var(--primary); margin-bottom:12px;"></div>
       <div id="viewText" style="font-size:14px; line-height:1.6; color:#333; white-space:pre-wrap; font-weight:700; min-height:100px;"></div>
     </div>
     <div style="display:flex; gap:8px; margin-bottom:8px;"><button class="btn-pill" style="flex:1.5;" onclick="window.handleTabEdit()">편집</button><button class="btn-ghost" style="flex:1;" onclick="window.showBranchInput()">+ 가지</button></div>
     <button class="btn-ghost" onclick="window.closeModal('viewModal')">닫기</button>
-</div></div>
+  </div>
+</div>
 
 <div id="editModal" class="modal"><div class="modal-content">
     <h4 style="text-align:center; margin:0 0 15px 0;">기록 편집</h4>
@@ -212,14 +234,19 @@
     window.openModal('viewModal'); 
   };
   
+  /* 탭 렌더링 로직 수정: 선택되지 않은 탭은 회색 처리 */
   window.renderTabs = (s) => {
     const menu = document.getElementById('viewTabMenu');
-    let tabs = [`<div class="v-tab active" onclick="window.switchTab(0)">사건</div>`];
-    (s.branches || []).forEach((_, i) => tabs.push(`<div class="v-tab ${pastelTabs[i]||'tab-blue'} ${currentViewTab===(i+1)?'active':''}" onclick="window.switchTab(${i+1})">탭 ${i+1}</div>`));
+    let tabs = [`<div class="v-tab ${currentViewTab===0?'active':''}" onclick="window.switchTab(0)">사건</div>`];
+    (s.branches || []).forEach((_, i) => {
+      const colorClass = pastelTabs[i] || 'tab-blue';
+      tabs.push(`<div class="v-tab ${colorClass} ${currentViewTab===(i+1)?'active':''}" onclick="window.switchTab(${i+1})">탭 ${i+1}</div>`);
+    });
     menu.innerHTML = tabs.join('');
     document.getElementById('viewMonth').innerText = `${s.era} ${s.year}년 ${s.month}월`;
     document.getElementById('viewText').innerText = currentViewTab === 0 ? s.text : s.branches[currentViewTab-1];
   };
+
   window.switchTab = (idx) => { currentViewTab = idx; window.renderTabs(storyboard.find(x => x.id == editingId)); };
   window.handleTabEdit = () => {
     const s = storyboard.find(x => x.id == editingId);
@@ -240,7 +267,6 @@
     });
   };
 
-  // 터치 핸들러 개선
   let dragItem = null, startX, startY, currentTarget = null, dragId = null, isMoving = false;
   document.addEventListener('touchstart', (e) => {
     const wrap = e.target.closest('.card-wrapper');
@@ -271,7 +297,6 @@
     };
 
     const end = () => {
-      // 움직이지 않았을 때만 상세보기 실행 (오류 방지)
       if(!isMoving && dragId) {
         window.openViewer(dragId);
       } else if(isMoving && currentTarget && dragId) {
@@ -287,7 +312,7 @@
       if(currentTarget) currentTarget.style.background = '';
       document.removeEventListener('touchmove', move);
       document.removeEventListener('touchend', end);
-      dragId = null; // 초기화
+      dragId = null;
     };
     document.addEventListener('touchmove', move, { passive: false });
     document.addEventListener('touchend', end);
