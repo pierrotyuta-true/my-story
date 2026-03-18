@@ -62,23 +62,33 @@
       left: 20px; display: flex; gap: 8px; z-index: 2100; 
     }
     
+    /* [수정] 탭 기본 스타일 (요청 색상 적용) */
     .v-tab { 
       padding: 8px 15px; border-radius: 10px 10px 0 0; font-size: 13px; font-weight: 800; 
       background: var(--inactive-tab); color: #fff; border: none; box-shadow: 0 -3px 5px rgba(0,0,0,0.05); 
       transition: all 0.2s;
     }
     
-    /* 활성 탭 스타일 (첫 번째 사진) */
+    /* 각 탭의 요청 배경색 */
+    .v-tab.tab-blue { background: #d0ebff; color: #495057; } 
+    .v-tab.tab-green { background: #d3f9d8; color: #495057; }
+    .v-tab.tab-yellow { background: #fff9db; color: #495057; }
+    .v-tab.tab-pink { background: #ffdeeb; color: #495057; }
+    .v-tab:first-child:not(.tab-blue):not(.tab-green):not(.tab-yellow):not(.tab-pink) { background: #e9ecef; color: #495057; } /* 사건 탭 default */
+
+    /* [수정] 요청 사항: 선택 시 흰 배경에 폰트만 변경 */
     .v-tab.active { 
-      background: white !important; color: var(--primary) !important; padding-top: 12px; /* 살짝 위로 */
+      background: white !important; /* 무조건 흰 배경 */
+      padding-top: 12px; /* 살짝 위로 */
       box-shadow: 0 -5px 10px rgba(0,0,0,0.05); z-index: 2101; 
     }
     
-    /* 선택된 활성 탭이 가지색일 경우 (첫 번째 사진) */
-    .v-tab.tab-blue.active { color: #fff !important; background: #4dabf7 !important; }
-    .v-tab.tab-yellow.active { color: #fff !important; background: #fcc419 !important; }
-    .v-tab.tab-green.active { color: #fff !important; background: #51cf66 !important; }
-    .v-tab.tab-pink.active { color: #fff !important; background: #ff8787 !important; }
+    /* 활성 탭 글자색 (본래 탭 색상 적용) */
+    .v-tab:first-child.active { color: var(--text) !important; } /* 사건 */
+    .v-tab.tab-blue.active { color: #228be6 !important; } 
+    .v-tab.tab-yellow.active { color: #f59f00 !important; }
+    .v-tab.tab-green.active { color: #2f9e44 !important; }
+    .v-tab.tab-pink.active { color: #d6336c !important; }
 
     .view-body { border: none; padding: 10px 0; margin-bottom: 20px; }
     #viewMonth { font-size: 12px; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
@@ -235,7 +245,7 @@
     window.openModal('viewModal'); 
   };
   
-  /* [로직 수정] 모달 탭 렌더링: 선택되지 않은 탭은 회색 처리 */
+  /* [로직 수정] 모달 탭 렌더링: 요청 사항에 맞게 순서와 색상 클래스 부여 */
   window.renderTabs = (s) => {
     const menu = document.getElementById('viewTabMenu');
     let tabs = [`<div class="v-tab ${currentViewTab===0?'active':''}" onclick="window.switchTab(0)">사건</div>`];
