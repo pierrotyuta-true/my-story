@@ -29,7 +29,7 @@
     .dropzone[data-side="left"] { align-items: flex-end; padding-right: 35px; }
     .dropzone[data-side="right"] { align-items: flex-start; padding-left: 35px; }
 
-    /* [수정] 타임라인 인덱스 탭: 회색 자투리 없이 밀착 */
+    /* [수정] 타임라인 인덱스 탭 수정 (회색 자투리 없이 밀착) */
     .card-wrapper { position: relative; width: 105px; z-index: 10; touch-action: none; cursor: pointer; }
     .side-tabs { position: absolute; top: -1px; display: flex; flex-direction: column; gap: 2px; pointer-events: none; }
     .dropzone[data-side="left"] .side-tabs { right: 100%; align-items: flex-end; }
@@ -46,39 +46,24 @@
     .card-month { font-size: 8px; font-weight: 900; color: var(--primary); margin-bottom: 3px; }
     .card-content { font-size: 10.5px; line-height: 1.4; font-weight: 700; color: #444; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
-    /* [수정] 모달 상세 페이지 및 탭 (첫 번째 사진처럼 복구) */
+    /* [수정] 모달 상세 페이지 및 탭 (두 번째 사진처럼 수정) */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: flex-end; backdrop-filter: blur(5px); }
     
     /* 상세 페이지 전용 모달 컨텐츠 스타일 */
-    #viewModal .modal-content { 
-      background: white; width: 100%; max-width: 450px; padding: 25px 20px; 
-      border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: visible; /* 탭이 보이게 visible */
-      box-shadow: 0 -5px 25px rgba(0,0,0,0.1); position: relative; 
-    }
+    #viewModal .modal-content { background: white; width: 100%; max-width: 450px; padding: 25px 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; box-shadow: 0 -5px 25px rgba(0,0,0,0.1); position: relative; }
     
-    /* 튀어나온 탭 메뉴 (첫 번째 사진) */
-    .view-tab-menu { 
-      position: absolute; top: -35px; /* 모달 위로 튀어나오게 */
-      left: 20px; display: flex; gap: 8px; z-index: 2100; 
-    }
+    /* 튀어나온 탭 메뉴 (두 번째 사진) */
+    .view-tab-menu { position: absolute; top: -35px; /* 모달 위로 튀어나오게 */ left: 20px; display: flex; gap: 8px; z-index: 2100; }
+    .v-tab { padding: 8px 15px; border-radius: 10px 10px 0 0; font-size: 13px; font-weight: 800; background: var(--inactive-tab); color: #fff; border: none; box-shadow: 0 -3px 5px rgba(0,0,0,0.05); transition: all 0.2s; }
     
-    .v-tab { 
-      padding: 8px 15px; border-radius: 10px 10px 0 0; font-size: 13px; font-weight: 800; 
-      background: var(--inactive-tab); color: #fff; border: none; box-shadow: 0 -3px 5px rgba(0,0,0,0.05); 
-      transition: all 0.2s;
-    }
+    /* 활성 탭 스타일 (두 번째 사진) */
+    .v-tab.active { background: white !important; color: var(--primary) !important; padding-top: 12px; /* 살짝 위로 */ box-shadow: 0 -5px 10px rgba(0,0,0,0.05); z-index: 2101; }
     
-    /* 활성 탭 스타일 (첫 번째 사진) */
-    .v-tab.active { 
-      background: white !important; color: var(--primary) !important; padding-top: 12px; /* 살짝 위로 */
-      box-shadow: 0 -5px 10px rgba(0,0,0,0.05); z-index: 2101; 
-    }
-    
-    /* 선택된 활성 탭이 가지색일 경우 (첫 번째 사진) */
-    .v-tab.tab-blue.active { color: #fff !important; background: #4dabf7 !important; }
-    .v-tab.tab-yellow.active { color: #fff !important; background: #fcc419 !important; }
-    .v-tab.tab-green.active { color: #fff !important; background: #51cf66 !important; }
-    .v-tab.tab-pink.active { color: #fff !important; background: #ff8787 !important; }
+    /* [수정] 탭 선택 색상 (순서대로) */
+    .v-tab.tab-blue.active { color: #fff !important; background: #4dabf7 !important; } /* 파스텔 블루 */
+    .v-tab.tab-yellow.active { color: #fff !important; background: #fcc419 !important; } /* 개나리색 */
+    .v-tab.tab-green.active { color: #fff !important; background: #51cf66 !important; } /* 파스텔 그린 */
+    .v-tab.tab-pink.active { color: #fff !important; background: #ff8787 !important; } /* 베이비 핑크 */
 
     .view-body { border: none; padding: 10px 0; margin-bottom: 20px; }
     #viewMonth { font-size: 12px; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
