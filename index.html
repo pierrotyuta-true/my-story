@@ -28,38 +28,39 @@
     .dropzone[data-side="left"] { align-items: flex-end; padding-right: 35px; }
     .dropzone[data-side="right"] { align-items: flex-start; padding-left: 35px; }
 
-    /* 타임라인 인덱스 탭 스타일 수정 */
+    /* --- 탭 디자인 최적화 섹션 --- */
     .card-wrapper { position: relative; width: 105px; z-index: 10; touch-action: none; cursor: pointer; }
-    .side-tabs { position: absolute; top: 12px; display: flex; flex-direction: column; pointer-events: none; }
+    .side-tabs { position: absolute; top: 8px; display: flex; flex-direction: column; pointer-events: none; }
     .dropzone[data-side="left"] .side-tabs { right: 100%; align-items: flex-end; }
     .dropzone[data-side="right"] .side-tabs { left: 100%; align-items: flex-start; }
     
     .tab-idx { 
       width: 14px; 
-      height: 20px; 
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      height: 18px; 
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
       position: relative;
     }
-    /* 탭들이 서로 겹치도록 설정 */
-    .tab-idx:not(:first-child) { margin-top: -6px; } 
+    /* 겹침 강도 강화: 탭 사이 마진을 크게 줄임 */
+    .tab-idx:not(:first-child) { margin-top: -10px; } 
 
-    .tab-white { background: #fff; border: 1px solid rgba(0,0,0,0.08); width: 15px; z-index: 15; }
-    .dropzone[data-side="left"] .tab-white { border-right: none; margin-right: -1px; border-radius: 6px 0 0 6px; }
-    .dropzone[data-side="right"] .tab-white { border-left: none; margin-left: -1px; border-radius: 0 6px 6px 0; }
+    .tab-white { background: #fff; border: 1px solid rgba(0,0,0,0.1); width: 16px; z-index: 20; }
+    .dropzone[data-side="left"] .tab-white { border-right: none; margin-right: -1px; border-radius: 5px 0 0 5px; }
+    .dropzone[data-side="right"] .tab-white { border-left: none; margin-left: -1px; border-radius: 0 5px 5px 0; }
 
-    /* 컬러 탭들 우선순위 조절 */
-    .tab-blue { background: #d0ebff; z-index: 14; }
-    .tab-green { background: #d3f9d8; z-index: 13; }
-    .tab-yellow { background: #fff9db; z-index: 12; }
-    .tab-pink { background: #ffdeeb; z-index: 11; }
+    /* 컬러 탭 레이어 순서 (흰색이 가장 위) */
+    .tab-blue { background: #d0ebff; z-index: 19; }
+    .tab-green { background: #d3f9d8; z-index: 18; }
+    .tab-yellow { background: #fff9db; z-index: 17; }
+    .tab-pink { background: #ffdeeb; z-index: 16; }
 
     .dropzone[data-side="left"] .tab-idx:not(.tab-white) { border-radius: 4px 0 0 4px; }
     .dropzone[data-side="right"] .tab-idx:not(.tab-white) { border-radius: 0 4px 4px 0; }
 
-    .card { background: #fff; width: 100%; min-height: 60px; border-radius: 10px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.02); position: relative; z-index: 20; pointer-events: none; }
+    .card { background: #fff; width: 100%; min-height: 60px; border-radius: 10px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.02); position: relative; z-index: 25; pointer-events: none; }
     .card-month { font-size: 8px; font-weight: 900; color: var(--primary); margin-bottom: 3px; }
     .card-content { font-size: 10.5px; line-height: 1.4; font-weight: 700; color: #444; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
+    /* 모달 및 기타 UI */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: flex-end; backdrop-filter: blur(5px); }
     #viewModal .modal-content { background: transparent; width: 100%; max-width: 450px; padding: 0 20px 20px 20px; border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; box-shadow: none; border: none; }
     .input-modal-content { background: white; border-radius: 20px; padding: 20px; width: 90%; max-width: 400px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
