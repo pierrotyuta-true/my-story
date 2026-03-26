@@ -26,7 +26,7 @@
                     <button class="filter-btn">주요사건</button>
                     <button class="filter-btn">인물</button>
                 </div>
-                <div class="timeline-wrapper scroll-area">
+                <div class="timeline-wrapper scroll-area dot-bg">
                     <div class="timeline-line"></div>
                     <div id="event-list">
                         </div>
@@ -40,7 +40,7 @@
                     <aside id="sidebar">
                         <div class="sidebar-header">
                             <strong>Story List</strong>
-                            <button onclick="createNewStory()">+</button>
+                            <button class="add-icon" onclick="createNewStory()">+</button>
                         </div>
                         <ul id="story-list" class="scroll-area"></ul>
                     </aside>
@@ -56,7 +56,7 @@
                         <div class="editor-content-area scroll-area">
                             <div class="paper">
                                 <div id="viewer"></div>
-                                <textarea id="editor" spellcheck="false"></textarea>
+                                <textarea id="editor" spellcheck="false" placeholder="줄거리를 입력하세요..."></textarea>
                             </div>
                         </div>
                     </main>
