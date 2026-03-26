@@ -1,81 +1,65 @@
 :root {
     --main-blue: #54b3ff;
     --dark-grey: #343a40;
-    --bg-light: #f8f9fa;
+    --white: #ffffff;
     --border: #eeeeee;
 }
 
 * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; -webkit-tap-highlight-color: transparent; }
 body { margin: 0; background: #fff; height: 100vh; overflow: hidden; }
 
-/* 상단 네비게이션 */
-#top-nav { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; }
+/* 공통 레이아웃 */
+#top-nav { height: 50px; border-bottom: 1px solid var(--border); display: flex; align-items: center; background: #fff; }
 .nav-container { display: flex; width: 100%; padding: 0 15px; justify-content: space-between; align-items: center; }
 .nav-logo { color: var(--main-blue); font-weight: 800; font-size: 1rem; }
 .tab-btn { background: none; border: none; padding: 10px 15px; color: #adb5bd; font-weight: 700; cursor: pointer; }
 .tab-btn.active { color: var(--main-blue); border-bottom: 3px solid var(--main-blue); }
 
-/* 타임라인 탭 전용 스타일 (도트 배경) */
-.dot-bg { 
-    background-color: #f1f6f9;
-    background-image: radial-gradient(#d1d9e0 1px, transparent 1px);
+.tab-view { display: none; height: calc(100vh - 50px); width: 100%; position: relative; }
+.tab-view.active { display: flex; flex-direction: column; }
+
+/* [Timeline 전용 배경] */
+.timeline-wrapper { 
+    flex: 1; position: relative; 
+    background-color: #f1f6f9; /* 기본 배경색 */
+    background-image: radial-gradient(#d1d9e0 1px, transparent 1px); /* 도트 */
     background-size: 20px 20px;
-    position: relative;
 }
-.timeline-line {
-    position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #e0e6ed; transform: translateX(-50%);
-}
-.era-badge {
-    position: relative; z-index: 2; width: fit-content; margin: 20px auto;
-    background: var(--dark-grey); color: #fff; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;
-}
+.timeline-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: #e0e6ed; transform: translateX(-50%); z-index: 1; }
+
+.era-badge { position: relative; z-index: 2; width: fit-content; margin: 20px auto; background: var(--dark-grey); color: #fff; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
 .event-item { position: relative; width: 100%; margin-bottom: 25px; display: flex; z-index: 2; }
 .event-item.left { justify-content: flex-start; padding-left: 5%; padding-right: 52%; }
 .event-item.right { justify-content: flex-end; padding-right: 5%; padding-left: 52%; }
 .event-card { background: #fff; padding: 15px; border-radius: 12px; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
 .node { position: absolute; left: 50%; top: 20px; width: 12px; height: 12px; background: #fff; border: 3px solid var(--main-blue); border-radius: 50%; transform: translateX(-50%); }
 
-/* 스토리 탭 레이아웃 (깔끔한 화이트) */
-.story-layout { display: flex; width: 100%; height: 100%; background: #fff; }
-#sidebar { 
-    width: 260px; border-right: 1px solid var(--border); background: #fff; 
-    transition: 0.3s; z-index: 30;
+/* [Story 전용 - 배경 침범 완전 차단] */
+.story-layout { display: flex; width: 100%; height: 100%; background: #fff !important; } /* 강제 흰색 */
+.editor-content-area { 
+    flex: 1; background: #f4f7f6 !important; /* 도트 배경 안 나오게 강제 지정 */
+    padding: 20px; display: flex; justify-content: center; 
 }
-.story-item { 
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 15px; font-size: 0.9rem; cursor: pointer; border-bottom: 1px solid #f9f9f9;
-}
-.story-item.active { background: #f0f7ff; color: var(--main-blue); font-weight: 700; }
-.story-item.child { padding-left: 30px; font-size: 0.85rem; background: #fafafa; }
-.del-btn { color: #ff6b6b; border: none; background: none; font-size: 1rem; cursor: pointer; }
-
-/* 에디터 종이 디자인 */
-.main-editor { flex: 1; display: flex; flex-direction: column; }
-.editor-header { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--border); }
-.editor-content { background: #f4f7f6; padding: 20px; display: flex; justify-content: center; }
 .paper { 
     width: 100%; max-width: 800px; background: #fff; min-height: 100%; 
-    padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 4px;
+    padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 4px;
 }
+
+/* 사이드바 & 에디터 */
+#sidebar { width: 260px; border-right: 1px solid var(--border); background: #fff; transition: 0.3s; }
+.story-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f9f9f9; display: flex; justify-content: space-between; }
+.story-item.active { background: #f0f7ff; color: var(--main-blue); font-weight: 700; }
 #viewer, #editor { font-size: 1.05rem; line-height: 1.8; color: #333; width: 100%; border: none; outline: none; }
-#editor { display: none; height: 70vh; resize: none; background: transparent; }
+#editor { display: none; height: 70vh; resize: none; }
 
-/* 주석 링크 카드 */
-.sub-link-card {
-    display: block; margin-top: 20px; padding: 15px; background: #f8f9fa;
-    border-radius: 8px; border-left: 4px solid var(--main-blue);
-    text-decoration: none; color: var(--main-blue); font-weight: 700; font-size: 0.9rem;
-}
-
-/* 플로팅 & 모바일 버튼 */
+/* 버튼들 */
 .floating-add-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: var(--main-blue); color: #fff; border: none; border-radius: 50%; font-size: 2rem; box-shadow: 0 4px 15px rgba(84, 179, 255, 0.4); z-index: 100; }
-#sidebar-toggle { background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-right: 10px; }
-.primary-btn { background: var(--main-blue); color: #fff; border: none; padding: 6px 15px; border-radius: 6px; font-weight: 600; }
+.primary-btn { background: var(--main-blue); color: #fff; border: none; padding: 6px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+.sub-btn { background: #fff; border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; margin-right: 5px; cursor: pointer; }
 
 @media (max-width: 768px) {
-    #sidebar { position: absolute; left: 0; top: 0; bottom: 0; transform: translateX(-100%); z-index: 100; }
+    #sidebar { position: fixed; left: 0; top: 50px; bottom: 0; transform: translateX(-100%); z-index: 1000; }
     #sidebar.open { transform: translateX(0); }
-    #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 50; }
-    .event-item.left, .event-item.right { padding: 0 20px 0 55%; }
-    .event-item.left { padding: 0 55% 0 20px; }
+    .event-item.left, .event-item.right { padding: 0 15px 0 55%; }
+    .event-item.left { padding: 0 55% 0 15px; }
 }
