@@ -3,238 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yuta's Writing Suite</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <title>유타의 타임라인</title> <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        /* [1] 공통 스타일 및 탭 디자인 */
-        :root {
-            --bg-color: #f5f6f8;
-            --primary-color: #5c7cfa;
-            --sidebar-bg: #ffffff;
-            --text-main: #2c2e33;
-            --border-color: #e9ecef;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg-color); height: 100vh; overflow: hidden; }
-
-        /* 상단 네비게이션 */
-        #top-nav {
-            height: 50px; background: #333; display: flex; align-items: center; padding: 0 20px; gap: 20px;
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .nav-logo { color: #fff; font-weight: bold; font-size: 0.9rem; margin-right: 10px; }
-        .tab-btn { background: none; border: none; color: #aaa; padding: 10px 15px; cursor: pointer; font-size: 0.9rem; }
-        .tab-btn.active { color: #fff; font-weight: bold; border-bottom: 3px solid var(--primary-color); }
-
-        /* 탭 뷰 전환 */
-        .tab-view { display: none; height: calc(100vh - 50px); overflow: hidden; }
-        .tab-view.active { display: flex; }
-
-        /* [2] 타임라인 전용 스타일 (기존 스타일 축약) */
-        #view-timeline { flex-direction: column; padding: 20px; overflow-y: auto; }
-        .event-card { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--primary-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
-        .event-card h4 { margin: 0 0 5px 0; font-size: 1rem; }
-        .event-card p { margin: 0; font-size: 0.85rem; color: #666; }
-
-        /* [3] 스토리 전용 스타일 (방금 만든 디자인) */
-        .story-layout { display: flex; width: 100%; height: 100%; }
-        #sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; }
-        .story-list { flex: 1; overflow-y: auto; padding: 10px; list-style: none; margin: 0; }
-        .story-item { padding: 10px; border-radius: 6px; cursor: pointer; margin-bottom: 3px; font-size: 0.85rem; }
-        .story-item.active { background: #edf2ff; color: var(--primary-color); font-weight: 600; }
-        
-        .main-editor { flex: 1; display: flex; flex-direction: column; background: var(--bg-color); }
-        .editor-header { height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border-color); }
-        .content-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; justify-content: center; }
-        .paper { width: 100%; max-width: 700px; background: #fff; padding: 40px; border-radius: 4px; min-height: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        #viewer, #editor { font-family: 'Gowun Batang', serif; font-size: 0.95rem; line-height: 1.8; width: 100%; border: none; outline: none; }
-        #viewer { white-space: pre-wrap; }
-        #editor { display: none; height: 70vh; resize: none; }
-        .highlight { background: #fff3bf; padding: 1px 3px; }
-
-        /* 알림 토스트 */
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 0.8rem; z-index: 2000; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <nav id="top-nav">
-        <div class="nav-logo">YUTA WRITER</div>
-        <button class="tab-btn active" onclick="switchTab('timeline')">Timeline</button>
-        <button class="tab-btn" onclick="switchTab('story')">Story</button>
-        <button class="tab-btn" onclick="switchTab('character')">Character</button>
-    </nav>
-
-    <div id="tab-container">
-        <section id="view-timeline" class="tab-view active">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3>사건 흐름</h3>
-                <button onclick="addEvent()" style="padding: 5px 15px;">+ 사건 추가</button>
+    <div id="app">
+        <nav id="top-nav">
+            <div class="nav-container">
+                <button class="tab-btn active" onclick="switchTab('timeline')">Timeline</button>
+                <button class="tab-btn" onclick="switchTab('story')">Story</button>
+                <button class="tab-btn" onclick="switchTab('character')">Character</button>
             </div>
-            <div id="event-list">
+        </nav>
+
+        <div id="tab-container">
+            <section id="view-timeline" class="tab-view active">
+                <header class="view-header">
+                    <h3>사건 흐름</h3>
+                    <button class="main-add-btn" onclick="addEvent()">+ 사건 추가</button>
+                </header>
+                <div id="event-list" class="scroll-area"></div>
+            </section>
+
+            <section id="view-story" class="tab-view">
+                <div class="story-layout">
+                    <aside id="sidebar">
+                        <div class="sidebar-header">
+                            <strong>Story List</strong>
+                            <button class="icon-btn" onclick="createNewStory()">+</button>
+                        </div>
+                        <ul id="story-list" class="story-list scroll-area"></ul>
+                    </aside>
+                    <main class="main-editor">
+                        <header class="editor-header">
+                            <strong id="current-title">메인 줄거리</strong>
+                            <div class="actions">
+                                <button class="sub-btn" onclick="makeSubDocument()">파트 분리</button>
+                                <button id="edit-btn" class="primary-btn" onclick="handleEdit()">편집 시작</button>
+                            </div>
+                        </header>
+                        <div class="content-area scroll-area">
+                            <div class="paper">
+                                <div id="viewer"></div>
+                                <textarea id="editor" spellcheck="false"></textarea>
+                            </div>
+                        </div>
+                    </main>
                 </div>
-        </section>
+            </section>
 
-        <section id="view-story" class="tab-view">
-            <div class="story-layout">
-                <aside id="sidebar">
-                    <div class="sidebar-header">
-                        <strong>Story List</strong>
-                        <button onclick="createNewStory()" style="font-size: 0.7rem;">+ New</button>
-                    </div>
-                    <ul id="story-list" class="story-list"></ul>
-                </aside>
-                <main class="main-editor">
-                    <header class="editor-header">
-                        <strong id="current-title">메인 줄거리</strong>
-                        <div class="actions">
-                            <button onclick="makeSubDocument()" style="font-size: 0.8rem; margin-right: 5px;">파트 분리</button>
-                            <button id="edit-btn" onclick="handleEdit()" style="background:var(--primary-color); color:#fff; border:none; padding:5px 15px; border-radius:15px;">편집 시작</button>
-                        </div>
-                    </header>
-                    <div class="content-area">
-                        <div class="paper">
-                            <div id="viewer"></div>
-                            <textarea id="editor"></textarea>
-                        </div>
-                    </div>
-                </main>
-            </div>
-        </section>
-
-        <section id="view-character" class="tab-view">
-            <div style="padding: 50px; text-align: center; width: 100%;">
-                <h3>인물 설정창</h3>
-                <p>캐릭터 카드는 이쪽으로 옮겨올 예정입니다.</p>
-            </div>
-        </section>
+            <section id="view-character" class="tab-view">
+                <div class="empty-state">
+                    <h3>인물 설정</h3>
+                    <p>준비 중인 공간입니다.</p>
+                </div>
+            </section>
+        </div>
     </div>
-
-    <script>
-        // [1] 공통 데이터 및 탭 전환
-        let stories = JSON.parse(localStorage.getItem('yuta_stories')) || [{ id: 1, title: "메인 줄거리", content: "첫 줄거리를 작성해보세요.", parentId: null }];
-        let events = JSON.parse(localStorage.getItem('yuta_events')) || [];
-        let currentDocId = stories[0].id;
-        let isEditing = false;
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            document.getElementById('view-' + tabId).classList.add('active');
-            if(tabId === 'story') renderStory();
-            if(tabId === 'timeline') renderTimeline();
-        }
-
-        // [2] 타임라인 로직 (기존 기능 연동)
-        function renderTimeline() {
-            const list = document.getElementById('event-list');
-            list.innerHTML = events.length ? '' : '<p style="text-align:center; color:#999;">등록된 사건이 없습니다.</p>';
-            events.forEach(ev => {
-                const card = document.createElement('div');
-                card.className = 'event-card';
-                card.innerHTML = `<h4>${ev.title}</h4><p>${ev.memo || '메모 없음'}</p><small style="color:var(--primary-color);">👉 클릭시 스토리로 연결 (준비중)</small>`;
-                card.onclick = () => {
-                    // 💡 여기서 스토리 탭으로 넘겨주는 연동 기능을 넣을 예정!
-                    alert(`'${ev.title}' 사건의 상세 줄거리를 쓰러 이동합니다.`);
-                    goToStory(ev.title);
-                };
-                list.appendChild(card);
-            });
-        }
-
-        function addEvent() {
-            const title = prompt("사건 제목을 입력하세요:");
-            if(title) {
-                events.push({ id: Date.now(), title: title, memo: "" });
-                localStorage.setItem('yuta_events', JSON.stringify(events));
-                renderTimeline();
-            }
-        }
-
-        // [3] 스토리 로직 (유타님 요청 기능)
-        function renderStory() {
-            const doc = stories.find(s => s.id === currentDocId);
-            document.getElementById('current-title').innerText = doc.title;
-            document.getElementById('viewer').innerHTML = doc.content.replace(/==(.+?)==/g, '<span class="highlight">$1</span>');
-            document.getElementById('editor').value = doc.content;
-            updateStoryList();
-            localStorage.setItem('yuta_stories', JSON.stringify(stories));
-        }
-
-        function updateStoryList() {
-            const listUI = document.getElementById('story-list');
-            listUI.innerHTML = '';
-            stories.forEach(s => {
-                const li = document.createElement('li');
-                li.className = `story-item ${s.id === currentDocId ? 'active' : ''}`;
-                li.innerText = `📄 ${s.title}`;
-                li.onclick = () => { currentDocId = s.id; isEditing = false; updateDisplay(); renderStory(); };
-                listUI.appendChild(li);
-            });
-        }
-
-        function handleEdit() {
-            const doc = stories.find(s => s.id === currentDocId);
-            const editBtn = document.getElementById('edit-btn');
-            if(!isEditing) {
-                isEditing = true;
-                updateDisplay();
-                document.getElementById('editor').focus();
-            } else {
-                doc.content = document.getElementById('editor').value;
-                isEditing = false;
-                updateDisplay();
-                renderStory();
-            }
-        }
-
-        function updateDisplay() {
-            document.getElementById('viewer').style.display = isEditing ? 'none' : 'block';
-            document.getElementById('editor').style.display = isEditing ? 'block' : 'none';
-            document.getElementById('edit-btn').innerText = isEditing ? '저장 완료' : '편집 시작';
-        }
-
-        function makeSubDocument() {
-            let text = isEditing ? document.getElementById('editor').value.substring(document.getElementById('editor').selectionStart, document.getElementById('editor').selectionEnd) : window.getSelection().toString();
-            if(!text.trim()) return alert("텍스트를 드래그해주세요.");
-            const newDoc = { id: Date.now(), title: text.substring(0,10) + "...", content: text, parentId: currentDocId };
-            stories.push(newDoc);
-            stories.find(s => s.id === currentDocId).content += `\n\n[연계 파트: ${newDoc.title}]`;
-            showToast("파트가 분리되었습니다!");
-            renderStory();
-        }
-
-        function goToStory(title) {
-            // 타임라인에서 넘어올 때 새 스토리 문서를 자동으로 만들어주는 로직
-            const existing = stories.find(s => s.title === title);
-            if(!existing) {
-                const newDoc = { id: Date.now(), title: title, content: "", parentId: null };
-                stories.push(newDoc);
-                currentDocId = newDoc.id;
-            } else {
-                currentDocId = existing.id;
-            }
-            // 탭 강제 전환
-            document.querySelectorAll('.tab-btn')[1].click(); 
-        }
-
-        function showToast(msg) {
-            const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-            document.body.appendChild(t);
-            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 2000);
-        }
-
-        function createNewStory() {
-            const t = prompt("제목:");
-            if(t) { stories.push({ id: Date.now(), title: t, content: "", parentId: null }); renderStory(); }
-        }
-
-        // 초기 실행
-        renderTimeline();
-        renderStory();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
