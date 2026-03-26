@@ -1,80 +1,72 @@
 :root {
-    --nav-bg: #1a1c23;
-    --primary: #5c7cfa;
-    --bg: #f8f9fa;
-    --border: #e9ecef;
-    --text: #2d3436;
+    --main-blue: #54b3ff;
+    --dark-grey: #343a40;
+    --bg-light: #f1f6f9;
     --white: #ffffff;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Pretendard', sans-serif; }
-body { margin: 0; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+* { box-sizing: border-box; font-family: 'Pretendard', sans-serif; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; background: var(--bg-light); overflow: hidden; height: 100vh; }
 
-/* [1] 상단 네비게이션 (밀림 방지) */
-#top-nav { height: 55px; background: var(--nav-bg); display: flex; align-items: center; z-index: 1000; }
-.nav-container { display: flex; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
-.nav-logo { color: #fff; font-weight: 900; letter-spacing: 1px; font-size: 0.9rem; margin-right: auto; }
-.nav-tabs { display: flex; gap: 5px; }
-.tab-btn { background: none; border: none; color: #868e96; padding: 15px 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: 0.3s; }
-.tab-btn.active { color: #fff; border-bottom: 3px solid var(--primary); }
-
-/* [2] 타임라인 가지선 & 카드 디자인 복구 */
-.tab-view { display: none; height: calc(100vh - 55px); width: 100%; }
-.tab-view.active { display: flex; flex-direction: column; }
-.scroll-area { flex: 1; overflow-y: auto; padding-bottom: 60px; }
-
-#event-list { position: relative; padding: 20px 0; }
-#event-list::before { /* 세로 가지선 */
-    content: ''; position: absolute; left: 35px; top: 0; bottom: 0; width: 2px; background: #dee2e6; z-index: 0;
+/* 도트 배경 재현 */
+.scroll-area {
+    background-image: radial-gradient(#d1d9e0 1px, transparent 1px);
+    background-size: 20px 20px;
 }
+
+/* 상단 탭 */
+#top-nav { height: 50px; background: #fff; border-bottom: 1px solid #eee; display: flex; align-items: center; }
+.nav-container { display: flex; width: 100%; padding: 0 15px; justify-content: space-between; }
+.nav-logo { color: var(--main-blue); font-weight: 800; font-size: 1.1rem; }
+.tab-btn { background: none; border: none; padding: 10px; color: #999; font-weight: 600; cursor: pointer; }
+.tab-btn.active { color: var(--main-blue); border-bottom: 3px solid var(--main-blue); }
+
+/* 타임라인 레이아웃 (사진 5번 스타일) */
+#timeline-container { position: relative; padding-top: 20px; flex: 1; }
+.timeline-line {
+    position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; 
+    background: #e0e6ed; transform: translateX(-50%); z-index: 1;
+}
+
+/* 연도/시대 표시 박스 */
+.era-badge {
+    position: relative; z-index: 2; width: fit-content; margin: 20px auto;
+    background: var(--dark-grey); color: #fff; padding: 6px 15px;
+    border-radius: 20px; font-size: 0.85rem; font-weight: 700;
+}
+
+/* 카드 배치 (양옆으로 지그재그) */
+.event-item { position: relative; width: 100%; margin-bottom: 30px; display: flex; z-index: 2; }
+.event-item.left { justify-content: flex-start; padding-left: 5%; padding-right: 52%; }
+.event-item.right { justify-content: flex-end; padding-right: 5%; padding-left: 52%; }
 
 .event-card {
-    position: relative; background: #fff; margin: 0 20px 20px 65px; padding: 20px; 
-    border-radius: 12px; border-left: 6px solid var(--primary); 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; z-index: 1;
+    background: #fff; padding: 15px; border-radius: 12px; width: 100%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative;
 }
-.event-card::before { /* 인덱스 노드(동그라미) */
-    content: ''; position: absolute; left: -37px; top: 22px; width: 12px; height: 12px; 
-    border-radius: 50%; background: var(--primary); border: 3px solid #fff; box-shadow: 0 0 0 2px var(--primary);
+.event-card .month { color: var(--main-blue); font-size: 0.8rem; font-weight: 800; margin-bottom: 5px; display: block; }
+.event-card h4 { margin: 0; font-size: 0.95rem; line-height: 1.4; color: #333; }
+
+/* 노드(중앙 연결점) */
+.node {
+    position: absolute; left: 50%; top: 20px; width: 12px; height: 12px;
+    background: #fff; border: 3px solid var(--main-blue); border-radius: 50%;
+    transform: translateX(-50%); z-index: 3;
 }
 
-/* [3] 스토리 리스트 삭제 & 계층 스타일 */
-#sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border); transition: 0.3s; z-index: 20; }
-.story-item { 
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px; border-radius: 8px; margin: 2px 8px; font-size: 0.9rem; cursor: pointer;
+/* 스토리 탭 모바일 최적화 */
+.story-layout { display: flex; width: 100%; height: 100%; }
+#sidebar { 
+    position: absolute; left: 0; top: 0; bottom: 0; width: 260px; 
+    background: #fff; transform: translateX(-100%); transition: 0.3s; z-index: 20; 
 }
-.story-item.active { background: #edf2ff; color: var(--primary); font-weight: 700; }
-.story-item.child { margin-left: 25px; background: #f8f9fa; border-left: 2px solid #dee2e6; font-size: 0.85rem; }
-.story-item.child span::before { content: "└ "; color: #adb5bd; }
+#sidebar.open { transform: translateX(0); }
+.main-editor { flex: 1; display: flex; flex-direction: column; background: #fff; }
 
-.del-btn { color: #ff6b6b; border: none; background: none; font-size: 1.2rem; cursor: pointer; opacity: 0.5; }
-.del-btn:hover { opacity: 1; }
-
-/* [4] 글쓰기 종이 & 주석 링크 카드 */
-.paper { width: 100%; max-width: 800px; background: #fff; padding: 40px 30px; min-height: 100%; box-shadow: 0 2px 20px rgba(0,0,0,0.03); }
-#viewer, #editor { font-size: 1rem; line-height: 1.9; color: #333; width: 100%; border: none; outline: none; }
-#editor { display: none; height: 75vh; resize: none; background: transparent; }
-
-.sub-link-wrapper { margin-top: 25px; border-top: 1px dashed var(--border); padding-top: 15px; }
-.sub-link-card {
-    display: flex; flex-direction: column; width: 100%; padding: 15px; background: #f1f3f5; 
-    border-radius: 10px; border-left: 5px solid var(--primary); text-align: left;
-    border-top:none; border-right:none; border-bottom:none; cursor: pointer;
-}
-.sub-link-card span { color: var(--primary); font-weight: 700; font-size: 0.95rem; }
-.sub-link-card small { color: #868e96; margin-top: 4px; }
-
-/* 공통 버튼 */
-.primary-btn { background: var(--primary); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; }
-.sub-btn { background: #f8f9fa; border: 1px solid var(--border); padding: 7px 15px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; margin-right: 5px; }
-.main-add-btn { background: var(--primary); color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-
-/* 모바일 대응 */
-@media (max-width: 768px) {
-    #sidebar { position: absolute; left: 0; top: 0; bottom: 0; transform: translateX(-100%); width: 280px; }
-    #sidebar.open { transform: translateX(0); }
-    #sidebar-toggle { display: block; background:none; border:none; font-size:1.2rem; cursor:pointer; }
-    .nav-logo { display: none; }
-    .nav-tabs { width: 100%; justify-content: space-around; }
+/* 플로팅 버튼 */
+.floating-add-btn {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    width: 60px; height: 60px; background: var(--main-blue); color: #fff;
+    border: none; border-radius: 50%; font-size: 2rem; box-shadow: 0 4px 15px rgba(84, 179, 255, 0.4);
+    cursor: pointer; z-index: 100;
 }
