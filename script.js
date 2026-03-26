@@ -1,10 +1,10 @@
-// 1. 초기 데이터 관리
+// [1] 데이터 및 초기화 (이전 동일)
 let events = JSON.parse(localStorage.getItem('yuta_events')) || [];
-let stories = JSON.parse(localStorage.getItem('yuta_stories')) || [{ id: 1, title: "메인 줄거리", content: "여기에 소설의 큰 흐름을 작성하세요.", parentId: null }];
+let stories = JSON.parse(localStorage.getItem('yuta_stories')) || [{ id: 1, title: "메인 줄거리", content: "모바일 화면이 최적화되었습니다!\n\n왼쪽 상단의 ☰ 버튼을 눌러 스토리 리스트를 여닫을 수 있습니다.", parentId: null }];
 let currentDocId = stories[0].id;
 let isEditing = false;
 
-// 2. 탭 전환
+// [2] 탭 전환 (이전 동일)
 function switchTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
@@ -16,18 +16,33 @@ function switchTab(tabId) {
     if (tabId === 'story') renderStory();
 }
 
-// 3. 타임라인 로직
+// [3] ★사이드바 토글 (모바일 접기 기능)★
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen = sidebar.classList.contains('open');
+
+    if (isOpen) {
+        sidebar.classList.remove('open');
+        overlay.style.display = 'none';
+    } else {
+        sidebar.classList.add('open');
+        overlay.style.display = 'block';
+    }
+}
+
+// [4] 타임라인 로직 (이전 동일)
 function renderTimeline() {
     const list = document.getElementById('event-list');
     list.innerHTML = '';
     if (events.length === 0) {
-        list.innerHTML = '<div style="text-align:center; padding:50px; color:#999;">새로운 사건을 추가해 보세요.</div>';
+        list.innerHTML = '<div style="text-align:center; padding:50px; color:#999; font-size:0.9rem;">등록된 사건이 없습니다.</div>';
         return;
     }
     events.forEach(ev => {
         const card = document.createElement('div');
         card.className = 'event-card';
-        card.innerHTML = `<h4>${ev.title}</h4><p>${ev.memo || '메모가 없습니다.'}</p><small style="color:#4c6ef5; margin-top:10px; display:block;">📝 상세 줄거리 쓰기</small>`;
+        card.innerHTML = `<h4>${ev.title}</h4><p>${ev.memo || '메모가 없습니다.'}</p><small style="color:#4c6ef5; margin-top:10px; display:block; font-size:0.75rem;">📝 상세 줄거리 쓰기</small>`;
         card.onclick = () => connectToStory(ev.title);
         list.appendChild(card);
     });
@@ -42,7 +57,7 @@ function addEvent() {
     }
 }
 
-// 4. 스토리 로직
+// [5] 스토리 로직 (연동 및 접기 반영)
 function renderStory() {
     const doc = stories.find(s => s.id === currentDocId) || stories[0];
     currentDocId = doc.id;
@@ -61,7 +76,14 @@ function updateStoryList() {
         const li = document.createElement('li');
         li.className = `story-item ${s.id === currentDocId ? 'active' : ''}`;
         li.innerText = `📄 ${s.title}`;
-        li.onclick = () => { currentDocId = s.id; isEditing = false; updateDisplay(); renderStory(); };
+        li.onclick = () => { 
+            currentDocId = s.id; 
+            isEditing = false; 
+            updateDisplay(); 
+            renderStory();
+            // 모바일에서 항목 선택 시 자동으로 사이드바 접기
+            if(window.innerWidth <= 768) toggleSidebar(); 
+        };
         listUI.appendChild(li);
     });
 }
@@ -94,7 +116,7 @@ function makeSubDocument() {
     
     if (!text.trim()) return alert("텍스트를 드래그하여 선택해주세요.");
 
-    const newDoc = { id: Date.now(), title: text.substring(0, 12) + "...", content: text, parentId: currentDocId };
+    const newDoc = { id: Date.now(), title: text.substring(0, 10) + "...", content: text, parentId: currentDocId };
     stories.push(newDoc);
     stories.find(s => s.id === currentDocId).content += `\n\n[연계 파트: ${newDoc.title}]`;
     
@@ -111,7 +133,7 @@ function connectToStory(title) {
     } else {
         currentDocId = existing.id;
     }
-    // 스토리 탭으로 전환 (탭 버튼 시뮬레이션)
+    // 스토리 탭으로 전환
     document.querySelectorAll('.tab-btn')[1].click();
 }
 
@@ -122,6 +144,8 @@ function createNewStory() {
         stories.push(newDoc);
         currentDocId = newDoc.id;
         renderStory();
+        // 모바일에서 새 스토리 만들면 사이드바 접기
+        if(window.innerWidth <= 768) toggleSidebar();
     }
 }
 
