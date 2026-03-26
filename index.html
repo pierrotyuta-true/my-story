@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>유타의 타임라인</title> <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <title>스토리마스터</title> <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,9 +11,12 @@
     <div id="app">
         <nav id="top-nav">
             <div class="nav-container">
-                <button class="tab-btn active" onclick="switchTab('timeline')">Timeline</button>
-                <button class="tab-btn" onclick="switchTab('story')">Story</button>
-                <button class="tab-btn" onclick="switchTab('character')">Character</button>
+                <div class="nav-logo">스토리마스터</div>
+                <div class="nav-tabs">
+                    <button class="tab-btn active" onclick="switchTab('timeline')">Timeline</button>
+                    <button class="tab-btn" onclick="switchTab('story')">Story</button>
+                    <button class="tab-btn" onclick="switchTab('character')">Character</button>
+                </div>
             </div>
         </nav>
 
@@ -28,6 +31,8 @@
 
             <section id="view-story" class="tab-view">
                 <div class="story-layout">
+                    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
                     <aside id="sidebar">
                         <div class="sidebar-header">
                             <strong>Story List</strong>
@@ -35,9 +40,13 @@
                         </div>
                         <ul id="story-list" class="story-list scroll-area"></ul>
                     </aside>
+
                     <main class="main-editor">
                         <header class="editor-header">
-                            <strong id="current-title">메인 줄거리</strong>
+                            <div class="header-left">
+                                <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+                                <strong id="current-title">메인 줄거리</strong>
+                            </div>
                             <div class="actions">
                                 <button class="sub-btn" onclick="makeSubDocument()">파트 분리</button>
                                 <button id="edit-btn" class="primary-btn" onclick="handleEdit()">편집 시작</button>
@@ -46,7 +55,7 @@
                         <div class="content-area scroll-area">
                             <div class="paper">
                                 <div id="viewer"></div>
-                                <textarea id="editor" spellcheck="false"></textarea>
+                                <textarea id="editor" spellcheck="false" placeholder="줄거리를 작성하세요..."></textarea>
                             </div>
                         </div>
                     </main>
