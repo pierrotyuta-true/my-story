@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>스토리마스터</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,19 +15,22 @@
                 <div class="nav-tabs">
                     <button class="tab-btn active" onclick="switchTab('timeline')">Timeline</button>
                     <button class="tab-btn" onclick="switchTab('story')">Story</button>
-                    <button class="tab-btn" onclick="switchTab('character')">Character</button>
                 </div>
             </div>
         </nav>
 
         <div id="tab-container">
             <section id="view-timeline" class="tab-view active">
-                <header class="view-header">
-                    <h3>사건 흐름</h3>
-                    <button class="main-add-btn" onclick="addEvent()">+ 사건 추가</button>
-                </header>
-                <div id="event-list" class="scroll-area">
-                    </div>
+                <div class="filter-bar">
+                    <button class="filter-btn active">전체</button>
+                    <button class="filter-btn">주요사건</button>
+                    <button class="filter-btn">인물</button>
+                </div>
+                <div id="timeline-container" class="scroll-area">
+                    <div class="timeline-line"></div>
+                    <div id="event-list"></div>
+                </div>
+                <button class="floating-add-btn" onclick="addEvent()">+</button>
             </section>
 
             <section id="view-story" class="tab-view">
@@ -37,35 +39,26 @@
                     <aside id="sidebar">
                         <div class="sidebar-header">
                             <strong>Story List</strong>
-                            <button class="add-icon-btn" onclick="createNewStory()">+</button>
+                            <button onclick="createNewStory()">+</button>
                         </div>
-                        <ul id="story-list" class="story-list scroll-area"></ul>
+                        <ul id="story-list" class="scroll-area"></ul>
                     </aside>
                     <main class="main-editor">
                         <header class="editor-header">
-                            <div class="header-left">
-                                <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-                                <strong id="current-title">메인 줄거리</strong>
-                            </div>
+                            <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+                            <strong id="current-title">줄거리</strong>
                             <div class="actions">
-                                <button class="sub-btn" onclick="makeSubDocument()">파트 분리</button>
-                                <button id="edit-btn" class="primary-btn" onclick="handleEdit()">편집 시작</button>
+                                <button class="sub-btn" onclick="makeSubDocument()">파트분리</button>
+                                <button id="edit-btn" class="primary-btn" onclick="handleEdit()">편집</button>
                             </div>
                         </header>
                         <div class="content-area scroll-area">
                             <div class="paper">
                                 <div id="viewer"></div>
-                                <textarea id="editor" spellcheck="false" placeholder="줄거리를 입력하세요..."></textarea>
+                                <textarea id="editor" spellcheck="false"></textarea>
                             </div>
                         </div>
                     </main>
-                </div>
-            </section>
-
-            <section id="view-character" class="tab-view">
-                <div class="empty-state">
-                    <h3>인물 설정</h3>
-                    <p>인물 카드를 관리하는 공간입니다 (준비 중).</p>
                 </div>
             </section>
         </div>
