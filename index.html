@@ -26,9 +26,10 @@
                     <button class="filter-btn">주요사건</button>
                     <button class="filter-btn">인물</button>
                 </div>
-                <div id="timeline-scroll-area" class="scroll-area dot-bg">
+                <div class="timeline-wrapper scroll-area">
                     <div class="timeline-line"></div>
-                    <div id="event-list"></div>
+                    <div id="event-list">
+                        </div>
                 </div>
                 <button class="floating-add-btn" onclick="addEvent()">+</button>
             </section>
@@ -39,23 +40,23 @@
                     <aside id="sidebar">
                         <div class="sidebar-header">
                             <strong>Story List</strong>
-                            <button class="add-icon" onclick="createNewStory()">+</button>
+                            <button onclick="createNewStory()">+</button>
                         </div>
                         <ul id="story-list" class="scroll-area"></ul>
                     </aside>
                     <main class="main-editor">
                         <header class="editor-header">
                             <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-                            <strong id="current-title">줄거리</strong>
+                            <strong id="current-title">메인 줄거리</strong>
                             <div class="actions">
                                 <button class="sub-btn" onclick="makeSubDocument()">파트분리</button>
-                                <button id="edit-btn" class="primary-btn" onclick="handleEdit()">편집 시작</button>
+                                <button id="edit-btn" class="primary-btn" onclick="handleEdit()">편집</button>
                             </div>
                         </header>
-                        <div class="editor-content scroll-area">
+                        <div class="editor-content-area scroll-area">
                             <div class="paper">
                                 <div id="viewer"></div>
-                                <textarea id="editor" spellcheck="false" placeholder="줄거리를 입력하세요..."></textarea>
+                                <textarea id="editor" spellcheck="false"></textarea>
                             </div>
                         </div>
                     </main>
