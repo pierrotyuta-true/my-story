@@ -1,3 +1,21 @@
+// 서비스 워커 업데이트 체크 로직
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // 새 버전이 설치되면 사용자에게 알리거나 자동 새로고침
+                    if (confirm("새로운 업데이트가 있습니다. 적용할까요?")) {
+                        location.reload();
+                    }
+                }
+            });
+        });
+    });
+}
+
+// 기존 변수들...
 let events = JSON.parse(localStorage.getItem('yuta_events')) || [];
 let stories = JSON.parse(localStorage.getItem('yuta_stories')) || [{ id: 1, title: "메인 줄거리", content: "내용을 입력하세요.", parentId: null }];
 let currentDocId = stories[0].id;
