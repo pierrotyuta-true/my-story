@@ -3,7 +3,7 @@ if (!firebase.apps.length) firebase.initializeApp(config);
 const db = firebase.database();
 
 let storyboard = [], currentProject = localStorage.getItem('lastProject') || "이그리예가"; 
-const OFFSET_X = 50; 
+let currentEditId = null;
 
 function init() {
     document.getElementById('currentProjectTitle').innerText = currentProject;
@@ -15,8 +15,7 @@ function init() {
 
 function renderEvents() {
     const container = document.getElementById('event-container');
-    container.innerHTML = `<div class="era-badge" style="top:30px">제국력 589년</div>`;
-    
+    container.innerHTML = '';
     storyboard.forEach(ev => {
         const card = document.createElement('div');
         card.className = `event-card ${ev.memo ? 'has-memo' : ''}`;
@@ -24,9 +23,7 @@ function renderEvents() {
         card.style.left = (ev.x || 0) + 'px';
         card.style.top = (ev.y || 0) + 'px';
         card.innerHTML = `<div class="card-tab"></div><h4>${ev.title || '내용 입력'}</h4>`;
-        
-        // 클릭 시 모달 띄우기 (드래그와 구분)
-        card.onclick = (e) => { if(!card.classList.contains('dragging')) openModal(ev.id); };
+        card.onclick = () => { if(!card.classList.contains('dragging')) openSheet(ev.id); };
         container.appendChild(card);
     });
     setupDraggable();
@@ -35,7 +32,7 @@ function renderEvents() {
 
 function setupDraggable() {
     interact('.event-card').draggable({
-        hold: 500, // [중요] 0.5초 꾹 눌러야 드래그 시작 (모바일 대응)
+        hold: 400, // 모바일 대응: 0.4초 꾹 누르기
         listeners: {
             start(event) { event.target.classList.add('dragging'); },
             move(event) {
@@ -51,10 +48,12 @@ function setupDraggable() {
                 const idx = storyboard.findIndex(i => i.id == id);
                 const centerX = window.innerWidth / 2;
                 
-                const snappedX = (parseFloat(t.style.left) + 65 < centerX) ? (centerX - 130 - OFFSET_X) : (centerX + OFFSET_X);
+                // [스냅] 중앙선 기준 좌/우 45px 지점 정렬
+                const snappedX = (parseFloat(t.style.left) + 65 < centerX) ? (centerX - 130 - 45) : (centerX + 45);
                 const snappedY = Math.round(parseFloat(t.style.top) / 40) * 40;
 
-                storyboard[idx].x = snappedX; storyboard[idx].y = snappedY;
+                storyboard[idx].x = snappedX;
+                storyboard[idx].y = snappedY;
                 saveToCloud();
                 setTimeout(() => t.classList.remove('dragging'), 100);
             }
@@ -68,39 +67,57 @@ function drawLines() {
     const centerX = window.innerWidth / 2;
     storyboard.forEach(ev => {
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        const startX = centerX;
         const endX = ev.x < centerX ? ev.x + 130 : ev.x;
-        line.setAttribute("x1", startX); line.setAttribute("y1", ev.y + 25);
+        line.setAttribute("x1", centerX); line.setAttribute("y1", ev.y + 25);
         line.setAttribute("x2", endX); line.setAttribute("y2", ev.y + 25);
-        line.setAttribute("class", "curve-line");
+        line.setAttribute("style", "stroke:#4dabf7; stroke-width:1.5; stroke-dasharray:4; opacity:0.5;");
         svg.appendChild(line);
     });
 }
 
-function openModal(id) {
+// [시트 제어 로직]
+function openSheet(id) {
+    currentEditId = id;
     const ev = storyboard.find(i => i.id == id);
-    const modal = document.getElementById('modal-layer');
-    modal.style.display = 'flex';
-    document.getElementById('modal-content').innerHTML = `
-        <h3>사건 수정</h3>
-        <input type="text" id="edit-title" value="${ev.title || ''}" style="width:100%; padding:10px; margin-bottom:10px;">
-        <textarea id="edit-memo" style="width:100%; height:80px;">${ev.memo || ''}</textarea>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button onclick="updateEvent('${id}')" style="flex:1; padding:10px; background:var(--primary); color:#fff; border:none; border-radius:5px;">저장</button>
-            <button onclick="closeModal()" style="flex:1; padding:10px; background:#eee; border:none; border-radius:5px;">취소</button>
-        </div>
-    `;
+    document.getElementById('edit-title').value = ev.title || '';
+    document.getElementById('edit-memo').value = ev.memo || '';
+    
+    const layer = document.getElementById('bottom-sheet-layer');
+    const sheet = document.getElementById('bottom-sheet');
+    layer.style.display = 'flex';
+    setTimeout(() => sheet.classList.add('show'), 10);
 }
 
-function updateEvent(id) {
-    const idx = storyboard.findIndex(i => i.id == id);
+function closeSheet(e) {
+    if(e && e.target !== document.getElementById('bottom-sheet-layer')) return;
+    const sheet = document.getElementById('bottom-sheet');
+    sheet.classList.remove('show');
+    setTimeout(() => { document.getElementById('bottom-sheet-layer').style.display = 'none'; }, 300);
+}
+
+function updateEvent() {
+    const idx = storyboard.findIndex(i => i.id == currentEditId);
     storyboard[idx].title = document.getElementById('edit-title').value;
     storyboard[idx].memo = document.getElementById('edit-memo').value;
     saveToCloud();
-    closeModal();
+    closeSheet();
 }
 
-function closeModal() { document.getElementById('modal-layer').style.display = 'none'; }
+function deleteEvent() {
+    if(confirm("이 사건을 삭제할까요?")) {
+        storyboard = storyboard.filter(i => i.id != currentEditId);
+        saveToCloud();
+        closeSheet();
+    }
+}
+
+function createNewEvent() {
+    const id = Date.now();
+    const centerX = window.innerWidth / 2;
+    storyboard.push({ id: id, title: "새로운 사건", x: centerX + 45, y: 150, memo: "" });
+    saveToCloud();
+}
+
 function toggleProjMenu() { document.getElementById('projMenuPopup').classList.toggle('hidden'); }
 function saveToCloud() { db.ref('projects/' + currentProject + '/data').set(storyboard); }
 
