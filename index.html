@@ -2,67 +2,30 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v2.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STORY MASTER v2.3</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="style.css?v=2.1">
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <link rel="stylesheet" href="style.css?v=2.3">
 </head>
 <body>
     <div id="app">
-        <header id="top-nav">
-            <div class="nav-main">
-                <button id="menu-toggle" onclick="toggleMainSidebar()"><i class="fas fa-bars"></i></button>
-                <div class="logo" onclick="openLoadModal()"><span id="projectTitle">작품 선택</span> <i class="fas fa-chevron-down" style="font-size:10px; color:#ccc;"></i></div>
-                <button class="cloud-btn" onclick="saveToCloud()">구름저장</button>
-            </div>
-            <div class="tab-menu-bar">
-                <button id="tab-timeline" class="v-tab active" onclick="switchTab('timeline')">Timeline</button>
-                <button id="tab-story" class="v-tab" onclick="switchTab('story')">Story</button>
-                <button id="tab-character" class="v-tab" onclick="switchTab('character')">Character</button>
-            </div>
-        </header>
-
-        <div id="sidebar-overlay" onclick="toggleMainSidebar()"></div>
-        <aside id="main-sidebar">
-            <div class="sidebar-header">STORY MASTER</div>
-            <nav class="side-nav">
-                <div class="nav-item active" onclick="switchTab('timeline'); toggleMainSidebar();"><i class="fas fa-clock"></i> 타임라인</div>
-                <div class="nav-item" onclick="switchTab('story'); toggleMainSidebar();"><i class="fas fa-pen-quill"></i> 줄거리 집필</div>
-                <div class="nav-item" onclick="switchTab('character'); toggleMainSidebar();"><i class="fas fa-user-circle"></i> 캐릭터 도감</div>
-            </nav>
-        </aside>
-
         <main id="main-content">
-            <section id="view-timeline" class="tab-view active">
-                <div class="filter-bar">
-                    <button class="filter-btn active">전체</button>
-                    <button class="filter-btn">주요사건</button>
-                    <button class="filter-btn">인물</button>
-                </div>
-                <div class="timeline-wrapper dot-bg">
-                    <div class="timeline-line"></div>
-                    <div id="event-list"></div>
-                </div>
-            </section>
+            <div class="timeline-canvas dot-bg" id="canvas">
+                <svg id="connection-svg"></svg>
+                <div id="event-container">
+                    </div>
+            </div>
         </main>
 
-        <button class="floating-add-btn" onclick="handleAddButton()">+</button>
-    </div>
-
-    <div id="customModal" class="modal-overlay">
-        <div class="modal-card">
-            <h4 id="modalTitle">사건 추가</h4>
-            <input type="text" id="modalInput" placeholder="내용을 입력하세요...">
-            <div class="modal-btns">
-                <button class="cancel-btn" onclick="closeCustomModal()">취소</button>
-                <button class="confirm-btn" id="modalConfirmBtn">확인</button>
-            </div>
+        <div id="memo-overlay" class="floating-memo-container">
+            <div id="active-memo-group">
+                </div>
         </div>
-    </div>
 
-    <script src="script.js?v=2.1"></script>
+        <button class="fab" onclick="createNewEvent()">+</button>
+    </div>
+    <script src="script.js?v=2.3"></script>
 </body>
 </html>
