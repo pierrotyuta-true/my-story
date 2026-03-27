@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>스토리마스터 Pro</title>
+    <title>STORY MASTER Pro</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -11,108 +11,69 @@
 </head>
 <body>
     <div id="app">
-        <nav id="top-nav">
-            <button id="menu-toggle" onclick="toggleMainSidebar()">☰</button>
-            <div class="nav-logo" id="projectTitle">STORY MASTER</div>
-            <button class="cloud-btn" onclick="saveToCloud()">구름저장</button>
-        </nav>
+        <header id="top-header">
+            <div class="header-main">
+                <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
+                <div class="logo">STORY MASTER</div>
+                <button class="save-btn" onclick="saveToCloud()">구름저장</button>
+            </div>
+            <div id="timeline-bar" class="sub-bar">
+                <div class="search-wrap" id="searchBar"></div>
+                <button class="era-btn" onclick="openEraModal()">연대 편집</button>
+            </div>
+        </header>
 
-        <div id="sidebar-overlay" onclick="toggleMainSidebar()"></div>
-        <aside id="main-sidebar">
-            <div class="menu-section">
-                <strong>메뉴</strong>
-                <ul>
-                    <li onclick="switchView('timeline')" id="menu-timeline" class="active">사건 타임라인</li>
-                    <li onclick="switchView('story')" id="menu-story">줄거리 집필</li>
-                    <li onclick="switchView('character')" id="menu-char">캐릭터 도감</li>
-                </ul>
-            </div>
-            <div id="story-list-section" class="story-list-section" style="display:none;">
-                <div class="sidebar-header">
-                    <strong>Story List</strong>
-                    <button class="add-icon" onclick="createNewStory()">+</button>
-                </div>
-                <ul id="story-list" class="scroll-area"></ul>
-            </div>
-            <div class="sidebar-footer">
+        <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+        <aside id="sidebar">
+            <nav class="side-nav">
+                <div class="nav-item active" onclick="switchView('timeline')">사건 타임라인</div>
+                <div class="nav-item" onclick="switchView('story')">줄거리 집필</div>
+                <div class="nav-item" onclick="switchView('character')">캐릭터 도감</div>
+            </nav>
+            <div class="side-footer">
                 <button onclick="openLoadModal()">프로젝트 목록</button>
             </div>
         </aside>
 
-        <div id="tab-container">
-            <section id="view-timeline" class="tab-view active">
-                <div class="timeline-controls">
-                    <div class="search-bar" id="searchBar"></div>
-                    <button class="era-manage-btn" onclick="openEraModal()">연대 편집</button>
-                </div>
-                <div class="timeline-wrapper scroll-area dot-bg" id="timeline-scroll">
-                    <div class="timeline-line"></div>
+        <main id="main-content">
+            <section id="view-timeline" class="content-view active">
+                <div class="timeline-container dot-bg">
+                    <div class="center-line"></div>
                     <div id="event-list"></div>
                 </div>
-                <button class="floating-add-btn" onclick="addScene()">+</button>
             </section>
 
-            <section id="view-story" class="tab-view">
-                <main class="main-editor">
-                    <header class="paper-header">
-                        <strong id="current-title">메인 줄거리</strong>
-                        <div class="actions">
-                            <button class="sub-btn" onclick="makeSubDocument()">파트분리</button>
-                            <button id="edit-btn" class="primary-btn" onclick="handleEdit()">편집</button>
-                        </div>
-                    </header>
-                    <div class="editor-content-area scroll-area">
-                        <div class="paper">
-                            <div id="viewer"></div>
-                            <textarea id="editor" spellcheck="false" placeholder="내용을 입력하세요..."></textarea>
+            <section id="view-story" class="content-view">
+                <div class="story-editor">
+                    <div class="editor-header">
+                        <h3 id="current-story-title">메인 줄거리</h3>
+                        <div class="editor-btns">
+                            <button onclick="makeSub()">파트분리</button>
+                            <button id="story-edit-btn" class="primary" onclick="toggleStoryEdit()">편집</button>
                         </div>
                     </div>
-                </main>
+                    <div class="editor-body">
+                        <div id="story-viewer" class="paper"></div>
+                        <textarea id="story-input" class="paper" style="display:none;"></textarea>
+                    </div>
+                </div>
             </section>
-        </div>
+        </main>
+
+        <button class="fab" onclick="addNewEvent()">+</button>
     </div>
 
-    <div id="viewModal" class="modal"><div class="modal-content">
-        <div class="view-tab-menu" id="viewTabMenu"></div>
-        <div class="view-body">
-            <div id="viewMonth" class="view-meta"></div>
-            <div id="viewText" class="view-main-text"></div>
+    <div id="detailModal" class="modal"><div class="modal-card">
+        <div class="tab-header" id="modalTabMenu"></div>
+        <div class="tab-content">
+            <p id="modalDate" class="meta-info"></p>
+            <div id="modalText" class="main-text"></div>
         </div>
-        <div class="modal-btns">
-            <button class="btn-pill" onclick="handleTabEdit()">편집</button>
-            <button class="btn-ghost" onclick="showBranchInput()">+ 가지</button>
-            <button class="btn-ghost" onclick="closeModal('viewModal')">닫기</button>
+        <div class="modal-footer">
+            <button onclick="editCurrentTab()">수정</button>
+            <button onclick="addBranch()">+ 가지</button>
+            <button class="close" onclick="closeModal('detailModal')">닫기</button>
         </div>
-    </div></div>
-
-    <div id="editModal" class="modal"><div class="modal-content">
-        <h4>사건 기록</h4>
-        <div class="edit-row">
-            <select id="eraType"></select>
-            <input type="number" id="eYear" placeholder="연도">
-            <select id="eMonth">
-                <script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}월</option>`)</script>
-            </select>
-        </div>
-        <div id="charTagSelector" class="tag-selector"></div>
-        <textarea id="eContent" rows="5" placeholder="내용을 입력하세요"></textarea>
-        <button class="btn-pill" onclick="saveScene()">저장</button>
-        <button class="btn-ghost del-text" id="delBtn">삭제</button>
-        <button class="btn-ghost" onclick="closeModal('editModal')">취소</button>
-    </div></div>
-
-    <div id="eraModal" class="modal"><div class="modal-content">
-        <h4>시대 순서 관리</h4>
-        <div id="eraListGrid"></div>
-        <button class="btn-pill" id="addEraBtn">+ 시대 추가</button>
-        <button class="btn-ghost" onclick="closeModal('eraModal')">닫기</button>
-    </div></div>
-
-    <div id="loadModal" class="modal"><div class="modal-content">
-        <h4>프로젝트 목록</h4>
-        <div id="projectList"></div>
-        <button class="btn-pill" id="addProjBtn">+ 새 프로젝트</button>
-        <button class="btn-ghost" onclick="closeModal('loadModal')">닫기</button>
     </div></div>
 
     <script src="script.js"></script>
