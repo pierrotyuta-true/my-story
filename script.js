@@ -1,11 +1,11 @@
-// 1. 앱 업데이트 체크 로직 (v1.5)
+// 업데이트 체크 로직
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.5').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.6').then(reg => {
         reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    if (confirm("✨ 새로운 디자인과 기능이 업데이트되었습니다! 지금 적용할까요?")) {
+                    if (confirm("✨ 디자인 오류가 수정되었습니다. 지금 적용할까요?")) {
                         window.location.reload();
                     }
                 }
@@ -14,97 +14,112 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// Firebase 설정 (기존 설정 유지)
 const config = { apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", authDomain: "true-s.firebaseapp.com", databaseURL: "https://true-s-default-rtdb.firebaseio.com", projectId: "true-s" };
 if (!firebase.apps.length) firebase.initializeApp(config);
 const db = firebase.database();
 
-let storyboard = [], eras = ["공통"], characters = [], mainStory = "";
+let storyboard = [], eras = ["제국력"], characters = [], mainStory = "";
 let currentProject = localStorage.getItem('lastProject') || null;
 let currentView = 'timeline';
 
-// [뷰 전환]
+// [데이터 불러오기 핵심 수정]
+function loadProject(name) {
+    currentProject = name;
+    localStorage.setItem('lastProject', name);
+    document.getElementById('projectTitle').innerText = name;
+    
+    db.ref('projects/' + name).on('value', s => {
+        const d = s.val() || {};
+        // undefined 방지 처리
+        storyboard = Array.isArray(d.data) ? d.data : [];
+        eras = Array.isArray(d.eras) ? d.eras : ["제국력"];
+        characters = Array.isArray(d.characters) ? d.characters : [];
+        mainStory = d.mainStory || "";
+        
+        renderTimeline();
+        if(currentView === 'story') renderStory();
+        if(currentView === 'character') renderCharacters();
+    });
+    closeModal('loadModal');
+}
+
+// [타임라인 렌더링 수정]
+function renderTimeline() {
+    const list = document.getElementById('event-list');
+    if (storyboard.length === 0) {
+        list.innerHTML = `<p class="empty-msg">사건이 없습니다. + 버튼을 눌러 추가하세요!</p>`;
+        return;
+    }
+    
+    list.innerHTML = storyboard.map((ev, index) => `
+        <div class="event-card-wrapper ${index % 2 === 0 ? 'left' : 'right'}">
+            <div class="event-card">
+                <span class="event-date">${ev.year || "589"}년 ${ev.month || "1"}월</span>
+                <div class="event-title">${ev.title || "내용 없음"}</div>
+            </div>
+            <div class="timeline-dot"></div>
+        </div>
+    `).join('');
+}
+
+// [사이드바 제어]
+function toggleMainSidebar() {
+    document.getElementById('main-sidebar').classList.toggle('open');
+    const overlay = document.getElementById('sidebar-overlay');
+    overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+}
+
 function switchView(view) {
     currentView = view;
     document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.menu-section li').forEach(li => li.classList.remove('active'));
     document.getElementById('view-' + view).classList.add('active');
     document.getElementById('menu-' + view).classList.add('active');
+    
+    if(view === 'timeline') renderTimeline();
     if(view === 'character') renderCharacters();
+    if(view === 'story') renderStory();
     if(window.innerWidth < 768) toggleMainSidebar();
 }
 
-function toggleMainSidebar() {
-    const sb = document.getElementById('main-sidebar');
-    const ov = document.getElementById('sidebar-overlay');
-    const isOpen = sb.classList.toggle('open');
-    ov.style.display = isOpen ? 'block' : 'none';
-}
-
-// [프로젝트 관리]
+// [기타 기능들]
 function openLoadModal() {
     db.ref('projects').once('value').then(s => {
         const d = s.val();
         const listUI = document.getElementById('projectList');
         listUI.innerHTML = d ? Object.keys(d).map(k => `
-            <div style="padding:15px; border-bottom:1px solid #f8f9fa; display:flex; justify-content:space-between; align-items:center;" onclick="loadProject('${k}')">
-                <b style="${k === currentProject ? 'color:var(--primary);' : ''}">${k}</b>
-                <i class="fas fa-chevron-right" style="color:#ccc;"></i>
+            <div class="proj-item" onclick="loadProject('${k}')">
+                <b>${k}</b> <i class="fas fa-chevron-right"></i>
             </div>
-        `).join('') : '<p style="padding:20px; color:#999; text-align:center;">작품이 없습니다.</p>';
+        `).join('') : '<p>작품이 없습니다.</p>';
         document.getElementById('loadModal').style.display = 'flex';
     });
 }
 
-function createNewProjectFromModal() {
-    const name = document.getElementById('newProjName').value.trim();
-    if(!name) return alert("작품 제목을 입력해주세요.");
-    db.ref('projects/' + name).set({ data: [], eras: ["공통"], characters: [], mainStory: "" }).then(() => {
-        document.getElementById('newProjName').value = "";
-        loadProject(name);
-    });
-}
-
-function loadProject(name) {
-    currentProject = name;
-    localStorage.setItem('lastProject', name);
-    document.getElementById('projectTitle').innerText = name;
-    db.ref('projects/' + name).on('value', s => {
-        const d = s.val();
-        if(d) {
-            storyboard = d.data || [];
-            eras = d.eras || ["공통"];
-            characters = d.characters || [];
-            mainStory = d.mainStory || "";
-            renderTimeline();
-            if(currentView === 'story') renderStory();
-        }
-    });
-    closeModal('loadModal');
-}
-
-// [기능: 저장/캐릭터/스토리]
-function sync() { if(currentProject) db.ref('projects/' + currentProject).set({ data: storyboard, eras, characters, mainStory }); }
-function saveToCloud() { sync(); alert("클라우드 저장 완료!"); }
-
-function renderCharacters() {
-    const list = document.getElementById('char-list');
-    list.innerHTML = characters.map(c => `<div class="char-card" style="background:#fff; padding:15px; border-radius:12px; margin-bottom:10px;"><b>${c.name}</b><br><small>${c.role}</small></div>`).join('');
-}
-
 function handleFab() {
-    if(currentView === 'timeline') {
-        const t = prompt("새 사건 내용:");
-        if(t) { storyboard.push({id: Date.now(), title: t, year: 2026, month: 3}); sync(); renderTimeline(); }
-    } else if(currentView === 'character') {
-        openCharModal();
+    const txt = prompt("새로운 사건을 입력하세요:");
+    if(txt) {
+        storyboard.push({ id: Date.now(), title: txt, year: 589, month: 3 });
+        saveToCloud();
     }
 }
 
-function renderTimeline() {
-    const list = document.getElementById('event-list');
-    list.innerHTML = storyboard.map(ev => `<div class="event-card" style="margin:20px;"><b>${ev.title}</b></div>`).join('');
+function saveToCloud() {
+    if(!currentProject) return alert("작품을 먼저 선택하세요.");
+    db.ref('projects/' + currentProject).set({
+        data: storyboard,
+        eras: eras,
+        characters: characters,
+        mainStory: mainStory
+    }).then(() => {
+        console.log("저장 완료");
+    });
 }
 
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-window.onload = () => { if(currentProject) loadProject(currentProject); else openLoadModal(); }
+window.onload = () => {
+    if(currentProject) loadProject(currentProject);
+    else openLoadModal();
+};
