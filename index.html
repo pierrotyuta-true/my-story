@@ -2,77 +2,59 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v1.7</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STORY MASTER v1.8</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="style.css?v=1.7">
+    <link rel="stylesheet" href="style.css?v=1.8">
 </head>
 <body>
+    <div id="sidebar-overlay" onclick="closeMainSidebar()"></div>
+    <aside id="main-sidebar">
+        <div class="sidebar-header">STORY MENU</div>
+        <nav class="side-nav">
+            <div class="nav-item" onclick="switchTab('timeline'); closeMainSidebar();">사건 타임라인</div>
+            <div class="nav-item" onclick="switchTab('story'); closeMainSidebar();">줄거리 집필</div>
+            <div class="nav-item" onclick="switchTab('character'); closeMainSidebar();">캐릭터 도감</div>
+        </nav>
+        <div class="side-footer">
+            <button onclick="openLoadModal()">목록 / 작품 변경</button>
+        </div>
+    </aside>
+
     <div id="app">
         <header id="top-nav">
             <div class="nav-main">
-                <button id="menu-toggle" onclick="toggleMainSidebar()"><i class="fas fa-bars"></i></button>
+                <button id="menu-toggle" onclick="openMainSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="logo">STORY MASTER</div>
                 <button class="cloud-btn" onclick="saveToCloud()">구름저장</button>
             </div>
             <div class="tab-menu-bar">
-                <button class="v-tab active" onclick="switchTab('timeline')">Timeline</button>
-                <button class="v-tab" onclick="switchTab('story')">Story</button>
-                <button class="v-tab" onclick="switchTab('character')">Character</button>
+                <button id="tab-timeline" class="v-tab active" onclick="switchTab('timeline')">Timeline</button>
+                <button id="tab-story" class="v-tab" onclick="switchTab('story')">Story</button>
+                <button id="tab-character" class="v-tab" onclick="switchTab('character')">Character</button>
             </div>
         </header>
 
-        <div id="sidebar-overlay" onclick="toggleMainSidebar()"></div>
-        <aside id="main-sidebar">
-            <div class="sidebar-header">STORY MENU</div>
-            <nav class="side-nav">
-                <div class="nav-item active" id="m-timeline" onclick="switchTab('timeline')">사건 타임라인</div>
-                <div class="nav-item" id="m-story" onclick="switchTab('story')">줄거리 집필</div>
-                <div class="nav-item" id="m-char" onclick="switchTab('character')">캐릭터 도감</div>
-            </nav>
-            <div class="side-footer">
-                <button onclick="openLoadModal()">목록 / 작품 변경</button>
-            </div>
-        </aside>
-
-        <div id="tab-container">
+        <main id="content-area">
             <section id="view-timeline" class="tab-view active">
                 <div class="filter-bar">
-                    <div class="filter-btns">
-                        <button class="filter-btn active">전체</button>
-                        <button class="filter-btn">주요사건</button>
-                        <button class="filter-btn">인물</button>
-                    </div>
+                    <button class="filter-btn active">전체</button>
+                    <button class="filter-btn">주요사건</button>
+                    <button class="filter-btn">인물</button>
                 </div>
-                <div class="timeline-wrapper scroll-area dot-bg">
+                <div class="timeline-container scroll-area dot-bg">
                     <div class="timeline-line"></div>
-                    <div id="event-list">
-                        <div class="era-badge">제국력 589년</div>
-                    </div>
+                    <div id="event-list"></div>
                 </div>
-                <button class="floating-add-btn" onclick="addEvent()">+</button>
             </section>
+            </main>
 
-            <section id="view-story" class="tab-view"> ... </section>
-        </div>
+        <button class="floating-add-btn" onclick="addEvent()">+</button>
     </div>
 
-    <div id="customModal" class="modal-overlay">
-        <div class="custom-modal-card card-shadow">
-            <h4 id="modalTitle">사건 추가</h4>
-            <div class="input-group">
-                <input type="text" id="modalInput" placeholder="사건 내용을 입력하세요...">
-            </div>
-            <div class="modal-btns">
-                <button class="cancel-btn" onclick="closeCustomModal()">취소</button>
-                <button class="confirm-btn" id="modalConfirmBtn">확인</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js?v=1.7"></script>
+    <script src="script.js?v=1.8"></script>
 </body>
 </html>
