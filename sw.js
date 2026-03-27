@@ -1,5 +1,5 @@
-// 숫자를 v1에서 v2로 올리는 것만으로도 업데이트를 유도합니다.
-const CACHE_NAME = 'story-master-v2'; 
+// 숫자를 v1, v2에서 v3로 올리는 것만으로도 앱 업데이트를 유도합니다.
+const CACHE_NAME = 'story-master-updates-v3'; 
 const ASSETS = [
   './',
   './index.html',
