@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v2.5</title>
+    <title>STORY MASTER v2.6</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=2.5">
+    <link rel="stylesheet" href="style.css?v=2.6">
 </head>
 <body>
     <div id="app">
@@ -26,15 +26,13 @@
         <main id="main-content">
             <div class="timeline-canvas dot-bg" id="canvas">
                 <svg id="connection-svg"></svg>
-                <div id="event-container">
-                    <p id="loading-msg" style="text-align:center; padding-top:100px; color:#ccc;">데이터를 불러오는 중...</p>
-                </div>
+                <div id="event-container"></div>
             </div>
         </main>
 
         <div id="memo-layer"></div>
         <button class="fab" onclick="createNewEvent()">+</button>
     </div>
-    <script src="script.js?v=2.5"></script>
+    <script src="script.js?v=2.6"></script>
 </body>
 </html>
