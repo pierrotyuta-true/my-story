@@ -91,3 +91,4 @@ body { margin: 0; background: #fff; height: 100vh; overflow: hidden; }
     .event-item.left, .event-item.right { padding: 0 15px 0 55%; }
     .event-item.left { padding: 0 55% 0 15px; }
 }
+
