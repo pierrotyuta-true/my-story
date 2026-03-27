@@ -3,81 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER - 이그리예가</title>
+    <title>STORY MASTER Pro</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="style.css?v=1.4">
+    <link rel="stylesheet" href="style.css?v=1.5">
 </head>
 <body>
     <div id="app">
-        <header id="top-header">
-            <div class="header-main">
-                <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
-                <div class="project-selector" onclick="openLoadModal()">
-                    <span id="projectTitle">이그리예가</span>
-                    <span class="arrow-down">▼</span>
-                </div>
-                <button class="save-btn" onclick="saveToCloud()">구름저장</button>
+        <header id="top-nav">
+            <button id="menu-toggle" onclick="toggleMainSidebar()"><i class="fas fa-bars"></i></button>
+            <div class="project-selector" onclick="openLoadModal()">
+                <span id="projectTitle">프로젝트 선택</span>
+                <span class="version-badge">v1.5</span>
+                <span class="arrow-down">▼</span>
             </div>
-            <div id="timeline-bar" class="sub-bar">
-                <div class="filter-group">
-                    <button class="filter-btn active">전체</button>
-                    <button class="filter-btn">주요사건</button>
-                    <button class="filter-btn">인물</button>
-                </div>
-                <button class="era-btn" onclick="openEraModal()">연대 편집</button>
-            </div>
+            <button class="cloud-btn" onclick="saveToCloud()"><i class="fas fa-cloud-upload-alt"></i> 저장</button>
         </header>
 
-        <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
-        <aside id="sidebar">
-            <div class="sidebar-header">STORY MENU</div>
-            <nav class="side-nav">
-                <div class="nav-item active" id="m-timeline" onclick="switchView('timeline')">📍 사건 타임라인</div>
-                <div class="nav-item" id="m-story" onclick="switchView('story')">✍️ 줄거리 집필</div>
-                <div class="nav-item" id="m-char" onclick="switchView('character')">👥 캐릭터 도감</div>
+        <div id="sidebar-overlay" onclick="toggleMainSidebar()"></div>
+        <aside id="main-sidebar">
+            <div class="sidebar-header">STORY MASTER</div>
+            <nav class="menu-section">
+                <ul>
+                    <li onclick="switchView('timeline')" id="menu-timeline" class="active"><i class="fas fa-stream"></i> 사건 타임라인</li>
+                    <li onclick="switchView('story')" id="menu-story"><i class="fas fa-pen-fancy"></i> 줄거리 집필</li>
+                    <li onclick="switchView('character')" id="menu-char"><i class="fas fa-users"></i> 캐릭터 도감</li>
+                </ul>
             </nav>
-            <div class="side-footer">
-                <button onclick="openLoadModal()">다른 작품 열기</button>
+            <div class="sidebar-footer">
+                <button onclick="openLoadModal()"><i class="fas fa-folder-open"></i> 작품 목록 / 생성</button>
             </div>
         </aside>
 
         <main id="main-content">
-            <section id="view-timeline" class="content-view active">
-                <div class="timeline-container dot-bg">
-                    <div class="center-line"></div>
+            <section id="view-timeline" class="tab-view active">
+                <div class="timeline-controls">
+                    <button class="era-manage-btn" onclick="openEraModal()">연대 편집</button>
+                </div>
+                <div class="timeline-wrapper dot-bg">
+                    <div class="timeline-line"></div>
                     <div id="event-list"></div>
                 </div>
             </section>
 
-            <section id="view-story" class="content-view">
-                <div class="page-container">
-                    <div class="section-title">
-                        <h3>메인 줄거리</h3>
-                        <button class="edit-pill" onclick="toggleStoryEdit()" id="story-edit-btn">편집 시작</button>
+            <section id="view-story" class="tab-view">
+                <div class="editor-container">
+                    <div class="paper-header">
+                        <h3 id="current-story-title">메인 줄거리</h3>
+                        <button id="story-edit-btn" class="primary-btn" onclick="toggleStoryEdit()">편집</button>
                     </div>
-                    <div class="paper-wrapper">
+                    <div class="paper-body">
                         <div id="story-viewer" class="paper-content"></div>
-                        <textarea id="story-input" class="paper-content" style="display:none;" placeholder="이야기를 적어보세요..."></textarea>
+                        <textarea id="story-input" class="paper-content" style="display:none;"></textarea>
                     </div>
                 </div>
             </section>
 
-            <section id="view-character" class="content-view">
-                <div class="page-container">
-                    <div class="section-title">
+            <section id="view-character" class="tab-view">
+                <div class="char-container">
+                    <div class="section-header">
                         <h3>캐릭터 리스트</h3>
-                        <button class="edit-pill" onclick="addCharacter()">+ 캐릭터 추가</button>
+                        <button class="add-btn-sm" onclick="openCharModal()">+ 추가</button>
                     </div>
                     <div id="char-list" class="char-grid"></div>
-                    
-                    <div class="section-title" style="margin-top:40px;">
-                        <h3>인물 관계도</h3>
-                    </div>
-                    <div id="relation-map" class="relation-card">
-                        <p>캐릭터 간의 관계를 설정할 수 있습니다.</p>
-                    </div>
                 </div>
             </section>
         </main>
@@ -85,23 +75,27 @@
         <button class="fab" id="main-fab" onclick="handleFab()">+</button>
     </div>
 
-    <div id="loadModal" class="modal"><div class="modal-card p-20">
-        <h4>작품 목록</h4>
-        <div id="projectList" class="scroll-list"></div>
-        <button class="btn-pill" onclick="createNewProject()">+ 새 작품 만들기</button>
-        <button class="btn-ghost" onclick="closeModal('loadModal')">닫기</button>
+    <div id="loadModal" class="modal"><div class="modal-card">
+        <div class="p-25">
+            <h4>프로젝트 관리</h4>
+            <div id="projectList" class="scroll-list"></div>
+            <div class="new-project-box">
+                <input type="text" id="newProjName" placeholder="새 프로젝트 이름 입력">
+                <button class="btn-pill" onclick="createNewProjectFromModal()">+ 신규 작품 생성</button>
+            </div>
+            <button class="btn-ghost" onclick="closeModal('loadModal')">닫기</button>
+        </div>
     </div></div>
 
-    <div id="charModal" class="modal"><div class="modal-card p-20">
-        <h4 id="charModalTitle">캐릭터 정보</h4>
+    <div id="charModal" class="modal"><div class="modal-card p-25">
+        <h4>캐릭터 정보</h4>
         <input type="text" id="cName" placeholder="이름" class="m-input">
-        <input type="text" id="cRole" placeholder="역할 (예: 주연, 악역)" class="m-input">
-        <textarea id="cDesc" placeholder="성격 및 특징" rows="4" class="m-input"></textarea>
+        <input type="text" id="cRole" placeholder="역할" class="m-input">
+        <textarea id="cDesc" placeholder="특징/메모" rows="4" class="m-input"></textarea>
         <button class="btn-pill" onclick="saveCharacter()">저장</button>
-        <button class="btn-ghost del-text" onclick="deleteCharacter()">삭제</button>
         <button class="btn-ghost" onclick="closeModal('charModal')">취소</button>
     </div></div>
 
-    <script src="script.js?v=1.4"></script>
+    <script src="script.js?v=1.5"></script>
 </body>
 </html>
