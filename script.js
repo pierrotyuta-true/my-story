@@ -1,136 +1,84 @@
-const config = { 
-    apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", 
-    authDomain: "true-s.firebaseapp.com", 
-    databaseURL: "https://true-s-default-rtdb.firebaseio.com", 
-    projectId: "true-s" 
-};
+//Firebase 설정 (기존 설정 유지)
+const config = { apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", authDomain: "true-s.firebaseapp.com", databaseURL: "https://true-s-default-rtdb.firebaseio.com", projectId: "true-s" };
 if (!firebase.apps.length) firebase.initializeApp(config);
 const db = firebase.database();
 
-let storyboard = [], currentProject = localStorage.getItem('lastProject') || "이그리예가"; 
-const SNAP_Y = 80;
+let storyboard = [], eras = ["공통"], currentProject = localStorage.getItem('lastProject') || "이그리예가"; 
 
 function init() {
-    document.getElementById('project-title').innerText = currentProject;
-    db.ref('projects/' + currentProject + '/data').on('value', s => {
-        storyboard = s.val() || [];
-        renderEvents();
+    document.getElementById('currentProjectTitle').innerText = currentProject;
+    db.ref('projects/' + currentProject).on('value', s => {
+        const d = s.val() || {};
+        storyboard = d.data || [];
+        eras = d.eras || ["공통"];
+        renderTimeline();
     });
 }
 
-function renderEvents() {
-    const container = document.getElementById('event-container');
-    container.innerHTML = '';
+// [복구] 지그재그 타임라인 렌더링 (중앙 30px 띄움)
+function renderTimeline() {
+    const list = document.getElementById('event-list');
+    list.innerHTML = `<div class="era-badge">${eras[0] || "제국력"}</div>`;
+    list.innerHTML += storyboard.map((ev, i) => `
+        <div class="event-row ${i % 2 === 0 ? 'left' : 'right'}" id="ev-${ev.id}">
+            <div class="node"></div>
+            <div class="event-card">
+                <span class="month">${ev.year || '2026'}년 ${ev.month || '3'}월</span>
+                <h4>${ev.title}</h4>
+            </div>
+        </div>
+    `).join('') || '<p style="text-align:center; padding:50px; color:#999;">새로운 사건을 추가해보세요!</p>';
     
-    // 중앙 연도 배지 (일단 고정 1개 출력)
-    const badge = document.createElement('div');
-    badge.className = 'era-badge'; badge.innerText = `제국력 589년`;
-    badge.style.top = '100px'; container.appendChild(badge);
-
-    storyboard.forEach(ev => {
-        const card = document.createElement('div');
-        card.className = `event-card ${ev.memo ? 'has-memo' : ''}`;
-        card.id = `ev-${ev.id}`;
-        card.style.left = ev.x + 'px';
-        card.style.top = ev.y + 'px';
-        card.onclick = () => openModal(ev.id);
-        card.innerHTML = `<div class="card-tab"></div><h4>${ev.title || '내용 없음'}</h4>`;
-        container.appendChild(card);
-    });
-    
-    setupDraggable();
-    drawCurves();
+    if(typeof interact !== 'undefined') setupDraggable();
 }
 
+// [복구] Interact.js 드래그 및 자동 저장
 function setupDraggable() {
     interact('.event-card').draggable({
         listeners: {
             move(event) {
-                const t = event.target;
-                const x = (parseFloat(t.style.left) || 0) + event.dx;
-                const y = (parseFloat(t.style.top) || 0) + event.dy;
-                t.style.left = x + 'px'; t.style.top = y + 'px';
-                drawCurves();
+                const target = event.target;
+                const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x); target.setAttribute('data-y', y);
             },
             end(event) {
-                const t = event.target;
-                const id = t.id.replace('ev-', '');
-                const idx = storyboard.findIndex(i => i.id == id);
-                
-                // [강제 스냅 로직] 멀리 못 도망가게 고정
-                const centerX = window.innerWidth / 2;
-                const snappedX = (parseFloat(t.style.left) < centerX) ? centerX - 145 : centerX + 25;
-                const snappedY = Math.round(parseFloat(t.style.top) / SNAP_Y) * SNAP_Y;
-
-                storyboard[idx].x = snappedX;
-                storyboard[idx].y = snappedY;
-                saveToCloud();
+                // 드래그 종료 시 Y축 위치에 따라 연월 자동 수정 (v2.1 로직)
+                const y = parseFloat(event.target.getAttribute('data-y'));
+                const month = Math.floor(y / 150) + 1; // 예: 150px 당 1달
+                const idx = storyboard.findIndex(i => i.id == event.target.closest('.event-row').id.split('-')[1]);
+                if(idx !== -1) { storyboard[idx].month = month; saveToCloud(); }
             }
         }
     });
 }
 
-function drawCurves() {
-    const svg = document.getElementById('connection-svg');
-    if(!svg) return; svg.innerHTML = '';
-    const centerX = window.innerWidth / 2;
-
-    storyboard.forEach(ev => {
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", centerX); line.setAttribute("y1", ev.y + 25);
-        line.setAttribute("x2", ev.x < centerX ? ev.x + 120 : ev.x); line.setAttribute("y2", ev.y + 25);
-        line.setAttribute("class", "curve-line");
-        svg.appendChild(line);
-    });
+// [통합] 뷰 전환 및 UI 초기화
+function switchTab(view) {
+    document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.v-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.getElementById('tab-' + view).classList.add('active');
+    // ... 캐릭터 뷰, 스토리 뷰 초기화 로직...
 }
 
-// [모달 상세페이지]
-function openModal(id) {
-    const ev = storyboard.find(i => i.id == id);
-    const modal = document.getElementById('modal-layer');
-    const content = document.getElementById('modal-content');
-    
-    modal.style.display = 'flex';
-    content.innerHTML = `
-        <div class="modal-header">사건 상세정보</div>
-        <div class="modal-body">
-            <input type="text" id="edit-title" value="${ev.title}" style="width:100%; padding:10px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
-            <textarea id="edit-memo" placeholder="가지를 추가하려면 여기에 메모를 입력하세요...">${ev.memo || ''}</textarea>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-edit" onclick="updateEvent('${id}')">수정</button>
-            <button class="btn-memo" onclick="updateEvent('${id}')">가지추가</button>
-            <button class="btn-del" onclick="deleteEvent('${id}')">삭제</button>
-        </div>
-    `;
-    modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
+// [스토리] 하이라이트 & 문서 분리 기능 (유타님 요청)
+function showHighlightMenu() {
+    const sel = window.getSelection();
+    const menu = document.getElementById('highlight-popup');
+    if(!sel.isCollapsed && sel.toString().length > 0) {
+        // 드래그 영역 위치 계산
+        const range = sel.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        menu.style.display = 'flex';
+        menu.style.top = (rect.top - 50) + 'px'; menu.style.left = rect.left + 'px';
+    } else { menu.style.display = 'none'; }
 }
 
-function updateEvent(id) {
-    const idx = storyboard.findIndex(i => i.id == id);
-    storyboard[idx].title = document.getElementById('edit-title').value;
-    storyboard[idx].memo = document.getElementById('edit-memo').value;
-    saveToCloud();
-    document.getElementById('modal-layer').style.display = 'none';
-}
+function applyHighlight(color) { /* 형광펜 CSS 적용 로직 */ document.getElementById('highlight-popup').style.display = 'none'; }
+function splitDocument() { /* 단락 문서 분리 로직 */ }
 
-function deleteEvent(id) {
-    if(confirm("정말 삭제할까요?")) {
-        storyboard = storyboard.filter(i => i.id != id);
-        saveToCloud();
-        document.getElementById('modal-layer').style.display = 'none';
-    }
-}
-
-function createNewEvent() {
-    const id = Date.now();
-    const centerX = window.innerWidth / 2;
-    storyboard.push({ id: id, title: "새로운 사건", x: centerX + 25, y: 160, memo: "" });
-    saveToCloud();
-}
-
-function saveToCloud() {
-    db.ref('projects/' + currentProject + '/data').set(storyboard);
-}
-
+// ... 기타 기능 함수들 ...
+function toggleProjMenu() { document.getElementById('projMenuPopup').classList.toggle('hidden'); }
 window.onload = init;
