@@ -1,58 +1,42 @@
-/* 사이드바 기본 상태: 화면 왼쪽으로 숨김 */
-#main-sidebar {
-    position: fixed;
-    top: 0;
-    left: -280px; /* 숨김 */
-    width: 280px;
-    height: 100%;
-    background: #fff;
-    z-index: 3000; /* 가장 위에 뜸 */
-    transition: 0.3s ease;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-}
+:root { --primary: #4dabf7; --dark: #343a40; --bg: #f8f9fa; --border: #eee; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Pretendard', sans-serif; }
 
-/* 사이드바 활성화 시 */
-#main-sidebar.active {
-    left: 0;
-}
+/* 헤더 고정 및 탭 디자인 */
+#top-nav { height: 95px; background: #fff; border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 1000; }
+.nav-main { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
+.logo { font-weight: 800; color: var(--primary); font-size: 1.1rem; cursor: pointer; }
+.tab-menu-bar { height: 45px; display: flex; justify-content: center; gap: 20px; align-items: flex-end; }
+.v-tab { background: none; border: none; color: #bbb; font-weight: 700; padding-bottom: 8px; cursor: pointer; }
+.v-tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
-/* 배경 어둡게 처리 */
-#sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    z-index: 2500;
-}
+/* 메인 컨텐츠 영역 */
+#main-content { margin-top: 95px; height: calc(100vh - 95px); overflow-y: auto; }
+.tab-view { display: none; height: 100%; }
+.tab-view.active { display: block; }
 
-#sidebar-overlay.active {
-    display: block;
-}
+/* 사이드바 (뒤가 비치지 않게 하양색 배경 고정) */
+#main-sidebar { position: fixed; left: -280px; top: 0; bottom: 0; width: 280px; background: #fff; z-index: 3000; transition: 0.3s; box-shadow: 10px 0 20px rgba(0,0,0,0.1); padding: 20px; }
+#main-sidebar.open { left: 0; }
+#sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 2500; }
 
-/* 상단 네비게이션 고정 */
-#top-nav {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 95px;
-    background: #fff;
-    z-index: 1000;
-    border-bottom: 1px solid #eee;
-}
+/* 타임라인 카드 디자인 (입체감 복구) */
+.timeline-wrapper { position: relative; padding: 40px 0; min-height: 100%; }
+.dot-bg { background-color: #f1f6f9; background-image: radial-gradient(#d1d9e0 1.2px, transparent 1.2px); background-size: 20px 20px; }
+.timeline-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); }
+.event-row { position: relative; width: 100%; margin-bottom: 30px; display: flex; }
+.event-row.left { justify-content: flex-end; padding-right: 52%; padding-left: 5%; }
+.event-row.right { justify-content: flex-start; padding-left: 52%; padding-right: 5%; }
+.event-card { background: #fff; padding: 15px; border-radius: 12px; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.06); position: relative; border: 1px solid #f1f3f5; }
+.event-card .month { color: var(--primary); font-weight: 800; font-size: 0.8rem; display: block; margin-bottom: 4px; }
+.node { position: absolute; left: 50%; top: 22px; width: 12px; height: 12px; background: #fff; border: 3px solid var(--primary); border-radius: 50%; transform: translateX(-50%); z-index: 3; }
 
-/* 메인 컨텐츠 밀림 방지 */
-#content-area {
-    margin-top: 95px; /* 헤더 높이만큼 아래로 내림 */
-    height: calc(100vh - 95px);
-    overflow: hidden;
-}
+/* 커스텀 모달 (세련된 디자인) */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 4000; backdrop-filter: blur(2px); }
+.modal-card { background: #fff; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
+#modalInput { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #eee; margin: 15px 0; background: #f8f9fa; }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+.confirm-btn { background: var(--primary); color: #fff; }
 
-/* 타임라인 내부 스크롤 */
-.timeline-container {
-    height: calc(100vh - 145px); /* 필터바 높이 제외 */
-    overflow-y: auto;
-    position: relative;
-    padding: 20px 0;
-}
+.floating-add-btn { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #fff; border: none; border-radius: 50%; font-size: 2rem; box-shadow: 0 5px 15px rgba(77,171,247,0.4); z-index: 900; }
