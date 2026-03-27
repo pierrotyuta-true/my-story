@@ -1,5 +1,4 @@
-// 숫자를 v1, v2에서 v3로 올리는 것만으로도 앱 업데이트를 유도합니다.
-const CACHE_NAME = 'story-master-updates-v3'; 
+const CACHE_NAME = 'story-master-v1.3'; // 버전을 계속 올려주세요 (v1.2 -> v1.3)
 const ASSETS = [
   './',
   './index.html',
@@ -8,27 +7,30 @@ const ASSETS = [
   './manifest.json'
 ];
 
+// 설치 시점에 캐시 저장
 self.addEventListener('install', (e) => {
-  self.skipWaiting(); // 새로운 서비스 워커가 즉시 활성화되도록 함
+  self.skipWaiting(); // 즉시 활성화
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
 });
 
+// 예전 버전 캐시 삭제
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key); // 옛날 캐시 삭제
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       );
     })
   );
 });
 
+// 네트워크 우선 전략 (인터넷 연결 시 새 파일 우선)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
+    fetch(e.request).catch(() => caches.match(e.request))
   );
 });
