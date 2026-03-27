@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v4.7</title>
+    <title>STORY MASTER v4.8</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
@@ -11,67 +11,57 @@
     
     <style>
         :root { --primary: #4dabf7; --bg: #f8f9fa; --node: #74c0fc; --line: #dee2e6; }
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Pretendard', sans-serif; background: var(--bg); }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Pretendard', sans-serif; background: var(--bg); touch-action: none; }
         #app { display: flex; flex-direction: column; height: 100vh; }
         
-        /* 헤더 & 네비 */
+        /* 헤더 */
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; }
         .nav-right { display: flex; gap: 15px; font-weight: bold; color: #adb5bd; }
         .nav-right .active { color: var(--primary); }
-        .sub-nav { display: flex; justify-content: space-between; padding: 10px 20px; background: #fff; align-items: center; }
 
-        /* 캔버스 (모바일 최적화) */
-        .timeline-canvas { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; background-image: radial-gradient(#e9ecef 1.5px, transparent 1.5px); background-size: 30px 30px; }
-        .center-line { position: absolute; left: 50%; top: 0; height: 10000px; width: 2px; background: var(--line); transform: translateX(-50%); }
+        /* 캔버스 및 중앙선 */
+        .timeline-canvas { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; background-image: radial-gradient(#e9ecef 1.2px, transparent 1.2px); background-size: 25px 25px; }
+        .center-line { position: absolute; left: 50%; top: 0; height: 100%; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
         #connection-svg { position: absolute; top: 0; left: 0; width: 100%; height: 10000px; pointer-events: none; z-index: 2; }
 
-        /* 연도 라벨 (중앙선 밀착) */
-        .year-label { position: absolute; left: 50%; transform: translate(-50%, -50%); background: #343a40; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* 메모 박스 및 탭 */
+        .event-card { position: absolute; width: 150px; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); z-index: 10; cursor: grab; touch-action: none; border: 1px solid #eee; }
+        .event-card:active { cursor: grabbing; box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .card-date { font-size: 10px; color: var(--primary); font-weight: 800; margin-bottom: 5px; }
+        .event-card h4 { margin: 0; font-size: 13px; color: #333; line-height: 1.4; }
 
-        /* 메모 박스 (모바일 화면 안으로 자동 배치) */
-        .event-card { position: absolute; width: 140px; background: #fff; padding: 12px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); z-index: 10; cursor: pointer; border: 1px solid rgba(0,0,0,0.03); }
-        .event-card h4 { margin: 0; font-size: 13px; color: #333; line-height: 1.4; word-break: keep-all; }
-        .card-date { font-size: 10px; color: var(--primary); font-weight: 800; margin-bottom: 4px; }
+        /* 좌우 탭(인덱스) 위치 자동 변경 */
+        .branch-indices { position: absolute; top: 10px; display: flex; flex-direction: column; gap: 3px; }
+        .left-side .branch-indices { right: -6px; }
+        .right-side .branch-indices { left: -6px; }
+        .idx-dot { width: 6px; height: 15px; border-radius: 3px; }
 
-        /* 좌우 대칭 인덱스(탭) 디자인 */
-        .branch-indices { position: absolute; top: 12px; display: flex; flex-direction: column; gap: 3px; }
-        .left-side .branch-indices { right: -6px; } /* 왼쪽 박스는 오른쪽에 탭 */
-        .right-side .branch-indices { left: -6px; } /* 오른쪽 박스는 왼쪽에 탭 */
-        .idx-dot { width: 6px; height: 16px; border-radius: 3px; }
+        /* 연도 라벨 */
+        .year-label { position: absolute; left: 50%; transform: translate(-50%, -50%); background: #495057; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; z-index: 100; font-weight: bold; }
 
-        /* 중앙 연결 노드 */
-        .time-node { position: absolute; left: 50%; width: 8px; height: 8px; background: #fff; border: 2px solid var(--node); border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; }
-
-        /* 가지 색상 */
-        .b-0 { background: #d0ebff; } .b-1 { background: #d3f9d8; } .b-2 { background: #ffdeeb; } .b-3 { background: #fff3bf; }
-
-        /* 상세보기 바텀시트 */
-        #bottom-sheet-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 2000; align-items: flex-end; justify-content: center; }
-        #bottom-sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s; box-sizing: border-box; }
-        .sheet-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .branch-preview { display: flex; flex-wrap: wrap; gap: 6px; }
-        .branch-chip { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-
-        .fab { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; border-radius: 20px; background: var(--primary); color: #fff; border: none; font-size: 24px; box-shadow: 0 8px 20px rgba(77,171,247,0.3); z-index: 1000; }
-        .hidden { display: none !important; }
-        .btn-action { flex: 1; padding: 15px; border-radius: 12px; border: none; font-weight: bold; font-size: 14px; }
+        /* 바텀 시트 (편집/상세) */
+        #bottom-sheet-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 2000; align-items: flex-end; justify-content: center; }
+        #bottom-sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; box-sizing: border-box; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 15px; }
+        
+        .b-0 { background: #d0ebff; } .b-1 { background: #d3f9d8; } .b-2 { background: #ffdeeb; }
+        .hidden { display: none; }
+        .fab { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 24px; box-shadow: 0 5px 15px rgba(77,171,247,0.4); z-index: 1000; }
     </style>
 </head>
 <body>
     <div id="app">
         <header>
-            <div style="font-weight:900; color:#4dabf7; font-size: 20px;">SM</div>
+            <div style="font-weight:900; color:#4dabf7; font-size: 20px;">SM v4.8</div>
             <div class="nav-right">
                 <span class="active">타임라인</span>
                 <span>스토리</span>
                 <span>캐릭터</span>
             </div>
         </header>
-
-        <div class="sub-nav">
-            <div id="currentProjectTitle" style="font-weight: bold; font-size: 18px;">이그리예가 <i class="fas fa-chevron-down" style="font-size: 12px; color: #ccc;"></i></div>
-            <button onclick="saveToCloud()" style="background:none; border:none; color:#adb5bd; font-size: 20px;"><i class="fas fa-cloud-upload-alt"></i></button>
-        </div>
 
         <main class="timeline-canvas" id="canvas">
             <div class="center-line"></div>
@@ -82,23 +72,43 @@
         <div id="bottom-sheet-layer" onclick="closeSheet()">
             <div id="bottom-sheet" onclick="event.stopPropagation()">
                 <div id="view-mode">
-                    <div class="sheet-header">
-                        <div class="branch-preview" id="view-branches"></div>
-                        <div id="view-date" style="color:#4dabf7; font-weight:800; font-size:12px;"></div>
-                    </div>
-                    <h3 id="view-title" style="margin:0 0 15px 0; font-size: 20px;"></h3>
-                    <p id="view-memo" style="color:#666; font-size:15px; line-height:1.6; min-height:80px; background:#f8f9fa; padding:15px; border-radius:12px;"></p>
+                    <div id="view-branch-area" style="display:flex; gap:5px; margin-bottom:10px;"></div>
+                    <div id="view-full-date" style="color:var(--primary); font-weight:800; font-size:12px;"></div>
+                    <h3 id="view-title" style="margin:10px 0;"></h3>
+                    <div id="view-memo" style="background:#f1f3f5; padding:15px; border-radius:12px; min-height:80px; font-size:14px; line-height:1.6; color:#444;"></div>
                     <div style="display:flex; gap:10px; margin-top:20px;">
-                        <button class="btn-action" onclick="toggleEditMode(true)" style="background:#f1f3f5; color:#495057;">내용 편집</button>
-                        <button class="btn-action" onclick="addBranch()" style="background:#4dabf7; color:#fff;">+ 가지 추가</button>
+                        <button onclick="toggleEditMode(true)" style="flex:1; padding:15px; border-radius:12px; border:none; background:#eee;">편집</button>
+                        <button onclick="addBranch()" style="flex:1; padding:15px; border-radius:12px; border:none; background:var(--primary); color:#fff;">+ 가지 추가</button>
                     </div>
                 </div>
+
                 <div id="edit-mode" class="hidden">
-                    <input type="text" id="edit-title" style="width:100%; padding:15px; margin-bottom:10px; border:1px solid #eee; border-radius:10px; box-sizing:border-box; font-size:16px;" placeholder="제목">
-                    <textarea id="edit-memo" style="width:100%; height:150px; padding:15px; border:1px solid #eee; border-radius:10px; box-sizing:border-box; font-size:16px; line-height:1.5;" placeholder="사건의 상세 내용을 입력하세요..."></textarea>
-                    <button class="btn-action" onclick="updateEvent()" style="width:100%; background:#4dabf7; color:#fff; margin-top:10px;">저장하기</button>
+                    <div class="input-group">
+                        <label>연대 (직접 입력 가능)</label>
+                        <input type="text" id="edit-era" list="era-list" placeholder="예: 제국력">
+                        <datalist id="era-list"></datalist>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="input-group" style="flex:1;">
+                            <label>연도</label>
+                            <input type="number" id="edit-year">
+                        </div>
+                        <div class="input-group" style="flex:1;">
+                            <label>월</label>
+                            <input type="number" id="edit-month" min="1" max="12">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>제목</label>
+                        <input type="text" id="edit-title">
+                    </div>
+                    <div class="input-group">
+                        <label>상세 메모</label>
+                        <textarea id="edit-memo-input"></textarea>
+                    </div>
+                    <button onclick="updateEvent()" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--primary); color:#fff; font-weight:bold;">저장하기</button>
                 </div>
-                <button onclick="closeSheet()" style="width:100%; border:none; background:none; color:#adb5bd; margin-top:20px; font-size:14px;">닫기</button>
+                <button onclick="closeSheet()" style="width:100%; margin-top:15px; border:none; background:none; color:#adb5bd;">닫기</button>
             </div>
         </div>
 
@@ -124,77 +134,78 @@
             const svg = document.getElementById('connection-svg');
             container.innerHTML = ''; svg.innerHTML = '';
             
-            storyboard.sort((a, b) => a.y - b.y);
+            // 내림차순 정렬 (연대 -> 연도 -> 월 순)
+            storyboard.sort((a, b) => {
+                if(a.era !== b.era) return b.era.localeCompare(a.era);
+                if(a.year !== b.year) return b.year - a.year;
+                return b.month - a.month;
+            });
+
             const centerX = window.innerWidth / 2;
 
             storyboard.forEach((ev, idx) => {
-                // 모바일 대응: x 좌표가 화면 밖이면 강제로 안쪽으로 조정
-                if (ev.x < 10) ev.x = 20;
-                if (ev.x > window.innerWidth - 160) ev.x = window.innerWidth - 170;
+                // 모바일 최적화: 초기 생성 시 중앙선 근처 배치
+                if (ev.x === undefined || ev.x > window.innerWidth - 100 || ev.x < 10) {
+                    ev.x = (idx % 2 === 0) ? centerX - 170 : centerX + 20;
+                    ev.y = idx * 130 + 100;
+                }
 
-                // 1. 메모 박스 생성
                 const card = document.createElement('div');
-                const isLeft = ev.x + 70 < centerX;
+                const isLeft = ev.x + 75 < centerX;
                 card.className = `event-card ${isLeft ? 'left-side' : 'right-side'}`;
                 card.id = `ev-${ev.id}`;
                 card.style.left = ev.x + 'px'; card.style.top = ev.y + 'px';
                 
+                // 탭(인덱스) 표시
                 let idxHtml = '<div class="branch-indices">';
                 (ev.branches || []).forEach((_, i) => idxHtml += `<div class="idx-dot b-${i}"></div>`);
                 idxHtml += '</div>';
 
-                card.innerHTML = `${idxHtml}<div class="card-date">${ev.year || ''} ${ev.month || 1}월</div><h4>${ev.title}</h4>`;
+                card.innerHTML = `${idxHtml}<div class="card-date">${ev.era} ${ev.year}년 ${ev.month}월</div><h4>${ev.title}</h4>`;
                 card.onclick = () => openSheet(ev.id);
                 container.appendChild(card);
 
-                // 2. 중앙 노드 & 연도 라벨 (연도가 바뀔 때만 표시)
+                // 연도 라벨 및 중앙 노드
+                const nodeY = ev.y + 40;
                 if (idx === 0 || storyboard[idx-1].year !== ev.year) {
                     const yearTag = document.createElement('div');
                     yearTag.className = 'year-label';
                     yearTag.style.top = (ev.y - 40) + 'px';
-                    yearTag.innerText = ev.year;
+                    yearTag.innerText = `${ev.era} ${ev.year}년`;
                     container.appendChild(yearTag);
                 }
 
-                const nodeY = ev.y + 40;
-                const node = document.createElement('div');
-                node.className = 'time-node';
-                node.style.top = nodeY + 'px';
-                container.appendChild(node);
-
-                // 3. 연결선 그리기 (박스와 중앙 노드 연결)
+                // 연결선 (박스와 중앙선)
                 const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                const startX = isLeft ? ev.x + 140 : ev.x;
-                const startY = ev.y + 40;
-                const controlX = centerX;
-                
-                line.setAttribute("d", `M ${startX} ${startY} Q ${controlX} ${startY}, ${centerX} ${nodeY}`);
+                const startX = isLeft ? ev.x + 150 : ev.x;
+                line.setAttribute("d", `M ${startX} ${nodeY} L ${centerX} ${nodeY}`);
                 line.setAttribute("stroke", "#dee2e6");
                 line.setAttribute("stroke-width", "1.5");
-                line.setAttribute("fill", "none");
-                line.setAttribute("stroke-dasharray", "4 3");
+                line.setAttribute("stroke-dasharray", "4 2");
                 svg.appendChild(line);
             });
             setupDrag();
+            updateEraList();
         }
 
         function setupDrag() {
             interact('.event-card').draggable({
+                inertia: true,
                 listeners: {
-                    move(e) {
-                        const t = e.target;
-                        const x = (parseFloat(t.style.left) || 0) + e.dx;
-                        const y = (parseFloat(t.style.top) || 0) + e.dy;
-                        t.style.left = x + 'px'; t.style.top = y + 'px';
-                        // 드래그 중 실시간 렌더링은 성능상 제외, 멈췄을 때 선 다시 그림
+                    move(event) {
+                        const target = event.target;
+                        const x = (parseFloat(target.style.left) || 0) + event.dx;
+                        const y = (parseFloat(target.style.top) || 0) + event.dy;
+                        target.style.left = x + 'px';
+                        target.style.top = y + 'px';
                     },
-                    end(e) {
-                        const t = e.target;
-                        const id = t.id.replace('ev-', '');
+                    end(event) {
+                        const target = event.target;
+                        const id = target.id.replace('ev-', '');
                         const idx = storyboard.findIndex(i => i.id == id);
                         if(idx > -1) {
-                            storyboard[idx].x = parseFloat(t.style.left);
-                            storyboard[idx].y = parseFloat(t.style.top);
+                            storyboard[idx].x = parseFloat(target.style.left);
+                            storyboard[idx].y = parseFloat(target.style.top);
                             saveToCloud();
                         }
                     }
@@ -205,18 +216,16 @@
         function openSheet(id) {
             currentEditId = id;
             const ev = storyboard.find(i => i.id == id);
-            
-            document.getElementById('view-date').innerText = `${ev.year || ''} ${ev.month || 1}월`;
+            document.getElementById('view-full-date').innerText = `${ev.era} ${ev.year}년 ${ev.month}월`;
             document.getElementById('view-title').innerText = ev.title;
-            document.getElementById('view-memo').innerText = ev.memo || '아직 작성된 메모가 없습니다.';
+            document.getElementById('view-memo').innerText = ev.memo || '내용이 없습니다.';
             
-            const bView = document.getElementById('view-branches');
-            bView.innerHTML = '';
-            (ev.branches || []).forEach((b, i) => bView.innerHTML += `<div class="branch-chip b-${i}">${b}</div>`);
+            const bArea = document.getElementById('view-branch-area');
+            bArea.innerHTML = '';
+            (ev.branches || []).forEach((b, i) => bArea.innerHTML += `<span class="idx-dot b-${i}" style="width:20px; height:6px; border-radius:10px;"></span>`);
 
             toggleEditMode(false);
             document.getElementById('bottom-sheet-layer').style.display = 'flex';
-            setTimeout(() => document.getElementById('bottom-sheet').style.transform = 'translateY(0)', 10);
         }
 
         function toggleEditMode(isEdit) {
@@ -224,38 +233,49 @@
             document.getElementById('edit-mode').classList.toggle('hidden', !isEdit);
             if(isEdit) {
                 const ev = storyboard.find(i => i.id == currentEditId);
+                document.getElementById('edit-era').value = ev.era;
+                document.getElementById('edit-year').value = ev.year;
+                document.getElementById('edit-month').value = ev.month;
                 document.getElementById('edit-title').value = ev.title;
-                document.getElementById('edit-memo').value = ev.memo || '';
+                document.getElementById('edit-memo-input').value = ev.memo || '';
             }
-        }
-
-        function createNewEvent() {
-            const lastY = storyboard.length > 0 ? Math.max(...storyboard.map(e => e.y)) + 120 : 100;
-            const newX = (storyboard.length % 2 === 0) ? window.innerWidth/2 - 160 : window.innerWidth/2 + 20;
-            storyboard.push({ id: Date.now(), title: "새로운 사건", year: "제국력 590년", month: 1, x: newX, y: lastY, branches: [], memo: "" });
-            saveToCloud();
-        }
-
-        function addBranch() {
-            const ev = storyboard.find(i => i.id == currentEditId);
-            if(!ev.branches) ev.branches = [];
-            const b = prompt("가지(태그) 내용을 입력하세요 (최대 6자):");
-            if(b) { ev.branches.push(b.substring(0, 6)); saveToCloud(); openSheet(currentEditId); }
         }
 
         function updateEvent() {
             const idx = storyboard.findIndex(i => i.id == currentEditId);
+            storyboard[idx].era = document.getElementById('edit-era').value || "제국력";
+            storyboard[idx].year = parseInt(document.getElementById('edit-year').value);
+            storyboard[idx].month = parseInt(document.getElementById('edit-month').value);
             storyboard[idx].title = document.getElementById('edit-title').value;
-            storyboard[idx].memo = document.getElementById('edit-memo').value;
+            storyboard[idx].memo = document.getElementById('edit-memo-input').value;
             saveToCloud();
             closeSheet();
         }
 
-        function closeSheet() {
-            document.getElementById('bottom-sheet').style.transform = 'translateY(100%)';
-            setTimeout(() => document.getElementById('bottom-sheet-layer').style.display = 'none', 300);
+        function createNewEvent() {
+            const newId = Date.now();
+            storyboard.push({ 
+                id: newId, title: "새로운 사건", 
+                era: "제국력", year: 590, month: 1, 
+                branches: [], memo: "" 
+            });
+            saveToCloud();
         }
 
+        function updateEraList() {
+            const eras = [...new Set(storyboard.map(e => e.era))];
+            const list = document.getElementById('era-list');
+            list.innerHTML = '';
+            eras.forEach(e => list.innerHTML += `<option value="${e}">`);
+        }
+
+        function addBranch() {
+            const ev = storyboard.find(i => i.id == currentEditId);
+            const b = prompt("추가할 가지 이름을 입력하세요:");
+            if(b) { if(!ev.branches) ev.branches = []; ev.branches.push(b); saveToCloud(); openSheet(currentEditId); }
+        }
+
+        function closeSheet() { document.getElementById('bottom-sheet-layer').style.display = 'none'; }
         function saveToCloud() { db.ref('projects/' + currentProject + '/data').set(storyboard); }
         window.onload = init;
     </script>
