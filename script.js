@@ -139,6 +139,21 @@ function loadP(k) {
 function openLoadModal() {
     db.ref('projects').once('value').then(s => {
         const d = s.val();
+        if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          if (confirm('새로운 업데이트가 있습니다! 적용하시겠습니까?')) {
+            window.location.reload();
+          }
+        }
+      });
+    });
+  });
+}
+
         document.getElementById('projectList').innerHTML = d ? Object.keys(d).map(k => `
             <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:10px; margin-bottom:5px;">
                 <span style="font-weight:700;">${k}</span>
