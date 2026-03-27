@@ -8,6 +8,7 @@ if (!firebase.apps.length) firebase.initializeApp(config);
 const db = firebase.database();
 
 let storyboard = [], currentProject = localStorage.getItem('lastProject') || "이그리예가"; 
+const GRID_Y = 80; // 스냅할 높이 단위 (월별 간격)
 
 function init() {
     db.ref('projects/' + currentProject + '/data').on('value', s => {
@@ -44,48 +45,52 @@ function setupDraggable() {
                 drawCurves();
             },
             end(event) {
-                const id = event.target.getAttribute('data-id');
+                const t = event.target;
+                const id = t.getAttribute('data-id');
                 const idx = storyboard.findIndex(i => i.id == id);
-                storyboard[idx].x = parseFloat(event.target.style.left);
-                storyboard[idx].y = parseFloat(event.target.style.top);
+                
+                // [스냅 로직] Y축을 GRID_Y 단위로 딱딱 맞춤
+                const currentY = parseFloat(t.style.top);
+                const snappedY = Math.round(currentY / GRID_Y) * GRID_Y;
+                t.style.top = snappedY + 'px';
+
+                storyboard[idx].x = parseFloat(t.style.left);
+                storyboard[idx].y = snappedY;
                 saveToCloud();
+                drawCurves();
             }
         }
     });
 }
 
+// [중앙선에서 뻗어나오는 곡선 그리기]
 function drawCurves() {
     const svg = document.getElementById('connection-svg');
     if(!svg) return; svg.innerHTML = '';
-    // Y축(시간순)으로 정렬하여 곡선 연결
-    const cards = Array.from(document.querySelectorAll('.event-card'))
-                       .sort((a, b) => parseFloat(a.style.top) - parseFloat(b.style.top));
+    const centerX = window.innerWidth / 2;
 
-    for(let i=0; i<cards.length - 1; i++) {
-        const x1 = parseFloat(cards[i].style.left) + 75;
-        const y1 = parseFloat(cards[i].style.top) + 40;
-        const x2 = parseFloat(cards[i+1].style.left) + 75;
-        const y2 = parseFloat(cards[i+1].style.top);
-
-        const path = `M ${x1} ${y1} C ${x1} ${(y1+y2)/2}, ${x2} ${(y1+y2)/2}, ${x2} ${y2}`;
+    storyboard.forEach(ev => {
+        const cardX = (ev.x || 100) + (ev.x < centerX ? 140 : 0); // 카드 방향에 따른 연결점
+        const cardY = (ev.y || 150) + 25;
+        
+        // 중앙선(centerX)에서 카드(ev.x)로 뻗는 곡선
+        const path = `M ${centerX} ${cardY} C ${centerX} ${cardY}, ${ev.x + 70} ${cardY}, ${ev.x + 70} ${ev.y}`;
         const newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        newPath.setAttribute("d", path); newPath.setAttribute("class", "curve-line");
+        newPath.setAttribute("d", `M ${centerX} ${cardY} L ${ev.x < centerX ? ev.x + 140 : ev.x} ${cardY}`); // 일단 직선으로 연결 (유타님 스샷 참고)
+        newPath.setAttribute("class", "curve-line");
         svg.appendChild(newPath);
-    }
+    });
 }
 
+// ... 메모 및 사건 추가 기능 동일 ...
 function openMemo(id, e) {
     const ev = storyboard.find(i => i.id == id);
     const layer = document.getElementById('memo-layer');
     layer.style.pointerEvents = "auto";
-    layer.innerHTML = `
-        <div class="floating-index" style="left: ${ev.x + 160}px; top: ${ev.y}px;">
-            <div class="index-label">생각의 가지</div>
-            <div class="index-content">
-                <textarea onchange="updateMemo('${id}', this.value)">${ev.memo || ''}</textarea>
-            </div>
-        </div>
-    `;
+    layer.innerHTML = `<div class="floating-index" style="left: ${ev.x + 150}px; top: ${ev.y}px;">
+        <div class="index-label">생각의 가지</div>
+        <div class="index-content"><textarea onchange="updateMemo('${id}', this.value)">${ev.memo || ''}</textarea></div>
+    </div>`;
     layer.onclick = (el) => { if(el.target === layer) { layer.innerHTML = ''; layer.style.pointerEvents = "none"; } };
 }
 
@@ -97,7 +102,7 @@ function updateMemo(id, val) {
 
 function createNewEvent() {
     const id = Date.now();
-    storyboard.push({ id: id, title: "새로운 사건", x: 200, y: window.scrollY + 150, memo: "" });
+    storyboard.push({ id: id, title: "새로운 사건", x: 50, y: 160, memo: "" });
     renderEvents();
 }
 
