@@ -3,44 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v3.1</title>
+    <title>STORY MASTER v4.0</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.1">
+    <link rel="stylesheet" href="style.css?v=4.0">
 </head>
 <body>
     <div id="app">
         <header id="top-nav">
-            <div class="nav-left">
-                <button class="v-tab active">Story</button>
-                <button class="v-tab">Character</button>
+            <div class="nav-left logo">SM</div>
+            <div class="nav-main">
+                <button class="v-tab active" onclick="switchTab('timeline')">타임라인</button>
+                <button class="v-tab" onclick="switchTab('story')">스토리</button>
+                <button class="v-tab" onclick="switchTab('character')">캐릭터</button>
             </div>
-            <div class="nav-center">
-                <i class="fas fa-chevron-left" onclick="changeProject(-1)"></i>
-                <span id="project-title">이그리예가</span>
-                <i class="fas fa-chevron-right" onclick="changeProject(1)"></i>
+            <div class="proj-tab card-shadow" onclick="toggleProjMenu()">
+                <span id="currentProjectTitle">이그리예가</span>
+                <i class="fas fa-chevron-down"></i>
+                <div id="projMenuPopup" class="proj-popup hidden">
+                    <button onclick="createNewProject()">새 프로젝트</button>
+                    <button onclick="openLoadModal()">프로젝트 목록</button>
+                </div>
             </div>
-            <div class="nav-right">
-                <button class="save-btn" onclick="saveToCloud()"><i class="fas fa-save"></i></button>
-            </div>
+            <button class="save-btn" onclick="saveToCloud()"><i class="fas fa-save"></i></button>
         </header>
 
         <main id="main-content">
-            <div class="timeline-canvas dot-bg" id="canvas">
-                <div class="center-line"></div>
-                <svg id="connection-svg"></svg>
-                <div id="event-container"></div>
-            </div>
-        </main>
+            <section id="view-timeline" class="tab-view active">
+                <div class="timeline-canvas dot-bg" id="canvas">
+                    <svg id="connection-svg"></svg>
+                    <div class="center-line"></div>
+                    <div id="event-list"></div>
+                </div>
+            </section>
 
-        <div id="modal-layer">
-            <div id="modal-content"></div>
-        </div>
+            <section id="view-story" class="tab-view">
+                <div class="story-layout">
+                    <aside class="para-sidebar">
+                        <h4>단락 목록</h4>
+                        <div id="para-list"></div>
+                    </aside>
+                    <article class="editor-area paper-bg">
+                        <textarea id="story-editor" onmouseup="showHighlightMenu()"></textarea>
+                        <div id="highlight-popup" class="hidden">
+                            <button onclick="applyHighlight('yellow')"><i class="fas fa-marker" style="color:#ffd43b;"></i></button>
+                            <button onclick="applyHighlight('cyan')"><i class="fas fa-marker" style="color:#4dbfbf;"></i></button>
+                            <button onclick="splitDocument()"><i class="fas fa-folder-minus"></i> 분리</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            </main>
 
         <button class="fab" onclick="createNewEvent()">+</button>
     </div>
-    <script src="script.js?v=3.1"></script>
+    <script src="script.js?v=4.0"></script>
 </body>
 </html>
