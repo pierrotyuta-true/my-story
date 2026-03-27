@@ -3,42 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v2.4</title>
+    <title>STORY MASTER v2.5</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="style.css?v=2.4">
+    <link rel="stylesheet" href="style.css?v=2.5">
 </head>
 <body>
     <div id="app">
         <header id="top-nav">
-            <div class="nav-left">
-                <span id="projectTitle" onclick="location.reload()">STORY MASTER</span>
-            </div>
+            <div class="nav-left">STORY MASTER</div>
             <div class="tab-menu-bar">
                 <button class="v-tab active">Story</button>
                 <button class="v-tab">Character</button>
             </div>
             <div class="nav-right">
-                <button class="save-btn" onclick="saveToCloud()"><i class="fas fa-cloud-upload-alt"></i></button>
+                <button class="save-btn" onclick="saveToCloud()"><i class="fas fa-save"></i></button>
             </div>
         </header>
 
         <main id="main-content">
             <div class="timeline-canvas dot-bg" id="canvas">
                 <svg id="connection-svg"></svg>
-                <div class="center-line"></div>
                 <div id="event-container">
-                    </div>
+                    <p id="loading-msg" style="text-align:center; padding-top:100px; color:#ccc;">데이터를 불러오는 중...</p>
+                </div>
             </div>
         </main>
 
         <div id="memo-layer"></div>
-
         <button class="fab" onclick="createNewEvent()">+</button>
     </div>
-    <script src="script.js?v=2.4"></script>
+    <script src="script.js?v=2.5"></script>
 </body>
 </html>
