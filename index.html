@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v4.5</title>
+    <title>STORY MASTER v4.6</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=4.5">
+    <link rel="stylesheet" href="style.css?v=4.6">
 </head>
 <body>
     <div id="app">
@@ -53,39 +53,35 @@
                     <h3 id="view-title"></h3>
                     <p id="view-memo"></p>
                     <div class="sheet-footer">
-                        <button class="btn-edit-main" onclick="toggleEditMode(true)">편집</button>
-                        <button class="btn-add-branch" onclick="addBranch()">+ 가지</button>
+                        <button class="btn-edit-main" onclick="toggleEditMode(true)">내용 편집</button>
+                        <button class="btn-add-branch" onclick="addBranch()">+ 가지 추가</button>
                     </div>
                 </div>
 
                 <div id="edit-mode" class="hidden">
                     <div class="edit-grid">
                         <div class="input-group">
-                            <label>연대(연도)</label>
+                            <label>연대 선택</label>
                             <div class="flex-row">
                                 <select id="edit-year-sel"></select>
-                                <button class="btn-small" onclick="addNewYear()">+추가</button>
+                                <button class="btn-small" onclick="addNewYear()">추가</button>
                             </div>
                         </div>
                         <div class="input-group">
-                            <label>월</label>
-                            <select id="edit-month">
-                                <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
-                                <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
-                                <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
-                                <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
-                            </select>
+                            <label>월 설정</label>
+                            <select id="edit-month"></select>
                         </div>
                     </div>
                     <input type="text" id="edit-title" placeholder="사건 제목">
-                    <textarea id="edit-memo" placeholder="메모를 입력하세요"></textarea>
-                    <button class="btn-save-full" onclick="updateEvent()">저장 완료</button>
+                    <textarea id="edit-memo" placeholder="상세 메모를 입력하세요"></textarea>
+                    <button class="btn-save-full" onclick="updateEvent()">저장하기</button>
                 </div>
+                <button class="btn-close-sheet" onclick="closeSheet()">닫기</button>
             </div>
         </div>
 
         <button class="fab" onclick="createNewEvent()">+</button>
     </div>
-    <script src="script.js?v=4.5"></script>
+    <script src="script.js?v=4.6"></script>
 </body>
 </html>
