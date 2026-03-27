@@ -1,43 +1,88 @@
-:root { --primary: #4dabf7; --bg: #f8f9fa; }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Pretendard', sans-serif; }
+const config = { 
+    apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", 
+    authDomain: "true-s.firebaseapp.com", 
+    databaseURL: "https://true-s-default-rtdb.firebaseio.com", 
+    projectId: "true-s" 
+};
+if (!firebase.apps.length) firebase.initializeApp(config);
+const db = firebase.database();
 
-#top-nav { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #fff; border-bottom: 1px solid #eee; position: fixed; width: 100%; z-index: 1000; }
-.v-tab { background: none; border: none; font-weight: 700; color: #ccc; margin: 0 10px; font-size: 16px; }
-.v-tab.active { color: var(--primary); }
+let storyboard = [], currentProject = "테스트작품"; // 실제 프로젝트명으로 자동 연동됨
 
-.timeline-canvas { position: relative; width: 100vw; height: 100vh; overflow-y: auto; padding-top: 100px; background-color: var(--bg); }
-.dot-bg { background-image: radial-gradient(#d1d9e0 1.2px, transparent 1.2px); background-size: 30px 30px; }
-.center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #e0e0e0; }
-
-/* 사건 카드 & 견출지 탭 */
-.event-card {
-    position: absolute; width: 140px; background: #fff; padding: 12px;
-    border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    cursor: grab; z-index: 10; touch-action: none;
-}
-.card-tab {
-    position: absolute; top: -10px; left: 15px; width: 35px; height: 15px;
-    background: var(--primary); border-radius: 4px 4px 0 0; display: none;
-}
-.has-memo .card-tab { display: block; }
-
-/* 플로팅 메모 (흰 배경 없이 인덱스만) */
-#memo-layer { position: fixed; inset: 0; pointer-events: none; z-index: 2000; }
-.floating-index {
-    position: absolute; pointer-events: auto; display: flex; flex-direction: column;
-}
-.index-label {
-    background: var(--primary); color: #fff; padding: 3px 10px;
-    border-radius: 8px 8px 0 0; font-size: 10px; font-weight: 800; width: fit-content;
-}
-.index-content {
-    background: rgba(255,255,255,0.95); border: 1.5px solid var(--primary);
-    border-radius: 0 10px 10px 10px; padding: 8px; width: 150px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-.index-content textarea {
-    width: 100%; height: 60px; border: none; background: none; font-size: 12px; outline: none; resize: none;
+// [복구] 데이터 로드 로직
+function init() {
+    db.ref('projects/' + currentProject).on('value', s => {
+        const d = s.val() || {};
+        storyboard = d.data || [];
+        renderEvents();
+    });
 }
 
-#connection-svg { position: absolute; top: 0; left: 0; width: 100%; height: 5000px; pointer-events: none; }
-.fab { position: fixed; bottom: 30px; right: 20px; width: 56px; height: 56px; border-radius: 18px; background: var(--primary); color: #fff; border: none; font-size: 24px; box-shadow: 0 8px 20px rgba(77,171,247,0.3); z-index: 1500; }
+function renderEvents() {
+    const container = document.getElementById('event-container');
+    container.innerHTML = storyboard.map((ev, i) => `
+        <div class="event-card ${ev.memo ? 'has-memo' : ''}" 
+             id="ev-${ev.id}" 
+             data-id="${ev.id}"
+             style="left: ${ev.x || 100}px; top: ${ev.y || 150}px;">
+            <div class="card-tab"></div>
+            <div onclick="openMemo('${ev.id}', event)">
+                <h4>${ev.title || '새 사건'}</h4>
+            </div>
+        </div>
+    `).join('');
+    setupDraggable();
+}
+
+function setupDraggable() {
+    interact('.event-card').draggable({
+        listeners: {
+            move(event) {
+                const target = event.target;
+                const x = (parseFloat(target.style.left) || 0) + event.dx;
+                const y = (parseFloat(target.style.top) || 0) + event.dy;
+                target.style.left = x + 'px';
+                target.style.top = y + 'px';
+            },
+            end(event) {
+                const id = event.target.getAttribute('data-id');
+                const idx = storyboard.findIndex(i => i.id == id);
+                storyboard[idx].x = parseFloat(event.target.style.left);
+                storyboard[idx].y = parseFloat(event.target.style.top);
+                saveToCloud();
+            }
+        }
+    });
+}
+
+function openMemo(id, e) {
+    const ev = storyboard.find(i => i.id == id);
+    const layer = document.getElementById('memo-layer');
+    layer.innerHTML = `
+        <div class="floating-index" style="left: ${ev.x + 150}px; top: ${ev.y}px;">
+            <div class="index-label">사건 메모</div>
+            <div class="index-content">
+                <textarea onchange="updateMemo('${id}', this.value)">${ev.memo || ''}</textarea>
+            </div>
+        </div>
+    `;
+    layer.onclick = (el) => { if(el.target === layer) layer.innerHTML = ''; };
+}
+
+function updateMemo(id, val) {
+    const idx = storyboard.findIndex(i => i.id == id);
+    storyboard[idx].memo = val;
+    saveToCloud();
+}
+
+function createNewEvent() {
+    const id = Date.now();
+    storyboard.push({ id: id, title: "새로운 사건", x: 50, y: window.scrollY + 150, memo: "" });
+    renderEvents();
+}
+
+function saveToCloud() {
+    db.ref('projects/' + currentProject + '/data').set(storyboard);
+}
+
+window.onload = init;
