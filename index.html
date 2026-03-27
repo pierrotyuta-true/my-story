@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v4.8</title>
+    <title>STORY MASTER v4.9</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
@@ -14,52 +14,42 @@
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Pretendard', sans-serif; background: var(--bg); touch-action: none; }
         #app { display: flex; flex-direction: column; height: 100vh; }
         
-        /* 헤더 */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; z-index: 1000; }
         .nav-right { display: flex; gap: 15px; font-weight: bold; color: #adb5bd; }
         .nav-right .active { color: var(--primary); }
 
-        /* 캔버스 및 중앙선 */
-        .timeline-canvas { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; background-image: radial-gradient(#e9ecef 1.2px, transparent 1.2px); background-size: 25px 25px; }
-        .center-line { position: absolute; left: 50%; top: 0; height: 100%; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
-        #connection-svg { position: absolute; top: 0; left: 0; width: 100%; height: 10000px; pointer-events: none; z-index: 2; }
+        .timeline-canvas { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; background-image: radial-gradient(#e9ecef 1.2px, transparent 1.2px); background-size: 25px 25px; -webkit-overflow-scrolling: touch; }
+        .center-line { position: absolute; left: 50%; top: 0; height: 20000px; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
+        #connection-svg { position: absolute; top: 0; left: 0; width: 100%; height: 20000px; pointer-events: none; z-index: 2; }
 
-        /* 메모 박스 및 탭 */
-        .event-card { position: absolute; width: 150px; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); z-index: 10; cursor: grab; touch-action: none; border: 1px solid #eee; }
-        .event-card:active { cursor: grabbing; box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-        .card-date { font-size: 10px; color: var(--primary); font-weight: 800; margin-bottom: 5px; }
-        .event-card h4 { margin: 0; font-size: 13px; color: #333; line-height: 1.4; }
+        .event-card { position: absolute; width: 160px; background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); z-index: 10; cursor: grab; border: 1px solid #eee; box-sizing: border-box; }
+        .card-date { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 6px; }
+        .event-card h4 { margin: 0; font-size: 14px; color: #333; line-height: 1.4; word-break: break-all; }
 
-        /* 좌우 탭(인덱스) 위치 자동 변경 */
-        .branch-indices { position: absolute; top: 10px; display: flex; flex-direction: column; gap: 3px; }
-        .left-side .branch-indices { right: -6px; }
-        .right-side .branch-indices { left: -6px; }
-        .idx-dot { width: 6px; height: 15px; border-radius: 3px; }
+        .idx-dots { display: flex; gap: 4px; margin-top: 8px; }
+        .dot { width: 15px; height: 5px; border-radius: 3px; }
+        .b-0 { background: #d0ebff; } .b-1 { background: #d3f9d8; } .b-2 { background: #ffdeeb; }
 
-        /* 연도 라벨 */
-        .year-label { position: absolute; left: 50%; transform: translate(-50%, -50%); background: #495057; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; z-index: 100; font-weight: bold; }
+        .year-label { position: absolute; left: 50%; transform: translate(-50%, -50%); background: #495057; color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; z-index: 100; font-weight: bold; }
 
-        /* 바텀 시트 (편집/상세) */
         #bottom-sheet-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 2000; align-items: flex-end; justify-content: center; }
-        #bottom-sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; box-sizing: border-box; }
+        #bottom-sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; padding: 30px; box-sizing: border-box; }
         
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 15px; }
+        input, textarea, select { width: 100%; padding: 14px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 16px; background: #fdfdfd; }
         
-        .b-0 { background: #d0ebff; } .b-1 { background: #d3f9d8; } .b-2 { background: #ffdeeb; }
         .hidden { display: none; }
-        .fab { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 24px; box-shadow: 0 5px 15px rgba(77,171,247,0.4); z-index: 1000; }
+        .fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 28px; box-shadow: 0 8px 20px rgba(77,171,247,0.4); z-index: 1000; }
     </style>
 </head>
 <body>
     <div id="app">
         <header>
-            <div style="font-weight:900; color:#4dabf7; font-size: 20px;">SM v4.8</div>
+            <div style="font-weight:900; color:#4dabf7; font-size: 22px;">SM v4.9</div>
             <div class="nav-right">
                 <span class="active">타임라인</span>
                 <span>스토리</span>
-                <span>캐릭터</span>
             </div>
         </header>
 
@@ -72,43 +62,28 @@
         <div id="bottom-sheet-layer" onclick="closeSheet()">
             <div id="bottom-sheet" onclick="event.stopPropagation()">
                 <div id="view-mode">
-                    <div id="view-branch-area" style="display:flex; gap:5px; margin-bottom:10px;"></div>
-                    <div id="view-full-date" style="color:var(--primary); font-weight:800; font-size:12px;"></div>
-                    <h3 id="view-title" style="margin:10px 0;"></h3>
-                    <div id="view-memo" style="background:#f1f3f5; padding:15px; border-radius:12px; min-height:80px; font-size:14px; line-height:1.6; color:#444;"></div>
-                    <div style="display:flex; gap:10px; margin-top:20px;">
-                        <button onclick="toggleEditMode(true)" style="flex:1; padding:15px; border-radius:12px; border:none; background:#eee;">편집</button>
-                        <button onclick="addBranch()" style="flex:1; padding:15px; border-radius:12px; border:none; background:var(--primary); color:#fff;">+ 가지 추가</button>
+                    <div id="view-full-date" style="color:var(--primary); font-weight:800; font-size:13px;"></div>
+                    <h3 id="view-title" style="margin:12px 0;"></h3>
+                    <div id="view-memo" style="background:#f8f9fa; padding:18px; border-radius:15px; min-height:100px; font-size:15px; line-height:1.6; color:#444; white-space: pre-wrap;"></div>
+                    <div style="display:flex; gap:12px; margin-top:25px;">
+                        <button onclick="toggleEditMode(true)" style="flex:1; padding:18px; border-radius:15px; border:none; background:#eee; font-weight:bold;">편집</button>
+                        <button onclick="deleteEvent()" style="width:60px; padding:18px; border-radius:15px; border:none; background:#fff1f1; color:#ff6b6b;"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
 
                 <div id="edit-mode" class="hidden">
                     <div class="input-group">
-                        <label>연대 (직접 입력 가능)</label>
-                        <input type="text" id="edit-era" list="era-list" placeholder="예: 제국력">
-                        <datalist id="era-list"></datalist>
+                        <label>연대 (예: 제국력)</label>
+                        <input type="text" id="edit-era" placeholder="직접 입력">
                     </div>
                     <div style="display:flex; gap:10px;">
-                        <div class="input-group" style="flex:1;">
-                            <label>연도</label>
-                            <input type="number" id="edit-year">
-                        </div>
-                        <div class="input-group" style="flex:1;">
-                            <label>월</label>
-                            <input type="number" id="edit-month" min="1" max="12">
-                        </div>
+                        <div class="input-group" style="flex:1;"><label>연도</label><input type="number" id="edit-year"></div>
+                        <div class="input-group" style="flex:1;"><label>월</label><input type="number" id="edit-month" min="1" max="12"></div>
                     </div>
-                    <div class="input-group">
-                        <label>제목</label>
-                        <input type="text" id="edit-title">
-                    </div>
-                    <div class="input-group">
-                        <label>상세 메모</label>
-                        <textarea id="edit-memo-input"></textarea>
-                    </div>
-                    <button onclick="updateEvent()" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--primary); color:#fff; font-weight:bold;">저장하기</button>
+                    <div class="input-group"><label>제목</label><input type="text" id="edit-title"></div>
+                    <div class="input-group"><label>상세 내용</label><textarea id="edit-memo-input" rows="4"></textarea></div>
+                    <button onclick="updateEvent()" style="width:100%; padding:18px; border-radius:15px; border:none; background:var(--primary); color:#fff; font-weight:bold; font-size:16px;">변경사항 저장</button>
                 </div>
-                <button onclick="closeSheet()" style="width:100%; margin-top:15px; border:none; background:none; color:#adb5bd;">닫기</button>
             </div>
         </div>
 
@@ -123,8 +98,10 @@
         let storyboard = [], currentProject = "이그리예가", currentEditId = null;
 
         function init() {
+            // 데이터 변경을 실시간으로 감시 (저장 즉시 반영)
             db.ref('projects/' + currentProject + '/data').on('value', s => {
-                storyboard = s.val() || [];
+                const data = s.val();
+                storyboard = Array.isArray(data) ? data : (data ? Object.values(data) : []);
                 render();
             });
         }
@@ -136,48 +113,43 @@
             
             // 내림차순 정렬 (연대 -> 연도 -> 월 순)
             storyboard.sort((a, b) => {
-                if(a.era !== b.era) return b.era.localeCompare(a.era);
-                if(a.year !== b.year) return b.year - a.year;
-                return b.month - a.month;
+                if(String(a.era) !== String(b.era)) return String(b.era).localeCompare(String(a.era));
+                if(parseInt(a.year) !== parseInt(b.year)) return parseInt(b.year) - parseInt(a.year);
+                return parseInt(b.month) - parseInt(a.month);
             });
 
             const centerX = window.innerWidth / 2;
 
             storyboard.forEach((ev, idx) => {
-                // 모바일 최적화: 초기 생성 시 중앙선 근처 배치
-                if (ev.x === undefined || ev.x > window.innerWidth - 100 || ev.x < 10) {
-                    ev.x = (idx % 2 === 0) ? centerX - 170 : centerX + 20;
-                    ev.y = idx * 130 + 100;
+                // 안전장치: 좌표가 없거나 비정상적이면 자동 배치
+                if (!ev.x || ev.x < 0 || ev.x > window.innerWidth) {
+                    ev.x = (idx % 2 === 0) ? centerX - 180 : centerX + 20;
                 }
+                if (!ev.y) ev.y = idx * 150 + 100;
 
                 const card = document.createElement('div');
-                const isLeft = ev.x + 75 < centerX;
-                card.className = `event-card ${isLeft ? 'left-side' : 'right-side'}`;
+                card.className = 'event-card';
                 card.id = `ev-${ev.id}`;
                 card.style.left = ev.x + 'px'; card.style.top = ev.y + 'px';
                 
-                // 탭(인덱스) 표시
-                let idxHtml = '<div class="branch-indices">';
-                (ev.branches || []).forEach((_, i) => idxHtml += `<div class="idx-dot b-${i}"></div>`);
-                idxHtml += '</div>';
-
-                card.innerHTML = `${idxHtml}<div class="card-date">${ev.era} ${ev.year}년 ${ev.month}월</div><h4>${ev.title}</h4>`;
+                card.innerHTML = `<div class="card-date">${ev.era || '기록'} ${ev.year}년 ${ev.month}월</div><h4>${ev.title || '내용 없음'}</h4>`;
                 card.onclick = () => openSheet(ev.id);
                 container.appendChild(card);
 
-                // 연도 라벨 및 중앙 노드
-                const nodeY = ev.y + 40;
+                // 연도 라벨
                 if (idx === 0 || storyboard[idx-1].year !== ev.year) {
                     const yearTag = document.createElement('div');
                     yearTag.className = 'year-label';
-                    yearTag.style.top = (ev.y - 40) + 'px';
-                    yearTag.innerText = `${ev.era} ${ev.year}년`;
+                    yearTag.style.top = (ev.y - 45) + 'px';
+                    yearTag.innerText = `${ev.era || ''} ${ev.year}년`;
                     container.appendChild(yearTag);
                 }
 
-                // 연결선 (박스와 중앙선)
+                // 연결선
                 const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                const startX = isLeft ? ev.x + 150 : ev.x;
+                const isLeft = ev.x + 80 < centerX;
+                const startX = isLeft ? ev.x + 160 : ev.x;
+                const nodeY = ev.y + 40;
                 line.setAttribute("d", `M ${startX} ${nodeY} L ${centerX} ${nodeY}`);
                 line.setAttribute("stroke", "#dee2e6");
                 line.setAttribute("stroke-width", "1.5");
@@ -185,12 +157,10 @@
                 svg.appendChild(line);
             });
             setupDrag();
-            updateEraList();
         }
 
         function setupDrag() {
             interact('.event-card').draggable({
-                inertia: true,
                 listeners: {
                     move(event) {
                         const target = event.target;
@@ -216,14 +186,9 @@
         function openSheet(id) {
             currentEditId = id;
             const ev = storyboard.find(i => i.id == id);
-            document.getElementById('view-full-date').innerText = `${ev.era} ${ev.year}년 ${ev.month}월`;
+            document.getElementById('view-full-date').innerText = `${ev.era || ''} ${ev.year}년 ${ev.month}월`;
             document.getElementById('view-title').innerText = ev.title;
-            document.getElementById('view-memo').innerText = ev.memo || '내용이 없습니다.';
-            
-            const bArea = document.getElementById('view-branch-area');
-            bArea.innerHTML = '';
-            (ev.branches || []).forEach((b, i) => bArea.innerHTML += `<span class="idx-dot b-${i}" style="width:20px; height:6px; border-radius:10px;"></span>`);
-
+            document.getElementById('view-memo').innerText = ev.memo || '작성된 메모가 없습니다.';
             toggleEditMode(false);
             document.getElementById('bottom-sheet-layer').style.display = 'flex';
         }
@@ -233,46 +198,45 @@
             document.getElementById('edit-mode').classList.toggle('hidden', !isEdit);
             if(isEdit) {
                 const ev = storyboard.find(i => i.id == currentEditId);
-                document.getElementById('edit-era').value = ev.era;
-                document.getElementById('edit-year').value = ev.year;
-                document.getElementById('edit-month').value = ev.month;
-                document.getElementById('edit-title').value = ev.title;
-                document.getElementById('edit-memo-input').value = ev.memo || '';
+                document.getElementById('edit-era').value = ev.era || "제국력";
+                document.getElementById('edit-year').value = ev.year || 590;
+                document.getElementById('edit-month').value = ev.month || 1;
+                document.getElementById('edit-title').value = ev.title || "";
+                document.getElementById('edit-memo-input').value = ev.memo || "";
             }
         }
 
         function updateEvent() {
             const idx = storyboard.findIndex(i => i.id == currentEditId);
-            storyboard[idx].era = document.getElementById('edit-era').value || "제국력";
-            storyboard[idx].year = parseInt(document.getElementById('edit-year').value);
-            storyboard[idx].month = parseInt(document.getElementById('edit-month').value);
-            storyboard[idx].title = document.getElementById('edit-title').value;
-            storyboard[idx].memo = document.getElementById('edit-memo-input').value;
-            saveToCloud();
-            closeSheet();
+            if(idx > -1) {
+                storyboard[idx].era = document.getElementById('edit-era').value;
+                storyboard[idx].year = parseInt(document.getElementById('edit-year').value);
+                storyboard[idx].month = parseInt(document.getElementById('edit-month').value);
+                storyboard[idx].title = document.getElementById('edit-title').value;
+                storyboard[idx].memo = document.getElementById('edit-memo-input').value;
+                saveToCloud();
+                closeSheet();
+            }
         }
 
         function createNewEvent() {
             const newId = Date.now();
-            storyboard.push({ 
+            const centerX = window.innerWidth / 2;
+            const newEvent = { 
                 id: newId, title: "새로운 사건", 
                 era: "제국력", year: 590, month: 1, 
-                branches: [], memo: "" 
-            });
+                memo: "", x: centerX + 20, y: storyboard.length * 150 + 100
+            };
+            storyboard.push(newEvent);
             saveToCloud();
         }
 
-        function updateEraList() {
-            const eras = [...new Set(storyboard.map(e => e.era))];
-            const list = document.getElementById('era-list');
-            list.innerHTML = '';
-            eras.forEach(e => list.innerHTML += `<option value="${e}">`);
-        }
-
-        function addBranch() {
-            const ev = storyboard.find(i => i.id == currentEditId);
-            const b = prompt("추가할 가지 이름을 입력하세요:");
-            if(b) { if(!ev.branches) ev.branches = []; ev.branches.push(b); saveToCloud(); openSheet(currentEditId); }
+        function deleteEvent() {
+            if(confirm("정말 이 사건을 삭제할까요?")) {
+                storyboard = storyboard.filter(i => i.id != currentEditId);
+                saveToCloud();
+                closeSheet();
+            }
         }
 
         function closeSheet() { document.getElementById('bottom-sheet-layer').style.display = 'none'; }
