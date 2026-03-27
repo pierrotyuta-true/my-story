@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER Pro</title>
+    <title>STORY MASTER v1.6</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="style.css?v=1.5">
+    <link rel="stylesheet" href="style.css?v=1.6">
 </head>
 <body>
     <div id="app">
         <header id="top-nav">
             <button id="menu-toggle" onclick="toggleMainSidebar()"><i class="fas fa-bars"></i></button>
             <div class="project-selector" onclick="openLoadModal()">
-                <span id="projectTitle">프로젝트 선택</span>
-                <span class="version-badge">v1.5</span>
+                <span id="projectTitle">작품을 선택하세요</span>
+                <span class="version-badge">v1.6</span>
                 <span class="arrow-down">▼</span>
             </div>
             <button class="cloud-btn" onclick="saveToCloud()"><i class="fas fa-cloud-upload-alt"></i> 저장</button>
@@ -29,11 +29,11 @@
                 <ul>
                     <li onclick="switchView('timeline')" id="menu-timeline" class="active"><i class="fas fa-stream"></i> 사건 타임라인</li>
                     <li onclick="switchView('story')" id="menu-story"><i class="fas fa-pen-fancy"></i> 줄거리 집필</li>
-                    <li onclick="switchView('character')" id="menu-char"><i class="fas fa-users"></i> 캐릭터 도감</li>
+                    <li onclick="switchView('character')" id="menu-character"><i class="fas fa-users"></i> 캐릭터 도감</li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <button onclick="openLoadModal()"><i class="fas fa-folder-open"></i> 작품 목록 / 생성</button>
+                <button class="list-btn" onclick="openLoadModal()"><i class="fas fa-folder-open"></i> 작품 목록 / 생성</button>
             </div>
         </aside>
 
@@ -52,50 +52,37 @@
                 <div class="editor-container">
                     <div class="paper-header">
                         <h3 id="current-story-title">메인 줄거리</h3>
-                        <button id="story-edit-btn" class="primary-btn" onclick="toggleStoryEdit()">편집</button>
+                        <button id="story-edit-btn" onclick="toggleStoryEdit()">편집</button>
                     </div>
                     <div class="paper-body">
                         <div id="story-viewer" class="paper-content"></div>
-                        <textarea id="story-input" class="paper-content" style="display:none;"></textarea>
+                        <textarea id="story-input" class="paper-content" style="display:none;" placeholder="여기에 줄거리를 입력하세요..."></textarea>
                     </div>
                 </div>
             </section>
 
             <section id="view-character" class="tab-view">
                 <div class="char-container">
-                    <div class="section-header">
-                        <h3>캐릭터 리스트</h3>
-                        <button class="add-btn-sm" onclick="openCharModal()">+ 추가</button>
-                    </div>
                     <div id="char-list" class="char-grid"></div>
                 </div>
             </section>
         </main>
 
-        <button class="fab" id="main-fab" onclick="handleFab()">+</button>
+        <button class="fab" onclick="handleFab()">+</button>
     </div>
 
     <div id="loadModal" class="modal"><div class="modal-card">
-        <div class="p-25">
-            <h4>프로젝트 관리</h4>
+        <div class="modal-inner">
+            <h4>작품 관리</h4>
             <div id="projectList" class="scroll-list"></div>
-            <div class="new-project-box">
-                <input type="text" id="newProjName" placeholder="새 프로젝트 이름 입력">
-                <button class="btn-pill" onclick="createNewProjectFromModal()">+ 신규 작품 생성</button>
+            <div class="new-project-form">
+                <input type="text" id="newProjName" placeholder="새 작품 이름">
+                <button onclick="createNewProjectFromModal()">작품 생성</button>
             </div>
-            <button class="btn-ghost" onclick="closeModal('loadModal')">닫기</button>
+            <button class="close-modal-btn" onclick="closeModal('loadModal')">닫기</button>
         </div>
     </div></div>
 
-    <div id="charModal" class="modal"><div class="modal-card p-25">
-        <h4>캐릭터 정보</h4>
-        <input type="text" id="cName" placeholder="이름" class="m-input">
-        <input type="text" id="cRole" placeholder="역할" class="m-input">
-        <textarea id="cDesc" placeholder="특징/메모" rows="4" class="m-input"></textarea>
-        <button class="btn-pill" onclick="saveCharacter()">저장</button>
-        <button class="btn-ghost" onclick="closeModal('charModal')">취소</button>
-    </div></div>
-
-    <script src="script.js?v=1.5"></script>
+    <script src="script.js?v=1.6"></script>
 </body>
 </html>
