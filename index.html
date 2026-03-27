@@ -8,80 +8,218 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=4.6">
+    
+    <style>
+        /* CSS 내용을 여기에 직접 포함 */
+        :root { --primary: #4dabf7; --bg: #f8f9fa; --node: #74c0fc; }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Pretendard', sans-serif; background: var(--bg); }
+        #app { display: flex; flex-direction: column; height: 100vh; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee; }
+        .nav-right { display: flex; gap: 15px; font-weight: bold; color: #adb5bd; }
+        .nav-right .active { color: var(--primary); }
+
+        .sub-nav { display: flex; justify-content: space-between; padding: 10px 20px; background: #fff; }
+        
+        .timeline-canvas { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; background-image: radial-gradient(#e9ecef 1.5px, transparent 1.5px); background-size: 30px 30px; }
+        .center-line { position: absolute; left: 50%; top: 0; height: 10000px; width: 2px; background: #dee2e6; transform: translateX(-50%); }
+        
+        #connection-svg { position: absolute; top: 0; left: 0; width: 100%; height: 10000px; pointer-events: none; z-index: 2; }
+
+        .event-card { position: absolute; width: 145px; background: #fff; padding: 14px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); z-index: 10; cursor: pointer; }
+        .event-card h4 { margin: 0; font-size: 13px; color: #333; }
+        .card-date { font-size: 10px; color: var(--primary); font-weight: 800; margin-bottom: 4px; }
+
+        .time-node { position: absolute; left: 50%; width: 10px; height: 10px; background: #fff; border: 2.5px solid var(--node); border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; }
+
+        /* 가지 디자인 */
+        .branch-indices { position: absolute; top: 10px; display: flex; flex-direction: column; gap: 3px; }
+        .left-side .branch-indices { right: -6px; }
+        .right-side .branch-indices { left: -6px; }
+        .idx-dot { width: 5px; height: 14px; border-radius: 3px; }
+        .b-0 { background: #d0ebff; color: #1971c2; }
+        .b-1 { background: #d3f9d8; color: #2b8a3e; }
+        .b-2 { background: #ffdeeb; color: #c2255c; }
+        .b-3 { background: #fff3bf; color: #e67700; }
+
+        /* 상세보기 시트 */
+        #bottom-sheet-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 2000; align-items: flex-end; justify-content: center; }
+        #bottom-sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s; box-sizing: border-box; }
+        .branch-preview { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        .branch-chip { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+
+        .fab { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; border-radius: 20px; background: var(--primary); color: #fff; border: none; font-size: 24px; box-shadow: 0 8px 20px rgba(77,171,247,0.3); z-index: 1000; }
+        .hidden { display: none !important; }
+        .btn-save-full { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 10px; }
+    </style>
 </head>
 <body>
     <div id="app">
-        <header id="main-nav">
-            <div class="logo">SM</div>
+        <header>
+            <div style="font-weight:900; color:#4dabf7;">SM</div>
             <div class="nav-right">
-                <span class="v-tab active">타임라인</span>
-                <span class="v-tab">스토리</span>
-                <span class="v-tab">캐릭터</span>
+                <span class="active">타임라인</span>
+                <span>스토리</span>
+                <span>캐릭터</span>
             </div>
         </header>
 
         <div class="sub-nav">
-            <div class="proj-selector" onclick="toggleProjMenu()">
-                <span id="currentProjectTitle">이그리예가</span> <i class="fas fa-chevron-down"></i>
-                <div id="projMenuPopup" class="proj-popup hidden">
-                    <div class="pop-item" onclick="createNewProject()">+ 새 프로젝트</div>
-                    <div id="project-list-items"></div>
-                </div>
-            </div>
-            <button class="btn-cloud" onclick="saveToCloud()"><i class="fas fa-cloud-upload-alt"></i></button>
+            <div id="currentProjectTitle">이그리예가 <i class="fas fa-chevron-down"></i></div>
+            <button onclick="saveToCloud()" style="background:none; border:none; color:#adb5bd;"><i class="fas fa-cloud"></i></button>
         </div>
 
-        <main id="main-content">
-            <div class="timeline-canvas dot-bg" id="canvas">
-                <div class="center-line"></div>
-                <svg id="connection-svg"></svg>
-                <div id="event-container"></div>
-            </div>
+        <main class="timeline-canvas" id="canvas">
+            <div class="center-line"></div>
+            <svg id="connection-svg"></svg>
+            <div id="event-container"></div>
         </main>
 
         <div id="bottom-sheet-layer" onclick="closeSheet(event)">
-            <div id="bottom-sheet">
-                <div class="sheet-handle"></div>
-                
+            <div id="bottom-sheet" onclick="event.stopPropagation()">
                 <div id="view-mode">
                     <div class="branch-preview" id="view-branches"></div>
-                    <div class="sheet-header">
-                        <span id="view-date" class="text-primary"></span>
-                        <button class="btn-del-text" onclick="deleteEvent()">삭제</button>
-                    </div>
-                    <h3 id="view-title"></h3>
-                    <p id="view-memo"></p>
-                    <div class="sheet-footer">
-                        <button class="btn-edit-main" onclick="toggleEditMode(true)">내용 편집</button>
-                        <button class="btn-add-branch" onclick="addBranch()">+ 가지 추가</button>
+                    <div id="view-date" style="color:#4dabf7; font-weight:bold; font-size:12px;"></div>
+                    <h3 id="view-title" style="margin:10px 0;"></h3>
+                    <p id="view-memo" style="color:#666; font-size:14px; min-height:50px;"></p>
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button onclick="toggleEditMode(true)" style="flex:1; padding:12px; border-radius:10px; border:none; background:#f1f3f5;">내용 편집</button>
+                        <button onclick="addBranch()" style="flex:1; padding:12px; border-radius:10px; border:none; background:#4dabf7; color:#fff;">+ 가지 추가</button>
                     </div>
                 </div>
-
                 <div id="edit-mode" class="hidden">
-                    <div class="edit-grid">
-                        <div class="input-group">
-                            <label>연대 선택</label>
-                            <div class="flex-row">
-                                <select id="edit-year-sel"></select>
-                                <button class="btn-small" onclick="addNewYear()">추가</button>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label>월 설정</label>
-                            <select id="edit-month"></select>
-                        </div>
-                    </div>
-                    <input type="text" id="edit-title" placeholder="사건 제목">
-                    <textarea id="edit-memo" placeholder="상세 메모를 입력하세요"></textarea>
-                    <button class="btn-save-full" onclick="updateEvent()">저장하기</button>
+                    <input type="text" id="edit-title" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;" placeholder="제목">
+                    <textarea id="edit-memo" style="width:100%; height:100px; padding:10px; box-sizing:border-box;" placeholder="메모"></textarea>
+                    <button class="btn-save-full" onclick="updateEvent()">저장</button>
                 </div>
-                <button class="btn-close-sheet" onclick="closeSheet()">닫기</button>
+                <button onclick="closeSheet()" style="width:100%; border:none; background:none; color:#ccc; margin-top:15px;">닫기</button>
             </div>
         </div>
 
         <button class="fab" onclick="createNewEvent()">+</button>
     </div>
-    <script src="script.js?v=4.6"></script>
+
+    <script>
+        // JS 내용을 여기에 직접 포함
+        const config = { apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", authDomain: "true-s.firebaseapp.com", databaseURL: "https://true-s-default-rtdb.firebaseio.com", projectId: "true-s" };
+        firebase.initializeApp(config);
+        const db = firebase.database();
+
+        let storyboard = [], currentProject = "이그리예가", currentEditId = null;
+
+        function init() {
+            db.ref('projects/' + currentProject + '/data').on('value', s => {
+                storyboard = s.val() || [];
+                render();
+            });
+        }
+
+        function render() {
+            const container = document.getElementById('event-container');
+            const svg = document.getElementById('connection-svg');
+            container.innerHTML = ''; svg.innerHTML = '';
+            
+            storyboard.sort((a, b) => b.y - a.y); // 위치 기반 정렬
+
+            const centerX = window.innerWidth / 2;
+            storyboard.forEach(ev => {
+                const card = document.createElement('div');
+                const isLeft = ev.x + 70 < centerX;
+                card.className = `event-card ${isLeft ? 'left-side' : 'right-side'}`;
+                card.style.left = ev.x + 'px'; card.style.top = ev.y + 'px';
+                
+                let idxHtml = '<div class="branch-indices">';
+                (ev.branches || []).forEach((_, i) => idxHtml += `<div class="idx-dot b-${i}"></div>`);
+                idxHtml += '</div>';
+
+                card.innerHTML = `${idxHtml}<div class="card-date">${ev.year || ''} ${ev.month || 1}월</div><h4>${ev.title}</h4>`;
+                card.onclick = () => openSheet(ev.id);
+                container.appendChild(card);
+
+                const node = document.createElement('div');
+                node.className = 'time-node';
+                node.style.top = (ev.y + 35) + 'px';
+                document.getElementById('canvas').appendChild(node);
+            });
+            setupDrag();
+        }
+
+        function setupDrag() {
+            interact('.event-card').draggable({
+                listeners: {
+                    move(e) {
+                        const t = e.target;
+                        const x = (parseFloat(t.style.left) || 0) + e.dx;
+                        const y = (parseFloat(t.style.top) || 0) + e.dy;
+                        t.style.left = x + 'px'; t.style.top = y + 'px';
+                    },
+                    end(e) {
+                        const t = e.target;
+                        const id = t.id.replace('ev-', '');
+                        const idx = storyboard.findIndex(i => i.id == id);
+                        if(idx > -1) {
+                            storyboard[idx].x = parseFloat(t.style.left);
+                            storyboard[idx].y = parseFloat(t.style.top);
+                            saveToCloud();
+                        }
+                    }
+                }
+            });
+        }
+
+        function openSheet(id) {
+            currentEditId = id;
+            const ev = storyboard.find(i => i.id == id);
+            document.getElementById('view-date').innerText = `${ev.year || ''} ${ev.month || 1}월`;
+            document.getElementById('view-title').innerText = ev.title;
+            document.getElementById('view-memo').innerText = ev.memo || '메모 없음';
+            
+            const bView = document.getElementById('view-branches');
+            bView.innerHTML = '';
+            (ev.branches || []).forEach((b, i) => bView.innerHTML += `<div class="branch-chip b-${i}">${b}</div>`);
+
+            document.getElementById('bottom-sheet-layer').style.display = 'flex';
+            setTimeout(() => document.getElementById('bottom-sheet').style.transform = 'translateY(0)', 10);
+        }
+
+        function createNewEvent() {
+            const lastY = storyboard.length > 0 ? Math.max(...storyboard.map(e => e.y)) + 120 : 100;
+            storyboard.push({ id: Date.now(), title: "새 사건", year: "590년", month: 1, x: window.innerWidth/2 + 50, y: lastY, branches: [] });
+            saveToCloud();
+        }
+
+        function toggleEditMode(isEdit) {
+            document.getElementById('view-mode').classList.toggle('hidden', isEdit);
+            document.getElementById('edit-mode').classList.toggle('hidden', !isEdit);
+            if(isEdit) {
+                const ev = storyboard.find(i => i.id == currentEditId);
+                document.getElementById('edit-title').value = ev.title;
+                document.getElementById('edit-memo').value = ev.memo || '';
+            }
+        }
+
+        function addBranch() {
+            const ev = storyboard.find(i => i.id == currentEditId);
+            if(!ev.branches) ev.branches = [];
+            const b = prompt("가지 내용을 입력하세요:");
+            if(b) { ev.branches.push(b); saveToCloud(); openSheet(currentEditId); }
+        }
+
+        function updateEvent() {
+            const idx = storyboard.findIndex(i => i.id == currentEditId);
+            storyboard[idx].title = document.getElementById('edit-title').value;
+            storyboard[idx].memo = document.getElementById('edit-memo').value;
+            saveToCloud();
+            closeSheet();
+        }
+
+        function closeSheet() {
+            document.getElementById('bottom-sheet').style.transform = 'translateY(100%)';
+            setTimeout(() => document.getElementById('bottom-sheet-layer').style.display = 'none', 300);
+        }
+
+        function saveToCloud() { db.ref('projects/' + currentProject + '/data').set(storyboard); }
+        window.onload = init;
+    </script>
 </body>
 </html>
