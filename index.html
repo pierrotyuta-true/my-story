@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v4.2</title>
+    <title>STORY MASTER v4.4</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=4.2">
+    <link rel="stylesheet" href="style.css?v=4.4">
 </head>
 <body>
     <div id="app">
         <header id="main-nav">
             <div class="nav-left logo">SM</div>
             <div class="nav-right">
-                <button class="v-tab active" onclick="switchTab('timeline')">타임라인</button>
-                <button class="v-tab" onclick="switchTab('story')">스토리</button>
-                <button class="v-tab" onclick="switchTab('character')">캐릭터</button>
+                <button class="v-tab active">타임라인</button>
+                <button class="v-tab">스토리</button>
+                <button class="v-tab">캐릭터</button>
             </div>
         </header>
 
@@ -26,8 +26,7 @@
                 <span id="currentProjectTitle">이그리예가</span>
                 <i class="fas fa-chevron-down"></i>
                 <div id="projMenuPopup" class="proj-popup hidden">
-                    <div class="pop-item" onclick="createNewProject()"><i class="fas fa-plus"></i> 새 프로젝트</div>
-                    <div class="pop-divider"></div>
+                    <div class="pop-item" onclick="createNewProject()">새 프로젝트</div>
                     <div id="project-list-items"></div>
                 </div>
             </div>
@@ -35,18 +34,30 @@
         </div>
 
         <main id="main-content">
-            <section id="view-timeline" class="tab-view active">
-                <div class="timeline-canvas dot-bg" id="canvas">
-                    <div class="center-line"></div>
-                    <svg id="connection-svg"></svg>
-                    <div id="event-container"></div>
-                </div>
-            </section>
+            <div class="timeline-canvas dot-bg" id="canvas">
+                <div class="center-line"></div>
+                <svg id="connection-svg"></svg>
+                <div id="event-container"></div>
+            </div>
         </main>
 
-        <div id="modal-layer"><div id="modal-content"></div></div>
+        <div id="bottom-sheet-layer" onclick="closeSheet(event)">
+            <div id="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-header">
+                    <span>사건 편집</span>
+                    <button class="btn-del-text" onclick="deleteEvent()">삭제</button>
+                </div>
+                <div class="sheet-body">
+                    <input type="text" id="edit-title" placeholder="사건 제목">
+                    <textarea id="edit-memo" placeholder="상세 메모를 입력하세요 (가지 추가)"></textarea>
+                    <button class="btn-save-full" onclick="updateEvent()">적용하기</button>
+                </div>
+            </div>
+        </div>
+
         <button class="fab" onclick="createNewEvent()">+</button>
     </div>
-    <script src="script.js?v=4.2"></script>
+    <script src="script.js?v=4.4"></script>
 </body>
 </html>
