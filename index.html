@@ -2,30 +2,43 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STORY MASTER v2.3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>STORY MASTER v2.4</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=2.3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="style.css?v=2.4">
 </head>
 <body>
     <div id="app">
+        <header id="top-nav">
+            <div class="nav-left">
+                <span id="projectTitle" onclick="location.reload()">STORY MASTER</span>
+            </div>
+            <div class="tab-menu-bar">
+                <button class="v-tab active">Story</button>
+                <button class="v-tab">Character</button>
+            </div>
+            <div class="nav-right">
+                <button class="save-btn" onclick="saveToCloud()"><i class="fas fa-cloud-upload-alt"></i></button>
+            </div>
+        </header>
+
         <main id="main-content">
             <div class="timeline-canvas dot-bg" id="canvas">
                 <svg id="connection-svg"></svg>
+                <div class="center-line"></div>
                 <div id="event-container">
                     </div>
             </div>
         </main>
 
-        <div id="memo-overlay" class="floating-memo-container">
-            <div id="active-memo-group">
-                </div>
-        </div>
+        <div id="memo-layer"></div>
 
         <button class="fab" onclick="createNewEvent()">+</button>
     </div>
-    <script src="script.js?v=2.3"></script>
+    <script src="script.js?v=2.4"></script>
 </body>
 </html>
