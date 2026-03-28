@@ -3,75 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Yuta's Engine Pro (Fixed v6)</title>
+  <title>Yuta's Engine Pro (Fixed v7)</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
-    :root { --primary: #4dabf7; --bg: #f8f9fa; --node: #343a40; --line: #dee2e6; }
-    body { font-family: 'Pretendard', sans-serif; margin: 0; background-color: var(--bg); color: #343a40; overflow: hidden; }
+    :root { --primary: #4dabf7; --bg: #f1f3f5; --node: #343a40; --line: #dee2e6; }
+    body { font-family: 'Pretendard', sans-serif; margin: 0; background-color: var(--bg); color: #343a40; }
     
-    .app-header { height: 50px; background: #343a40; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top: 0; width: 100%; z-index: 1100; box-sizing: border-box; }
-    .btn-save { background: var(--primary); color: white; border: none; padding: 5px 12px; border-radius: 5px; font-weight: 800; cursor: pointer; }
+    /* 상단 헤더 & 네비 */
+    .app-header { height: 50px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top: 0; width: 100%; z-index: 1100; box-sizing: border-box; border-bottom: 1px solid #eee; }
+    .logo { font-weight: 900; font-size: 22px; color: var(--primary); }
+    .project-selector { font-weight: 800; font-size: 14px; cursor: pointer; }
+    .btn-save { background: var(--primary); color: white; border: none; padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: 12px; }
     
     .top-nav { display: flex; justify-content: space-around; background: #fff; position: fixed; top: 50px; width: 100%; z-index: 1000; border-bottom: 1px solid #eee; height: 45px; align-items: center; }
-    .nav-item { font-size: 13px; font-weight: 800; color: #adb5bd; cursor: pointer; padding: 10px; }
+    .nav-item { font-size: 13px; font-weight: 800; color: #adb5bd; cursor: pointer; height: 100%; display: flex; align-items: center; padding: 0 10px; }
     .nav-item.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
-    .view { display: none; margin-top: 95px; height: calc(100vh - 145px); overflow-y: auto; box-sizing: border-box; }
+    /* 타임라인 레이아웃 */
+    .view { display: none; margin-top: 105px; padding-bottom: 100px; }
     .view.active { display: block; }
-
-    /* --- 타임라인 정렬 및 연결선 수정 --- */
-    .tl-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 40px; }
+    .tl-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; min-height: 80vh; }
     .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
     
-    .row { display: grid; grid-template-columns: 1fr 1fr; position: relative; margin-bottom: 40px; align-items: center; min-height: 60px; }
-    
-    /* 검정 박스를 선 위로 배치 */
-    .era-header { grid-column: 1 / span 2; display: flex; justify-content: center; z-index: 10; margin-bottom: 25px; position: relative; }
-    .node-capsule { background: var(--node); color: #fff; font-size: 11px; font-weight: 900; padding: 5px 14px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    
-    .node-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; }
+    .era-section { position: relative; width: 100%; margin-bottom: 50px; z-index: 2; }
+    .era-badge { display: flex; justify-content: center; margin-bottom: 30px; }
+    .node-capsule { background: var(--node); color: #fff; font-size: 12px; font-weight: 800; padding: 6px 16px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+
+    .time-row { display: flex; position: relative; margin-bottom: 20px; align-items: center; min-height: 80px; }
+    .side-slot { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px; min-height: 50px; }
+    .side-left { align-items: flex-end; padding-right: 25px; }
+    .side-right { align-items: flex-start; padding-left: 25px; }
+
+    .center-dot-wrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
     .node-dot { width: 10px; height: 10px; background: #fff; border: 3px solid var(--primary); border-radius: 50%; }
 
-    /* 연결선 스타일 */
-    .connect-line { position: absolute; top: 50%; height: 2px; background: var(--line); width: 40px; transform: translateY(-50%); z-index: 2; }
-    .line-left { right: 50%; margin-right: 5px; }
-    .line-right { left: 50%; margin-left: 5px; }
+    /* 카드 디자인 */
+    .card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); width: 85%; font-size: 13px; cursor: grab; position: relative; transition: transform 0.2s; border: 1px solid transparent; }
+    .card:active { cursor: grabbing; transform: scale(1.02); }
+    .card-meta { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 4px; }
 
-    .dropzone { display: flex; flex-direction: column; padding: 0 15px; position: relative; }
-    
-    .card { 
-      background: #fff; 
-      padding: 12px; 
-      border-radius: 12px; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-      width: 100%; 
-      font-size: 13px; 
-      cursor: pointer; 
-      position: relative;
-      z-index: 5;
-    }
-    /* 넘버링 제거 및 월만 표시 */
-    .card-meta { font-size: 10px; color: var(--primary); font-weight: 800; margin-bottom: 6px; }
+    /* 하단 바 */
+    .bottom-bar { position: fixed; bottom: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: center; z-index: 1100; }
+    .fab { width: 50px; height: 50px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; border: none; box-shadow: 0 4px 15px rgba(77,171,247,0.4); margin-top: -30px; }
 
-    /* 하단 바 - 연대수정 제거 */
-    .bottom-bar { position: fixed; bottom: 0; width: 100%; height: 50px; background: #fff; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: center; z-index: 1100; }
-    .b-item { cursor: pointer; font-size: 12px; font-weight: 700; color: #adb5bd; }
-
-    .fab-area { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); z-index: 2000; }
-    .fab { width: 50px; height: 50px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(77,171,247,0.3); border: none; }
-
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; }
-    .modal-content { background: white; width: 90%; max-width: 360px; padding: 20px; border-radius: 20px; }
+    /* 모달 */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
+    .modal-content { background: white; width: 90%; max-width: 380px; padding: 25px; border-radius: 24px; box-sizing: border-box; }
+    .input-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+    input, select, textarea { padding: 12px; border: 1px solid #eee; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; }
   </style>
 </head>
 <body>
 
 <header class="app-header">
-  <div style="font-weight: 900; font-size: 20px; color: var(--primary);">Y</div>
-  <div style="font-weight: 800; font-size: 14px;">프로젝트 ▼</div>
-  <button class="btn-save" onclick="saveAll(true)">SAVE</button>
+  <div class="logo">Y</div>
+  <div class="project-selector">내 프로젝트 ▼</div>
+  <div>
+    <span style="font-size: 18px; margin-right: 15px; cursor: pointer;" onclick="location.reload()">🔄</span>
+    <button class="btn-save" onclick="saveAll(true)">SAVE</button>
+  </div>
 </header>
 
 <nav class="top-nav">
@@ -88,24 +80,30 @@
 </div>
 
 <div class="bottom-bar">
-  <div class="b-item" onclick="location.reload()">새로고침</div>
+  <button class="fab" onclick="openEventModal()">+</button>
 </div>
 
-<div class="fab-area"><button class="fab" onclick="openEventModal()">+</button></div>
-
 <div id="eventModal" class="modal"><div class="modal-content">
-  <h3 style="margin:0 0 15px 0;">사건 기록</h3>
-  <div style="display:flex; gap:10px; margin-bottom:10px;">
-    <select id="e-era" style="flex:1; padding:10px; border:1px solid #eee; border-radius:8px;"></select>
-    <input type="number" id="e-year" placeholder="연도" style="width:70px; padding:10px; border:1px solid #eee; border-radius:8px;">
-    <input type="number" id="e-month" placeholder="월" style="width:50px; padding:10px; border:1px solid #eee; border-radius:8px;">
+  <h3 style="margin-top:0;">사건 기록</h3>
+  <div class="input-group">
+    <select id="e-era" style="flex: 2;"></select>
+    <input type="text" id="new-era" placeholder="새 연대" style="flex: 1; width: 50px;">
+    <button onclick="addEra()" style="background:#eee; border:none; border-radius:8px; padding:5px 10px;">+</button>
   </div>
-  <textarea id="e-text" rows="5" placeholder="내용을 입력하세요" style="width:100%; padding:10px; border:1px solid #eee; border-radius:8px; box-sizing:border-box; margin-bottom:10px;"></textarea>
-  <button onclick="saveEvent()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:800;">저장</button>
-  <button onclick="closeModal('eventModal')" style="width:100%; background:none; border:none; color:#999; margin-top:10px;">취소</button>
+  <div class="input-group">
+    <input type="number" id="e-year" placeholder="연도" style="flex:1;">
+    <input type="number" id="e-month" placeholder="월" style="flex:1;">
+  </div>
+  <textarea id="e-text" rows="5" placeholder="내용을 입력하세요" style="width:100%; box-sizing:border-box; margin-bottom:15px;"></textarea>
+  <button onclick="saveEvent()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:800; font-size:16px;">저장하기</button>
+  <div style="display:flex; justify-content: space-between; margin-top:15px;">
+    <button id="btn-delete" onclick="deleteEvent()" style="color: #ff6b6b; background: none; border:none; font-size: 13px; display:none;">사건 삭제</button>
+    <button onclick="closeModal('eventModal')" style="color:#999; background:none; border:none; font-size:13px;">닫기</button>
+  </div>
 </div></div>
 
 <script>
+  // Firebase 설정 (Yuta님 설정 유지)
   const config = { apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", databaseURL: "https://true-s-default-rtdb.firebaseio.com", projectId: "true-s" };
   firebase.initializeApp(config);
   const db = firebase.database();
@@ -116,47 +114,85 @@
   function renderTimeline() {
     const area = document.getElementById('tl-render-area');
     area.innerHTML = "";
+    
+    // 연도/월 순으로 정렬
     const sorted = [...(state.data.storyboard || [])].sort((a,b) => a.year - b.year || a.month - b.month);
     
+    // 동일 시점(연/월)끼리 그룹화
+    const groups = [];
+    sorted.forEach(item => {
+      const key = `${item.era}-${item.year}-${item.month}`;
+      let group = groups.find(g => g.key === key);
+      if(!group) { group = { key, era: item.era, year: item.year, month: item.month, items: [] }; groups.push(group); }
+      group.items.push(item);
+    });
+
     let lastEraYear = "";
-    sorted.forEach((s, i) => {
-      const side = i % 2 === 0 ? 'left' : 'right';
-      const currentEraYear = `${s.era} ${s.year}년`;
+    groups.forEach((group) => {
+      const currentEraYear = `${group.era} ${group.year}년`;
       
+      // 연대 헤더 출력
       if(currentEraYear !== lastEraYear) {
         const header = document.createElement('div');
-        header.className = 'era-header';
-        header.innerHTML = `<div class="node-capsule">${currentEraYear}</div>`;
+        header.className = 'era-section';
+        header.innerHTML = `<div class="era-badge"><div class="node-capsule">${currentEraYear}</div></div>`;
         area.appendChild(header);
         lastEraYear = currentEraYear;
       }
 
+      // 타임라인 행 생성
       const row = document.createElement('div');
-      row.className = 'row';
+      row.className = 'time-row';
       
-      const cardHtml = `
-        <div class="card" onclick="openEditEvent(${s.id})">
-          <div class="card-meta">${s.month}월</div>
-          ${s.text}
-        </div>`;
+      // 좌우 슬롯 (드래그 앤 드롭을 위해 id 부여)
+      const leftSlot = document.createElement('div');
+      leftSlot.className = 'side-slot side-left';
+      const rightSlot = document.createElement('div');
+      rightSlot.className = 'side-slot side-right';
 
-      // 연결선(connect-line) 포함 레이아웃
-      row.innerHTML = `
-        <div class="dropzone">
-          ${side==='left' ? cardHtml : ''}
-          ${side==='left' ? '<div class="connect-line line-left"></div>' : ''}
-        </div>
-        <div class="node-center"><div class="node-dot"></div></div>
-        <div class="dropzone">
-          ${side==='right' ? cardHtml : ''}
-          ${side==='right' ? '<div class="connect-line line-right"></div>' : ''}
-        </div>
-      `;
+      // 중앙 노드
+      const centerNode = document.createElement('div');
+      centerNode.className = 'center-dot-wrap';
+      centerNode.innerHTML = `<div class="node-dot"></div>`;
+
+      // 아이템들을 좌우로 번갈아 배치 (혹은 드래그 상태에 따라)
+      group.items.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.draggable = true;
+        card.innerHTML = `<div class="card-meta">${item.month}월</div>${item.text}`;
+        card.onclick = () => openEditEvent(item.id);
+        
+        // 초기 렌더링 시에는 인덱스에 따라 분산
+        if(idx % 2 === 0) leftSlot.appendChild(card);
+        else rightSlot.appendChild(card);
+      });
+
+      row.appendChild(leftSlot);
+      row.appendChild(centerNode);
+      row.appendChild(rightSlot);
       area.appendChild(row);
     });
   }
 
-  function openEventModal() { editId = null; document.getElementById('e-text').value = ""; updateEraSelect(); openModal('eventModal'); }
+  // 연대 추가 로직
+  function addEra() {
+    const newEra = document.getElementById('new-era').value.trim();
+    if(newEra && !state.data.eras.includes(newEra)) {
+      state.data.eras.push(newEra);
+      updateEraSelect(newEra);
+      document.getElementById('new-era').value = "";
+    }
+  }
+
+  function openEventModal() { 
+    editId = null; 
+    document.getElementById('e-text').value = ""; 
+    document.getElementById('btn-delete').style.display = 'none';
+    updateEraSelect(); 
+    openModal('eventModal'); 
+  }
+
   function openEditEvent(id) {
     const ev = state.data.storyboard.find(s => s.id === id);
     if(!ev) return;
@@ -164,6 +200,7 @@
     document.getElementById('e-year').value = ev.year;
     document.getElementById('e-month').value = ev.month;
     document.getElementById('e-text').value = ev.text;
+    document.getElementById('btn-delete').style.display = 'block';
     updateEraSelect(ev.era);
     openModal('eventModal');
   }
@@ -173,6 +210,9 @@
     const year = parseInt(document.getElementById('e-year').value) || 0;
     const month = parseInt(document.getElementById('e-month').value) || 1;
     const era = document.getElementById('e-era').value;
+    
+    if(!text) return alert("내용을 입력해주세요.");
+
     if(editId) {
       const idx = state.data.storyboard.findIndex(s => s.id === editId);
       state.data.storyboard[idx] = { ...state.data.storyboard[idx], era, year, month, text };
@@ -182,14 +222,32 @@
     renderTimeline(); closeModal('eventModal'); saveAll(false);
   }
 
-  function updateEraSelect(selected) { document.getElementById('e-era').innerHTML = state.data.eras.map(e => `<option ${e===selected?'selected':''}>${e}</option>`).join(''); }
+  function deleteEvent() {
+    if(!confirm("정말 삭제할까요?")) return;
+    state.data.storyboard = state.data.storyboard.filter(s => s.id !== editId);
+    renderTimeline(); closeModal('eventModal'); saveAll(false);
+  }
+
+  function updateEraSelect(selected) {
+    const sel = document.getElementById('e-era');
+    sel.innerHTML = state.data.eras.map(e => `<option value="${e}" ${e===selected?'selected':''}>${e}</option>`).join('');
+  }
+
   function openModal(id) { document.getElementById(id).style.display = 'flex'; }
   function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-  function saveAll(isManual) { db.ref('users/Yuta/projects/' + state.curProject).set(state.data); if(isManual) alert("저장 완료!"); }
+  
+  function saveAll(isManual) { 
+    db.ref('users/Yuta/projects/' + state.curProject).set(state.data); 
+    if(isManual) alert("저장 완료!"); 
+  }
 
   window.onload = () => {
     db.ref('users/Yuta/projects/기본').on('value', s => {
-      if(s.val()) { state.data = s.val(); renderTimeline(); }
+      if(s.val()) { 
+        state.data = s.val(); 
+        if(!state.data.eras) state.data.eras = ['제국력'];
+        renderTimeline(); 
+      }
     });
   };
 </script>
