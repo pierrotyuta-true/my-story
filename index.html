@@ -8,56 +8,61 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
-    :root { --primary: #4dabf7; --bg: #f8f9fa; --line: #dee2e6; --node: #74c0fc; }
+    :root { --primary: #4dabf7; --bg: #f1f3f5; --line: #dee2e6; --node: #74c0fc; --dark: #343a40; }
     body { font-family: 'Pretendard', sans-serif; margin: 0; background: var(--bg); color: #333; overflow-x: hidden; }
 
-    /* [구조] 상단 헤더 & 프로젝트 선택 */
-    .app-header { height: 55px; background: #343a40; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top: 0; width: 100%; z-index: 1100; box-sizing: border-box; }
+    /* [기존 구조] 상단 헤더 & 프로젝트 선택 */
+    .app-header { height: 55px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top: 0; width: 100%; z-index: 1100; box-sizing: border-box; }
     .proj-selector { background: none; border: none; color: white; font-size: 14px; font-weight: 800; cursor: pointer; }
     .save-btn { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 900; font-size: 12px; }
 
-    /* [구조] 상단 탭 메뉴 */
+    /* [기존 구조] 상단 탭 메뉴 */
     .top-nav { display: flex; justify-content: space-around; background: #fff; position: fixed; top: 55px; width: 100%; z-index: 1000; border-bottom: 1px solid #eee; height: 45px; align-items: center; }
     .nav-item { font-size: 13px; font-weight: 800; color: #adb5bd; cursor: pointer; padding: 10px 0; position: relative; }
     .nav-item.active { color: var(--primary); }
     .nav-item.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--primary); }
 
     .view-container { margin-top: 100px; min-height: calc(100vh - 100px); }
-    .view { display: none; padding: 20px; box-sizing: border-box; }
+    .view { display: none; padding: 20px 10px; box-sizing: border-box; }
     .view.active { display: block; }
 
-    /* [디자인] 타임라인 모눈종이 및 쫀득한 스타일 */
-    #timeline-view { background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px); background-size: 30px 30px; }
-    .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; }
+    /* [타임라인 디자인 업데이트] */
+    #timeline-view { background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px); background-size: 25px 25px; }
+    .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 20px; }
     .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
     
-    .row { display: grid; grid-template-columns: 1fr 1fr; position: relative; margin-bottom: 30px; align-items: center; min-height: 100px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; position: relative; margin-bottom: 20px; align-items: center; min-height: 80px; }
+    
+    /* 연도 캡슐 노드 */
     .node-center { position: absolute; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center; }
-    .node-dot { width: 12px; height: 12px; background: #fff; border: 2.5px solid var(--node); border-radius: 50%; }
-    .node-year { background: #343a40; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 15px; margin-bottom: 8px; white-space: nowrap; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .node-dot { width: 12px; height: 12px; background: #fff; border: 2.5px solid var(--node); border-radius: 50%; margin: 5px 0; }
+    .node-year-label { background: var(--dark); color: #fff; font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 20px; white-space: nowrap; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 
-    .connector { position: absolute; top: 50%; height: 2px; background: rgba(0,0,0,0.06); z-index: 2; width: calc(50% - 100px); }
+    /* 쫀득한 가로 연결선 */
+    .connector { position: absolute; top: 50%; height: 2px; background: rgba(0,0,0,0.06); z-index: 2; width: calc(50% - 100px); transform: translateY(-50%); }
     .line-left { right: 50%; }
     .line-right { left: 50%; }
 
-    .card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); width: 140px; position: relative; border-left: 6px solid var(--node); }
-    .card-meta { font-size: 10px; color: var(--node); font-weight: 900; margin-bottom: 8px; display: flex; justify-content: space-between; }
-    .card-text { font-size: 13px; font-weight: 700; color: #444; line-height: 1.5; }
+    /* 사건 카드 디자인 */
+    .card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 140px; position: relative; border-left: 6px solid var(--node); box-sizing: border-box; transition: transform 0.2s; }
+    .card:active { transform: scale(0.98); }
+    .card-meta { font-size: 10px; color: var(--node); font-weight: 900; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .card-text { font-size: 13px; font-weight: 700; color: #444; line-height: 1.5; word-break: break-all; }
 
-    /* [구조] 캐릭터 & 스토리 스타일 */
+    /* [기존 구조 유지] 캐릭터 & 스토리 */
     .char-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
     .char-item { text-align: center; }
-    .char-img { width: 60px; height: 60px; border-radius: 50%; background: #eee; margin: 0 auto 8px; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; }
-    .story-paper { width: 100%; min-height: 400px; background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); outline: none; line-height: 1.8; }
+    .char-img { width: 60px; height: 60px; border-radius: 50%; background: #fff; margin: 0 auto 8px; border: 3px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .story-paper { width: 100%; min-height: 500px; background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); outline: none; line-height: 1.8; box-sizing: border-box; }
 
-    /* 하단 플로팅 버튼 */
+    /* 플로팅 버튼 */
     .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 20px rgba(77,171,247,0.4); z-index: 2000; }
   </style>
 </head>
 <body>
 
 <header class="app-header">
-  <div style="font-weight: 900; font-size: 20px; color: var(--primary);">Y</div>
+  <div style="font-weight: 900; font-size: 22px; color: var(--primary);">Y</div>
   <select class="proj-selector" id="proj-select" onchange="changeProject(this.value)">
     <option value="기본">기본 프로젝트 ▾</option>
   </select>
@@ -79,7 +84,7 @@
   </div>
 
   <div id="story-view" class="view">
-    <div class="story-paper" contenteditable="true" id="story-editor" placeholder="이야기를 써내려가세요..."></div>
+    <div class="story-paper" contenteditable="true" id="story-editor"></div>
   </div>
 
   <div id="char-view" class="view">
@@ -92,7 +97,7 @@
 
 <script>
   const config = { apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc", databaseURL: "https://true-s-default-rtdb.firebaseio.com", projectId: "true-s" };
-  firebase.initializeApp(config);
+  if (!firebase.apps.length) firebase.initializeApp(config);
   const db = firebase.database();
 
   let state = { curProject: '기본', data: { storyboard: [], characters: [], story: "" } };
@@ -101,9 +106,10 @@
     document.querySelectorAll('.view, .nav-item').forEach(v => v.classList.remove('active'));
     document.getElementById(name + '-view').classList.add('active');
     el.classList.add('active');
+    if(name === 'timeline') renderTimeline();
   }
 
-  // [디자인 반영] 타임라인 렌더링
+  // [디자인 업데이트 반영] 타임라인 렌더링
   function renderTimeline() {
     const list = document.getElementById('tl-list');
     list.innerHTML = "";
@@ -117,14 +123,14 @@
       
       let yearHtml = '';
       if(s.year !== lastYear) {
-        yearHtml = `<div class="node-year">${s.era || '제국력'} ${s.year}년</div>`;
+        yearHtml = `<div class="node-year-label">${s.era || '제국력'} ${s.year}년</div>`;
         lastYear = s.year;
       }
 
       row.innerHTML = `
-        <div style="display:flex; justify-content:center; align-items:center;">${side==='left' ? renderCard(s, i) : ''}</div>
+        <div style="display:flex; justify-content:center; align-items:center; padding:0 10px;">${side==='left' ? renderCard(s, i) : ''}</div>
         <div class="node-center">${yearHtml}<div class="node-dot"></div></div>
-        <div style="display:flex; justify-content:center; align-items:center;">${side==='right' ? renderCard(s, i) : ''}</div>
+        <div style="display:flex; justify-content:center; align-items:center; padding:0 10px;">${side==='right' ? renderCard(s, i) : ''}</div>
         <div class="connector line-${side}"></div>
       `;
       list.appendChild(row);
@@ -133,16 +139,14 @@
 
   function renderCard(s, i) {
     const colors = ['#d0ebff','#b2f2bb','#ffec99','#ffccf9'];
-    return `<div class="card" style="border-left-color: ${colors[i%4]}" onclick="editEvent(${s.id})">
+    return `<div class="card" style="border-left-color: ${colors[i%4]}" onclick="deleteEvent(${s.id})">
       <div class="card-meta"><span>${s.month}월</span><span>No.${i+1}</span></div>
       <div class="card-text">${s.text}</div>
     </div>`;
   }
 
-  // [기능] 이벤트 추가 및 저장
   function addEvent() {
-    const txt = prompt("사건 내용을 입력하세요");
-    if(!txt) return;
+    const txt = prompt("사건 내용을 입력하세요"); if(!txt) return;
     const year = prompt("연도", "589");
     const month = prompt("월", "3");
     state.data.storyboard.push({ id: Date.now(), year: parseInt(year), month: parseInt(month), text: txt, era: '제국력' });
@@ -152,7 +156,7 @@
 
   function saveAll() {
     db.ref('users/Yuta/projects/' + state.curProject).set(state.data);
-    alert("저장되었습니다.");
+    alert("클라우드 저장 완료!");
   }
 
   window.onload = () => {
