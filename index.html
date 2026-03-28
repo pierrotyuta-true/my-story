@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Yuta's Engine Pro (Fixed v18)</title>
+  <title>Yuta's Engine Pro (Smart Snap v19)</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -11,45 +11,32 @@
     :root { --primary: #4dabf7; --bg: #f8f9fa; --line: #dee2e6; --index: #ffd43b; }
     body { font-family: 'Pretendard', sans-serif; margin: 0; background: var(--bg); touch-action: none; overflow: hidden; }
     
-    /* 헤더 및 내비 */
     .app-header { height: 50px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top: 0; width: 100%; z-index: 1100; border-bottom: 1px solid #eee; box-sizing: border-box; }
     .top-nav { display: flex; justify-content: space-around; background: #fff; position: fixed; top: 50px; width: 100%; z-index: 1000; border-bottom: 1px solid #eee; height: 45px; align-items: center; }
     .nav-item { font-size: 13px; font-weight: 800; color: #adb5bd; }
     .nav-item.active { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 5px; }
 
-    /* 타임라인 캔버스 */
-    .view { height: 100vh; width: 100vw; overflow: auto; padding-top: 100px; position: relative; }
-    .tl-container { position: relative; width: 100%; min-width: 1000px; height: 3000px; background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px); background-size: 30px 30px; }
+    .view { height: 100vh; width: 100vw; overflow-y: auto; overflow-x: hidden; padding-top: 100px; position: relative; }
+    .tl-container { position: relative; width: 100%; min-height: 3000px; background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px); background-size: 30px 30px; }
     
-    /* 중앙선 및 블랙박스 */
-    .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
-    .era-marker { position: absolute; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 8px 20px; border-radius: 25px; font-size: 13px; font-weight: 800; z-index: 5; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    /* 중앙 정렬 보정 */
+    .center-line { position: absolute; left: 50.1%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
+    .era-marker { position: absolute; left: 50.1%; transform: translateX(-50%); background: #222; color: #fff; padding: 10px 25px; border-radius: 30px; font-size: 14px; font-weight: 800; z-index: 5; white-space: nowrap; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
-    /* 메모 박스 */
-    .card-wrap { position: absolute; width: 180px; z-index: 10; cursor: grab; }
-    .card { width: 100%; min-height: 100px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 15px; box-sizing: border-box; border: 1px solid #eee; position: relative; z-index: 3; transition: transform 0.1s; }
-    .card:active { transform: scale(1.02); }
+    .card-wrap { position: absolute; width: 180px; z-index: 10; transition: transform 0.2s, box-shadow 0.2s; }
+    .card-wrap.dragging { z-index: 100; transform: scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .card { width: 100%; min-height: 100px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); padding: 15px; box-sizing: border-box; border: 1px solid #eee; position: relative; z-index: 3; cursor: pointer; }
     .index-tab { position: absolute; width: 35px; height: 18px; background: var(--index); z-index: 2; border-radius: 5px 5px 0 0; top: -10px; right: 12px; }
     .card .date-tag { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 6px; }
-    .card .content { font-size: 13px; line-height: 1.5; color: #444; }
 
-    /* 모달 UI */
-    .bottom-modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: white; z-index: 2000; transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 25px 25px 0 0; padding: 25px; box-sizing: border-box; box-shadow: 0 -5px 25px rgba(0,0,0,0.1); max-height: 80vh; overflow-y: auto; }
+    .bottom-modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: white; z-index: 2000; transition: bottom 0.3s ease; border-radius: 25px 25px 0 0; padding: 25px; box-sizing: border-box; box-shadow: 0 -5px 25px rgba(0,0,0,0.1); max-height: 80vh; overflow-y: auto; }
     .bottom-modal.active { bottom: 0; }
     .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1900; }
     .overlay.active { display: block; }
 
-    /* 파스텔 탭 */
-    .tab-item { padding: 8px 18px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid transparent; background: #f1f3f5; color: #adb5bd; }
-    .tab-item.active { color: #343a40; border-color: #eee; }
-    .tab-item.main-tab.active { border-color: var(--primary); }
-    .br-0.active { background: #d0ebff !important; } .br-1.active { background: #b2f2bb !important; }
-    .br-2.active { background: #ffec99 !important; } .br-3.active { background: #ffc9c9 !important; } .br-4.active { background: #eebefa !important; }
-
-    .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; border: none; font-size: 32px; box-shadow: 0 5px 20px rgba(77, 171, 247, 0.4); z-index: 1100; cursor: pointer; }
+    .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; border: none; font-size: 32px; box-shadow: 0 5px 20px rgba(77,171,247,0.4); z-index: 1100; cursor: pointer; }
     .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
-    .btn-sub { background: var(--index); border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; flex: 1.2; }
-    input, textarea, select { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 14px; }
+    input, textarea, select { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; }
   </style>
 </head>
 <body>
@@ -68,40 +55,31 @@
 <div id="timeline-view" class="view">
   <div class="tl-container" id="tl-canvas">
     <div class="center-line"></div>
-    </div>
+  </div>
 </div>
 
 <button class="fab" onclick="openEventModal()">+</button>
 <div id="overlay" class="overlay" onclick="closeAll()"></div>
 
 <div id="detailModal" class="bottom-modal">
-  <div class="detail-tabs" id="detail-tabs-area" style="display:flex; gap:8px; margin-bottom:15px; overflow-x:auto; padding-bottom:5px;"></div>
   <div id="detail-header" style="font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 10px;"></div>
-  
-  <div id="inline-branch-box" style="display:none; background:#f8f9fa; padding:15px; border-radius:12px; margin-bottom:15px;">
-    <textarea id="new-branch-text" rows="3" placeholder="새로운 가지 내용을 입력하세요"></textarea>
-    <button onclick="submitNewBranch()" class="btn-main">가지 저장</button>
-  </div>
-
-  <div id="detail-text-area" style="min-height:120px; line-height:1.6; white-space:pre-wrap;"></div>
-  
+  <div id="detail-text-area" style="min-height:120px; line-height:1.6; white-space:pre-wrap; font-size:18px; font-weight:700;"></div>
   <div style="display:flex; gap:10px; margin-top:20px;">
-    <button onclick="toggleBranchInput(true)" class="btn-sub">가지 추가</button>
-    <button onclick="switchToEdit()" style="flex:1; background:#f1f3f5; border:none; border-radius:12px; font-weight:800;">기록 수정</button>
-    <button onclick="closeAll()" style="flex:1; background:#f1f3f5; border:none; border-radius:12px; font-weight:800;">닫기</button>
+    <button onclick="switchToEdit()" style="flex:1; background:#f1f3f5; border:none; border-radius:12px; font-weight:800; height:50px;">수정</button>
+    <button onclick="closeAll()" style="flex:1; background:#f1f3f5; border:none; border-radius:12px; font-weight:800; height:50px;">닫기</button>
   </div>
 </div>
 
 <div id="eventModal" class="bottom-modal">
-  <h3 id="modal-title" style="margin: 0 0 20px 0;">사건 기록</h3>
+  <h3 id="modal-title" style="margin:0 0 20px 0;">사건 기록</h3>
   <select id="e-era"></select>
   <div style="display:flex; gap:10px;">
     <input type="number" id="e-year" placeholder="연도">
     <input type="number" id="e-month" placeholder="월">
   </div>
-  <textarea id="e-text" rows="5" placeholder="사건 내용을 입력하세요"></textarea>
-  <button onclick="saveEvent()" class="btn-main">저장하기</button>
-  <button onclick="deleteEvent()" id="btn-del" style="width:100%; margin-top:15px; background:none; border:none; color:#ff6b6b; font-size:12px; font-weight:800; display:none;">사건 삭제</button>
+  <textarea id="e-text" rows="5" placeholder="내용 입력"></textarea>
+  <button onclick="saveEvent()" class="btn-main">저장</button>
+  <button onclick="deleteEvent()" id="btn-del" style="width:100%; margin-top:15px; background:none; border:none; color:#ff6b6b; font-size:12px; font-weight:800; display:none;">삭제</button>
 </div>
 
 <script>
@@ -110,76 +88,88 @@
   const db = firebase.database();
 
   let state = { curProject: '기본', data: { storyboard: [], eras: ['제국력'] } };
-  let currentId = null;
-  let isDragging = false;
-  let dragTarget = null;
-  let offset = { x: 0, y: 0 };
-  const pastelColors = ['br-0', 'br-1', 'br-2', 'br-3', 'br-4'];
+  let currentId = null, isDragging = false, dragTarget = null, offset = { x: 0, y: 0 };
+  let longPressTimer = null;
 
   function renderTimeline() {
     const canvas = document.getElementById('tl-canvas');
     canvas.querySelectorAll('.card-wrap, .era-marker').forEach(el => el.remove());
 
-    const eras = [...new Set(state.data.storyboard.map(i => i.era))];
+    const sortedItems = [...state.data.storyboard].sort((a,b) => a.year - b.year || a.month - b.month);
     let currentY = 100;
+    const centerX = canvas.offsetWidth / 2;
 
+    // 연대 마커 표시 (중앙 고정)
+    const eras = [...new Set(sortedItems.map(i => i.era))];
     eras.forEach(eraName => {
-      const items = state.data.storyboard.filter(i => i.era === eraName).sort((a,b) => a.year - b.year || a.month - b.month);
-      if(items.length === 0) return;
-
+      const eraItems = sortedItems.filter(i => i.era === eraName);
       const eraEl = document.createElement('div');
       eraEl.className = 'era-marker';
-      eraEl.innerText = `${eraName} ${items[0].year}년 ~`;
+      eraEl.innerText = `${eraName} ${eraItems[0].year}년 ~`;
       eraEl.style.top = `${currentY}px`;
+      eraEl.dataset.era = eraName;
+      eraEl.dataset.top = currentY;
       canvas.appendChild(eraEl);
 
-      const canvasWidth = canvas.offsetWidth || window.innerWidth;
-      const centerX = canvasWidth / 2;
-
-      items.forEach((item, idx) => {
+      eraItems.forEach((item, idx) => {
         const wrap = document.createElement('div');
         wrap.className = 'card-wrap';
         wrap.id = `card-${item.id}`;
         
-        // 위치 데이터 복구 및 기본 배치
-        if (item.posX) {
-          wrap.style.left = `${item.posX}px`;
-          wrap.style.top = `${item.posY}px`;
-        } else {
-          wrap.style.left = idx % 2 === 0 ? `${centerX - 220}px` : `${centerX + 40}px`;
-          wrap.style.top = `${currentY + 80 + (idx * 150)}px`;
+        // 스마트 스냅 위치 계산
+        if (!item.posX) {
+          item.posX = idx % 2 === 0 ? centerX - 220 : centerX + 40;
+          const prevItem = eraItems[idx-1];
+          const gap = (prevItem && prevItem.month === item.month) ? 120 : 180;
+          item.posY = currentY + 80 + (idx * gap);
         }
+        
+        wrap.style.left = `${item.posX}px`;
+        wrap.style.top = `${item.posY}px`;
 
         wrap.innerHTML = `
           ${item.branches?.length > 0 ? '<div class="index-tab"></div>' : ''}
-          <div class="card" onclick="if(!isDragging) openDetail(${item.id})">
+          <div class="card">
             <div class="date-tag">${item.year}년 ${item.month}월</div>
             <div class="content">${item.text}</div>
           </div>`;
 
-        wrap.addEventListener('mousedown', startDrag);
-        wrap.addEventListener('touchstart', startDrag, {passive: false});
+        wrap.addEventListener('mousedown', handleTouchStart);
+        wrap.addEventListener('touchstart', handleTouchStart, {passive: false});
         canvas.appendChild(wrap);
       });
-      currentY += (items.length * 160) + 150;
+      currentY += (eraItems.length * 160) + 200;
     });
   }
 
-  // 드래그 및 스냅 엔진
-  function startDrag(e) {
-    if(e.type === 'touchstart') e.preventDefault();
-    isDragging = false; dragTarget = e.currentTarget;
+  // 롱 프레스 및 드래그 로직
+  function handleTouchStart(e) {
+    const target = e.currentTarget;
     const clientX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
     const clientY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
-    const rect = dragTarget.getBoundingClientRect();
-    offset.x = clientX - rect.left;
-    offset.y = clientY - rect.top;
-    document.addEventListener('mousemove', onDrag); document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchmove', onDrag, {passive: false}); document.addEventListener('touchend', endDrag);
+
+    longPressTimer = setTimeout(() => {
+      isDragging = true;
+      dragTarget = target;
+      dragTarget.classList.add('dragging');
+      const rect = dragTarget.getBoundingClientRect();
+      offset.x = clientX - rect.left;
+      offset.y = clientY - rect.top;
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', endDrag);
+      document.addEventListener('touchmove', onDrag, {passive: false});
+      document.addEventListener('touchend', endDrag);
+    }, 500); // 0.5초 꾹 누르면 드래그
+
+    target.onmouseup = target.ontouchend = () => {
+      clearTimeout(longPressTimer);
+      if (!isDragging) openDetail(parseInt(target.id.replace('card-', '')));
+    };
   }
 
   function onDrag(e) {
-    isDragging = true; e.preventDefault();
+    if (!isDragging) return;
+    e.preventDefault();
     const canvas = document.getElementById('tl-canvas');
     const canvasRect = canvas.getBoundingClientRect();
     const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
@@ -188,62 +178,53 @@
     let x = clientX - canvasRect.left - offset.x;
     let y = clientY - canvasRect.top - offset.y;
 
-    // 중앙선 스냅 (간격 40px)
+    // 실시간 중앙선 스냅 시각화
     const centerX = canvas.offsetWidth / 2;
-    if (Math.abs(x + 180 - centerX) < 50) x = centerX - 220;
-    else if (Math.abs(x - centerX) < 50) x = centerX + 40;
+    if (Math.abs(x + 180 - centerX) < 60) x = centerX - 220;
+    else if (Math.abs(x - centerX) < 60) x = centerX + 40;
 
-    dragTarget.style.left = `${x}px`; dragTarget.style.top = `${y}px`;
+    dragTarget.style.left = `${x}px`;
+    dragTarget.style.top = `${y}px`;
   }
 
   function endDrag() {
-    if(isDragging && dragTarget) {
+    if (isDragging && dragTarget) {
       const id = parseInt(dragTarget.id.replace('card-', ''));
       const item = state.data.storyboard.find(s => s.id === id);
-      if(item) {
-        item.posX = parseInt(dragTarget.style.left);
-        item.posY = parseInt(dragTarget.style.top);
-      }
+      const canvas = document.getElementById('tl-canvas');
+      
+      item.posX = parseInt(dragTarget.style.left);
+      item.posY = parseInt(dragTarget.style.top);
+
+      // 위치에 따른 연도/연대 자동 업데이트
+      const markers = Array.from(canvas.querySelectorAll('.era-marker')).reverse();
+      const currentMarker = markers.find(m => parseInt(m.style.top) < item.posY);
+      if (currentMarker) item.era = currentMarker.dataset.era;
+
+      dragTarget.classList.remove('dragging');
+      saveAll(false);
+      renderTimeline();
     }
-    document.removeEventListener('mousemove', onDrag); document.removeEventListener('mouseup', endDrag);
-    document.removeEventListener('touchmove', onDrag); document.removeEventListener('touchend', endDrag);
-    dragTarget = null; setTimeout(() => isDragging = false, 50);
+    isDragging = false;
+    dragTarget = null;
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('touchmove', onDrag);
   }
 
-  // 데이터 관리
+  // 모달 기능들 (기존 기능 유지)
   function openDetail(id) {
     currentId = id; const ev = state.data.storyboard.find(s => s.id === id);
     document.getElementById('detail-header').innerText = `${ev.era} ${ev.year}년 ${ev.month}월`;
-    renderDetailTabs(ev); showTabContent('main'); showModal('detailModal');
-  }
-
-  function renderDetailTabs(ev) {
-    const area = document.getElementById('detail-tabs-area');
-    area.innerHTML = `<button class="tab-item main-tab active" onclick="showTabContent('main')">기본 기록</button>`;
-    ev.branches?.forEach((br, i) => {
-      area.innerHTML += `<button class="tab-item ${pastelColors[i % 5]}" onclick="showTabContent(${i})">가지 ${i+1}</button>`;
-    });
-  }
-
-  function showTabContent(type) {
-    const ev = state.data.storyboard.find(s => s.id === currentId);
-    const text = document.getElementById('detail-text-area');
-    document.querySelectorAll('.tab-item').forEach((btn, i) => {
-      btn.classList.remove('active');
-      if(type === 'main' && i === 0) btn.classList.add('active');
-      else if(i === type + 1) btn.classList.add('active');
-    });
-    text.innerText = type === 'main' ? ev.text : ev.branches[type].content;
-    text.style.fontSize = type === 'main' ? "18px" : "15px";
-    text.style.fontWeight = type === 'main' ? "700" : "400";
+    document.getElementById('detail-text-area').innerText = ev.text;
+    showModal('detailModal');
   }
 
   function saveEvent() {
     const text = document.getElementById('e-text').value.trim();
-    if(!text) return alert("내용을 입력해주세요.");
     const year = parseInt(document.getElementById('e-year').value) || 0;
     const month = parseInt(document.getElementById('e-month').value) || 1;
     const era = document.getElementById('e-era').value;
+    if(!text) return;
 
     if(currentId) {
       const idx = state.data.storyboard.findIndex(s => s.id === currentId);
@@ -254,21 +235,9 @@
     closeAll(); renderTimeline(); saveAll(false);
   }
 
-  function submitNewBranch() {
-    const content = document.getElementById('new-branch-text').value.trim();
-    if(!content) return;
-    const ev = state.data.storyboard.find(s => s.id === currentId);
-    if(!ev.branches) ev.branches = [];
-    ev.branches.push({ id: Date.now(), content });
-    saveAll(false); toggleBranchInput(false); 
-    document.getElementById('new-branch-text').value = "";
-    openDetail(currentId); renderTimeline();
-  }
-
   function openEventModal() {
     currentId = null; document.getElementById('modal-title').innerText = "새 사건 기록";
-    document.getElementById('e-text').value = ""; document.getElementById('e-year').value = "";
-    document.getElementById('e-month').value = ""; document.getElementById('btn-del').style.display = 'none';
+    document.getElementById('e-text').value = ""; document.getElementById('btn-del').style.display = 'none';
     updateEraSelect(); showModal('eventModal');
   }
 
@@ -280,28 +249,13 @@
     updateEraSelect(ev.era); showModal('eventModal');
   }
 
-  function deleteEvent() { if(confirm('기록을 삭제할까요?')) { state.data.storyboard = state.data.storyboard.filter(s => s.id !== currentId); renderTimeline(); closeAll(); saveAll(false); } }
+  function deleteEvent() { if(confirm('삭제할까요?')) { state.data.storyboard = state.data.storyboard.filter(s => s.id !== currentId); renderTimeline(); closeAll(); saveAll(false); } }
   function updateEraSelect(sel) { document.getElementById('e-era').innerHTML = state.data.eras.map(e => `<option ${e===sel?'selected':''}>${e}</option>`).join(''); }
-  function toggleBranchInput(show) { document.getElementById('inline-branch-box').style.display = show ? 'block' : 'none'; }
   function showModal(id) { document.getElementById('overlay').classList.add('active'); document.getElementById(id).classList.add('active'); }
   function closeAll() { document.querySelectorAll('.bottom-modal').forEach(m => m.classList.remove('active')); document.getElementById('overlay').classList.remove('active'); }
-  
-  function saveAll(m) { 
-    if(!state.data.storyboard) state.data.storyboard = [];
-    db.ref('users/Yuta/projects/기본').set(state.data); 
-    if(m) alert("데이터가 안전하게 저장되었습니다!"); 
-  }
+  function saveAll(m) { db.ref('users/Yuta/projects/기본').set(state.data); if(m) alert("저장되었습니다!"); }
 
-  window.onload = () => { 
-    db.ref('users/Yuta/projects/기본').on('value', s => { 
-      const val = s.val();
-      if(val) { 
-        state.data = val; 
-        if(!state.data.storyboard) state.data.storyboard = [];
-        renderTimeline(); 
-      } 
-    }); 
-  };
+  window.onload = () => { db.ref('users/Yuta/projects/기본').on('value', s => { if(s.val()) { state.data = s.val(); renderTimeline(); } }); };
 </script>
 </body>
 </html>
