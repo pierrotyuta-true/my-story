@@ -3,196 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STORY MASTER v17.0</title>
+    <title>STORY MASTER v18.0</title>
     <style>
         :root { --primary: #4dabf7; --bg: #f8f9fa; --text: #212529; --card: #fff; }
         body, html { margin: 0; padding: 0; height: 100%; font-family: 'Pretendard', sans-serif; background: var(--bg); overflow: hidden; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        /* 타임라인 중앙선 & 노드 시스템 */
-        .timeline-container { position: relative; width: 100%; height: 100%; padding-top: 20px; }
+        
+        /* 타임라인 레이아웃 */
+        .timeline-view { position: relative; width: 100%; height: calc(100% - 140px); margin-top: 60px; overflow-y: auto; padding: 20px 0; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); }
-        .node-item { position: relative; width: 100%; margin-bottom: 40px; display: flex; justify-content: center; align-items: center; }
-        .node-dot { width: 12px; height: 12px; background: var(--primary); border-radius: 50%; border: 3px solid #fff; z-index: 2; box-shadow: 0 0 0 3px rgba(77,171,247,0.2); }
-        .node-box { position: absolute; width: 42%; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 13px; cursor: pointer; }
+        
+        .node-item { position: relative; width: 100%; margin-bottom: 50px; display: flex; justify-content: center; }
+        .node-dot { width: 14px; height: 14px; background: var(--primary); border-radius: 50%; border: 3px solid #fff; z-index: 2; box-shadow: 0 0 0 3px rgba(77,171,247,0.1); }
+        .node-box { position: absolute; width: 40%; background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); cursor: pointer; transition: 0.2s; }
+        .node-box:active { transform: scale(0.98); }
         .node-left { right: 55%; text-align: right; }
         .node-right { left: 55%; }
 
-        /* 드래그 가능 캐릭터 & 관계도 화살표 */
-        .char-obj { position: absolute; width: 70px; height: 90px; cursor: move; text-align: center; z-index: 10; touch-action: none; }
-        .char-img-box { width: 60px; height: 60px; border-radius: 20px; background: #eee; margin: 0 auto 5px; overflow: hidden; border: 2px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
-        .char-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* 슬라이드 메뉴 (스토리 목록) */
-        .side-panel { position: fixed; top: 0; right: -80%; width: 80%; height: 100%; background: #fff; z-index: 10000; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); box-shadow: -5px 0 20px rgba(0,0,0,0.1); padding: 20px; }
-        .side-panel.open { right: 0; }
+        /* 캐릭터 & 관계도 */
+        .char-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+        .char-obj { position: absolute; width: 70px; pointer-events: auto; cursor: move; text-align: center; touch-action: none; }
+        .char-img { width: 60px; height: 60px; border-radius: 20px; background: #eee; margin: 0 auto 5px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .char-img img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 하단 바 디자인 유지 */
-        .bottom-nav { position: fixed; bottom: 25px; left: 20px; right: 20px; height: 60px; background: #fff; border-radius: 30px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        .nav-side { background: none; border: none; font-size: 12px; font-weight: 800; color: #adb5bd; width: 80px; }
-        .nav-main { width: 50px; height: 50px; background: var(--primary); border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-top: -35px; border: 4px solid #fff; }
+        /* 슬라이드 메뉴 */
+        .side-slide { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: #fff; z-index: 10000; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); padding: 30px 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        .side-slide.open { right: 0; }
 
-        /* 모달 & 입력창 스타일 */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-box { background: #fff; width: 90%; max-width: 340px; border-radius: 25px; padding: 25px; }
-        .s-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #fcfcfc; font-size: 14px; outline: none; }
-        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .btn-blue { width: 100%; padding: 14px; border-radius: 14px; background: var(--primary); color: #fff; border: none; font-weight: 800; cursor: pointer; margin-top: 5px; }
-        .btn-sub { width: 48%; padding: 10px; border-radius: 10px; font-size: 12px; border: none; font-weight: 700; cursor: pointer; }
+        /* 하단 네비게이션 */
+        .bottom-nav { position: fixed; bottom: 25px; left: 20px; right: 20px; height: 65px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        .nav-btn { background: none; border: none; font-size: 13px; font-weight: 700; color: #adb5bd; width: 30%; height: 100%; }
+        .nav-btn.active { color: var(--primary); }
+        .nav-add { width: 55px; height: 55px; background: var(--primary); border-radius: 50%; color: #fff; font-size: 28px; border: 5px solid #fff; margin-top: -40px; box-shadow: 0 4px 15px rgba(77,171,247,0.4); }
+
+        /* 모달 */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #fff; width: 100%; max-width: 360px; border-radius: 30px; padding: 25px; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 15px; }
+        input, select, textarea { width: 100%; padding: 14px; border-radius: 15px; border: 1px solid #f1f3f5; background: #f8f9fa; font-size: 15px; outline: none; }
+        .btn-full { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 18px; font-weight: 800; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div id="v-timeline" class="view active" style="margin-top:100px; height:calc(100vh - 190px); overflow-y:auto; position:relative;">
-    <div class="center-line"></div>
-    <div id="timeline-list" class="timeline-container"></div>
+<div style="position:fixed; top:0; width:100%; background:#fff; display:flex; padding:15px; z-index:1000; border-bottom:1px solid #f1f3f5;">
+    <button onclick="tab('timeline')" id="t-timeline" style="flex:1; border:none; background:none; font-weight:800; color:var(--primary);">타임라인</button>
+    <button onclick="tab('story')" id="t-story" style="flex:1; border:none; background:none; font-weight:800; color:#adb5bd;">스토리</button>
+    <button onclick="tab('char')" id="t-char" style="flex:1; border:none; background:none; font-weight:800; color:#adb5bd;">캐릭터</button>
 </div>
 
-<div id="v-char" class="view" style="display:none; position:relative; height:100vh; overflow:hidden;"></div>
+<div id="view-timeline" class="timeline-view">
+    <div class="center-line"></div>
+    <div id="timeline-list"></div>
+</div>
 
-<div id="side-list" class="side-panel">
-    <h3>문서 목록</h3>
-    <hr>
-    <div style="padding:15px 0;">이그리예가 제 1장</div>
-    <div style="padding:15px 0; color:#adb5bd;">새 문서 추가 +</div>
-    <button class="btn-blue" onclick="toggleSide()">닫기</button>
+<div id="view-char" style="display:none; height:100%; position:relative;">
+    <div id="char-list" class="char-layer"></div>
+</div>
+
+<div id="side-menu" class="side-slide">
+    <h2 style="margin-top:0;">문서 목록</h2>
+    <div style="padding:15px; background:#f8f9fa; border-radius:15px; margin-bottom:10px;">이그리예가 - 제 1장</div>
+    <div style="padding:15px; color:#adb5bd;">+ 새 문서 추가</div>
+    <button class="btn-full" onclick="toggleSide()" style="background:#f1f3f5; color:#495057;">닫기</button>
 </div>
 
 <footer class="bottom-nav">
-    <button class="nav-side" onclick="act('left')">목록</button>
-    <div class="nav-main" onclick="act('main')">+</div>
-    <button class="nav-side" onclick="act('right')">시대</button>
+    <button class="nav-btn" onclick="toggleSide()" id="btn-list">목록</button>
+    <button class="nav-add" onclick="onAdd()">+</button>
+    <button class="nav-btn" id="btn-era">시대</button>
 </footer>
 
-<div id="eventModal" class="modal-overlay"><div class="modal-box">
+<div id="modal-event" class="modal"><div class="modal-content">
     <h3 style="margin-top:0;">기록 편집</h3>
-    <div class="flex-row">
-        <select id="e-era" class="s-input" style="flex:2;"><option>제국력</option><option>대한민국</option></select>
-        <input type="number" id="e-year" class="s-input" style="flex:1.5;" placeholder="연도">
-        <input type="number" id="e-month" class="s-input" style="flex:1;" placeholder="월">
+    <div class="input-group">
+        <select id="ev-era" style="flex:2;"><option>제국력</option><option>대한민국</option></select>
+        <input type="number" id="ev-year" style="flex:1.5;" placeholder="년">
+        <input type="number" id="ev-month" style="flex:1;" placeholder="월">
     </div>
-    <textarea id="e-desc" class="s-input" style="height:120px;" placeholder="사건의 상세 내용을 입력하세요."></textarea>
-    <button class="btn-blue" onclick="saveEvent()">저장하기</button>
-    <button class="btn-blue" style="background:#f1f3f5; color:#495057;" onclick="closeM('eventModal')">닫기</button>
+    <textarea id="ev-desc" style="height:150px;" placeholder="내용을 입력하세요."></textarea>
+    <button class="btn-full" onclick="saveEvent()">저장하기</button>
+    <button class="btn-full" style="background:#f1f3f5; color:#495057; margin-top:8px;" onclick="closeM('modal-event')">닫기</button>
 </div></div>
 
-<div id="detailModal" class="modal-overlay"><div class="modal-box">
-    <div id="d-time" style="color:var(--primary); font-weight:800; font-size:12px;"></div>
-    <p id="d-text" style="line-height:1.6; margin:15px 0;"></p>
-    <div style="display:flex; flex-wrap:wrap; gap:5px;">
-        <button class="btn-sub" style="background:#e7f5ff; color:#228be6;">내용수정</button>
-        <button class="btn-sub" style="background:#f3f0ff; color:#7950f2;">가지추가</button>
-        <button class="btn-sub" style="background:#fff4e6; color:#fd7e14;">스토리 내보내기</button>
-        <button class="btn-sub" style="background:#fff5f5; color:#fa5252;">삭제</button>
+<div id="modal-detail" class="modal"><div class="modal-content">
+    <div id="det-time" style="color:var(--primary); font-weight:800; font-size:13px;"></div>
+    <p id="det-desc" style="line-height:1.7; margin:15px 0;"></p>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <button class="btn-full" style="margin:0; font-size:13px; background:#e7f5ff; color:#228be6;">내용수정</button>
+        <button class="btn-full" style="margin:0; font-size:13px; background:#f3f0ff; color:#7950f2;">가지추가</button>
+        <button class="btn-full" style="margin:0; font-size:13px; background:#fff4e6; color:#fd7e14;">내보내기</button>
+        <button class="btn-full" style="margin:0; font-size:13px; background:#fff5f5; color:#fa5252;">삭제</button>
     </div>
-    <button class="btn-blue" style="background:#eee; color:#333;" onclick="closeM('detailModal')">닫기</button>
-</div></div>
-
-<div id="charModal" class="modal-overlay"><div class="modal-box">
-    <h3>캐릭터 등록</h3>
-    <input type="file" id="c-file" style="display:none;" onchange="handleImg(this)">
-    <div class="char-img-box" onclick="document.getElementById('c-file').click()" style="cursor:pointer; background:#f1f3f5;">
-        <span id="img-label">사진+</span>
-        <img id="preview" style="display:none;">
-    </div>
-    <input type="text" id="c-name" class="s-input" placeholder="이름 (필수)">
-    <input type="text" id="c-rel" class="s-input" placeholder="관계 (예: 조력자)">
-    <button class="btn-blue" onclick="createChar()">생성하기</button>
-    <button class="btn-blue" style="background:#f8f9fa; color:#333;" onclick="closeM('charModal')">취소</button>
+    <button class="btn-full" style="background:#f1f3f5; color:#495057;" onclick="closeM('modal-detail')">닫기</button>
 </div></div>
 
 <script>
     let events = [];
     let chars = [];
-    let curTab = 'timeline';
+    let view = 'timeline';
 
-    function act(type) {
-        if(type === 'main') {
-            if(curTab === 'timeline') openM('eventModal');
-            else if(curTab === 'char') openM('charModal');
-            else alert("스토리를 중간 저장합니다. ✓");
-        } else if(type === 'right' && curTab === 'story') { toggleSide(); }
+    function tab(v) {
+        view = v;
+        document.querySelectorAll('.timeline-view, #view-char').forEach(el => el.style.display = 'none');
+        document.getElementById('view-' + v).style.display = 'block';
+        
+        // 버튼 활성화
+        document.getElementById('btn-list').style.visibility = (v === 'story') ? 'visible' : 'hidden';
+        document.getElementById('btn-era').style.visibility = (v === 'story') ? 'visible' : 'hidden';
     }
 
-    // 타임라인 노드 생성
+    function onAdd() {
+        if(view === 'timeline') openM('modal-event');
+        else if(view === 'story') alert("스토리를 중간 저장합니다. (✓)");
+        else alert("캐릭터 추가 메뉴를 엽니다.");
+    }
+
+    // 사건 저장 및 타임라인 연결
     function saveEvent() {
-        const era = document.getElementById('e-era').value;
-        const year = document.getElementById('e-year').value;
-        const month = document.getElementById('e-month').value;
-        const desc = document.getElementById('e-desc').value;
+        const era = document.getElementById('ev-era').value;
+        const year = document.getElementById('ev-year').value;
+        const month = document.getElementById('ev-month').value;
+        const desc = document.getElementById('ev-desc').value;
+        
+        if(!desc) return alert("내용을 입력해주세요.");
         
         events.push({ time: `${era} ${year}년 ${month}월`, desc });
         renderTimeline();
-        closeM('eventModal');
+        closeM('modal-event');
     }
 
     function renderTimeline() {
-        const area = document.getElementById('timeline-list');
-        area.innerHTML = events.map((ev, i) => `
+        const list = document.getElementById('timeline-list');
+        list.innerHTML = events.map((ev, i) => `
             <div class="node-item">
                 <div class="node-dot"></div>
-                <div class="node-box ${i % 2 === 0 ? 'node-left' : 'node-right'}" onclick="viewDetail(${i})">
-                    <div style="color:var(--primary); font-size:10px; font-weight:800;">${ev.time}</div>
-                    <div style="margin-top:4px;">${ev.desc.substring(0,25)}...</div>
+                <div class="node-box ${i % 2 === 0 ? 'node-left' : 'node-right'}" onclick="showDetail(${i})">
+                    <div style="color:var(--primary); font-size:11px; font-weight:800;">${ev.time}</div>
+                    <div style="margin-top:5px; font-size:14px;">${ev.desc}</div>
                 </div>
             </div>
         `).join('');
     }
 
-    function viewDetail(i) {
-        document.getElementById('d-time').innerText = events[i].time;
-        document.getElementById('d-text').innerText = events[i].desc;
-        openM('detailModal');
+    function showDetail(i) {
+        document.getElementById('det-time').innerText = events[i].time;
+        document.getElementById('det-desc').innerText = events[i].desc;
+        openM('modal-detail');
     }
 
-    // 캐릭터 자유 이동 (드래그)
-    function createChar() {
-        const name = document.getElementById('c-name').value;
-        if(!name) return;
-        const imgData = document.getElementById('preview').src;
-        
-        const newChar = { name, img: imgData };
-        chars.push(newChar);
-        renderChars();
-        closeM('charModal');
-    }
-
-    function renderChars() {
-        const area = document.getElementById('v-char');
-        area.innerHTML = chars.map((c, i) => `
-            <div class="char-obj" id="char-${i}" style="left:50px; top:${50 + (i*100)}px;" onpointerdown="dragStart(event, ${i})">
-                <div class="char-img-box">${c.img ? `<img src="${c.img}">` : c.name[0]}</div>
-                <div style="font-size:11px; font-weight:800;">${c.name}</div>
-            </div>
-        `).join('');
-    }
-
-    let dragItem = null;
-    function dragStart(e, i) {
-        dragItem = document.getElementById(`char-${i}`);
-        dragItem.setPointerCapture(e.pointerId);
-    }
-
-    window.onpointermove = (e) => {
-        if(!dragItem) return;
-        dragItem.style.left = (e.clientX - 35) + 'px';
-        dragItem.style.top = (e.clientY - 45) + 'px';
-    };
-
-    window.onpointerup = () => { dragItem = null; };
-
-    function toggleSide() { document.getElementById('side-list').classList.toggle('open'); }
+    function toggleSide() { document.getElementById('side-menu').classList.toggle('open'); }
     function openM(id) { document.getElementById(id).style.display = 'flex'; }
     function closeM(id) { document.getElementById(id).style.display = 'none'; }
-    function handleImg(input) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            document.getElementById('preview').src = e.target.result;
-            document.getElementById('preview').style.display = 'block';
-            document.getElementById('img-label').style.display = 'none';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
+    
+    // 초기 탭 설정
+    tab('timeline');
 </script>
+
 </body>
 </html>
