@@ -20,9 +20,7 @@
 
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
         .header-side { width: 80px; display: flex; gap: 15px; align-items: center; }
-        
         .app-logo { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
         .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; }
         .icon-btn:active { opacity: 1; transform: scale(0.9); }
@@ -46,26 +44,25 @@
         .month-node { position: absolute; left: 50%; top: 15px; transform: translate(-50%, -50%); width: 10px; height: 10px; background: white; border: 3px solid var(--node); border-radius: 50%; z-index: 5; }
 
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 15px; gap: 40px; position: relative; }
-        
         .timeline-card { background: #fff; padding: 12px; border-radius: 10px; width: 100%; box-shadow: 0 3px 10px rgba(0,0,0,0.06); position: relative; cursor: grab; z-index: 10; align-self: center; }
         
         .card-index { position: absolute; top: 15px; width: 20px; z-index: -1; }
-        /* 💡 가로선이 중앙선에 완벽하게 닿도록 너비 조정 */
         .timeline-card:nth-child(odd) .card-index { right: -20px; border-bottom: 2px solid var(--line); } 
         .timeline-card:nth-child(even) .card-index { left: -20px; border-bottom: 2px solid var(--line); }
 
         /* 모달 스타일 */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal.active { display: flex; }
-        
-        /* 💡 스토리 뷰: 회색 배경에 흰 문서 모양 (아래까지 꽉 차게) */
+        .modal-content { background: white; border-radius: 18px; width: 320px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+
+        /* 스토리 뷰 전용 */
         #story-view { background: #f1f3f5; padding: 15px; min-height: calc(100vh - 105px); display: flex; justify-content: center; }
         #story-treatment { background: #fff; border: none; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 25px; width: 100%; max-width: 600px; height: calc(100vh - 145px); resize: none; font-size: 15px; line-height: 1.6; outline: none; }
 
         /* 캐릭터 동그란 아이콘 */
         .char-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.1); position: relative; }
 
-        /* 💡 심플하게 정리된 아이콘 메뉴 */
+        /* 심플한 아이콘 메뉴 */
         .pop-menu { display: none; position: absolute; bottom: 65px; right: 0; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 150px; overflow: hidden; }
         .pop-menu.active { display: block; }
         .pop-item { padding: 12px; font-size: 13px; color: #495057; cursor: pointer; border-bottom: 1px solid #f1f3f5; display: flex; align-items: center; gap: 8px; }
@@ -109,48 +106,52 @@
         </div>
     </main>
 
-    <div id="charRegModal" class="modal"><div class="modal-content" style="background:white; padding:25px; border-radius:24px; width:340px; text-align:center;">
-        <h4 style="font-size:18px; font-weight:bold; margin-bottom:20px;">캐릭터 등록</h4>
-        
-        <div style="width:80px; height:80px; border-radius:50%; background:#f1f3f5; display:flex; justify-content:center; align-items:center; margin:0 auto 20px; color:#adb5bd; font-size:14px; cursor:pointer;">사진+</div>
-        
-        <div class="input-row"><input type="text" id="c-name" placeholder="이름" style="width:100%;"></div>
-        <div class="input-row">
-            <input type="text" id="c-age" placeholder="나이" style="flex:1;">
-            <input type="text" id="c-gender" placeholder="성별" style="flex:1;">
+    <div id="timelineModal" class="modal"><div class="modal-content" style="padding:25px; background:white;">
+        <h4 style="margin-bottom:15px; font-size:16px;">새로운 기록</h4>
+        <p style="font-size:12px; color:#ff6b6b; margin-bottom:10px;">날짜(년/월)를 입력해주세요!</p>
+        <div class="input-row"><input type="number" placeholder="년도 입력"> <input type="number" placeholder="월 입력"></div>
+        <div class="input-row"><textarea rows="3" placeholder="내용을 입력하세요..." style="width:100%; resize:none;"></textarea></div>
+        <div style="display:flex; justify-content:space-between; margin-top:15px;">
+            <button class="f-btn-text" style="color:var(--primary);" onclick="alert('데이터베이스 연동 준비중'); closeModal('timelineModal')">저장</button>
+            <button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('timelineModal')">닫기</button>
         </div>
-        <div class="input-row"><input type="text" id="c-feat" placeholder="외모/특징" style="width:100%;"></div>
-        <div class="input-row"><textarea id="c-memo" rows="3" placeholder="중요 메모" style="width:100%; resize:none;"></textarea></div>
-        
-        <div style="font-size:12px; color:#adb5bd; text-align:left; margin-bottom:8px;">캐릭터 분류 색상</div>
-        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:20px;" id="color-palette"></div>
-        
-        <button class="f-btn-text" style="width:100%; background:var(--primary); color:white; border-radius:12px; padding:12px; margin-bottom:8px; font-weight:bold; border:none; cursor:pointer;" onclick="saveCharacter()">캐릭터 저장</button>
-        <button class="f-btn-text" style="width:100%; background:#f1f3f5; color:#495057; border-radius:12px; padding:12px; font-weight:bold; border:none; cursor:pointer;" onclick="closeModal('charRegModal')">닫기</button>
     </div></div>
 
-    <div class="slide-drawer" id="story-drawer" style="position:fixed; top:0; left:-280px; width:280px; height:100%; background:white; z-index:2500; padding:20px; box-shadow: 2px 0 15px rgba(0,0,0,0.1); transition: 0.3s;">
-        <h5 style="font-size:12px; color:#adb5bd; margin-bottom:15px;">문서 목록</h5>
-        <div id="treatment-list">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
-                <span style="font-size:13px;">📄 단락 1</span>
-                <span style="cursor:pointer; font-weight:bold; color:#adb5bd;">=</span>
-            </div>
+    <div id="charRegModal" class="modal"><div class="modal-content" style="padding:25px; border-radius:24px; background:white;">
+        <h4 style="font-size:18px; font-weight:bold; margin-bottom:20px; text-align:center;">캐릭터 등록</h4>
+        <div style="width:80px; height:80px; border-radius:50%; background:#f1f3f5; display:flex; justify-content:center; align-items:center; margin:0 auto 20px; color:#adb5bd; font-size:14px; cursor:pointer;">사진+</div>
+        <div class="input-row"><input type="text" id="c-name" placeholder="이름" style="width:100%;"></div>
+        <div class="input-row"><input type="text" id="c-age" placeholder="나이" style="flex:1;"> <input type="text" id="c-gender" placeholder="성별" style="flex:1;"></div>
+        <div class="input-row"><input type="text" id="c-feat" placeholder="외모/특징" style="width:100%;"></div>
+        <div class="input-row"><textarea id="c-memo" rows="3" placeholder="중요 메모" style="width:100%; resize:none;"></textarea></div>
+        <div style="font-size:12px; color:#adb5bd; text-align:left; margin-bottom:8px;">캐릭터 분류 색상</div>
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:20px;" id="color-palette"></div>
+        <button class="f-btn-text" style="width:100%; background:var(--primary); color:white; border-radius:12px; padding:12px; font-weight:bold; border:none;" onclick="saveCharacter()">캐릭터 저장</button>
+        <button class="f-btn-text" style="width:100%; background:#f1f3f5; color:#495057; border-radius:12px; padding:12px; font-weight:bold; border:none; margin-top:8px;" onclick="closeModal('charRegModal')">닫기</button>
+    </div></div>
+
+    <div id="charDetailModal" class="modal"><div class="modal-content" style="padding:25px; border-radius:24px; background:white;">
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+            <div id="d-avatar" class="char-circle" style="width:50px; height:50px; font-size:12px;"></div>
+            <h4 id="d-name" style="font-size:16px; font-weight:bold; margin:0;">이름</h4>
         </div>
-        <button class="f-btn-text" style="color:#adb5bd; margin-top:20px; border:none; background:none; cursor:pointer;" onclick="closeDrawer()">닫기</button>
-    </div>
+        <p id="d-memo" style="font-size:13px; color:#495057; line-height:1.6; min-height:80px; background:#f8f9fa; padding:15px; border-radius:8px; margin-bottom:20px;"></p>
+        <div style="display:flex; gap:10px;">
+            <button class="f-btn-text" style="flex:1; background:#f1f3f5; color:#495057; border-radius:10px; padding:10px;" onclick="alert('수정 기능 준비중');">수정</button>
+            <button class="f-btn-text" style="flex:1; background:#ffe3e3; color:#ff6b6b; border-radius:10px; padding:10px;" id="btn-delete-char">삭제</button>
+            <button class="f-btn-text" style="flex:1; background:#eee; color:#adb5bd; border-radius:10px; padding:10px;" onclick="closeModal('charDetailModal')">닫기</button>
+        </div>
+    </div></div>
 
     <div class="fab-wrap">
         <div class="pop-menu" id="story-menu">
-            <div class="pop-item" onclick="openDrawer(); closePopMenus();">○ 목록 열기</div>
+            <div class="pop-item" onclick="alert('문서 목록 준비중'); closePopMenus();">○ 목록 열기</div>
             <div class="pop-item" onclick="alert('단락 내보내기'); closePopMenus();">○ 단락 내보내기</div>
         </div>
-        
         <div class="pop-menu" id="char-menu">
             <div class="pop-item" onclick="openModal('charRegModal'); closePopMenus();">○ 캐릭터 추가</div>
             <div class="pop-item" onclick="alert('관계도 정리 창 준비중'); closePopMenus();">○ 관계도 정리</div>
         </div>
-
         <button class="main-fab" onclick="handleFabClick()">+</button>
     </div>
 
@@ -161,11 +162,10 @@
         
         let state = { storyboard: [], eras: ['제국력'], currentTab: 'timeline' };
         
-        // 💡 캐릭터 데이터 (샘플 3개 기본 포함 및 색상 정렬용)
         let characters = [
-            {id: 'c1', name: '홍길동', color: '#ff6b6b'},
-            {id: 'c2', name: '이몽룡', color: '#339af0'},
-            {id: 'c3', name: '성춘향', color: '#20c997'}
+            {id: 'c1', name: '홍길동', color: '#ff6b6b', memo: '정의로운 주인공. 의적 활동을 한다.'},
+            {id: 'c2', name: '이몽룡', color: '#339af0', memo: '청렴한 어사. 성춘향과 사랑에 빠진다.'},
+            {id: 'c3', name: '성춘향', color: '#20c997', memo: '절개 있는 여인. 이몽룡을 기다린다.'}
         ];
         const paletteColors = ['#ff6b6b', '#f06595', '#cc5de8', '#845ef7', '#5c7cfa', '#339af0', '#22b8cf', '#20c997', '#51cf66', '#fcc419'];
         let selectedColor = '#ff6b6b';
@@ -181,6 +181,7 @@
             renderCharacters();
         }
 
+        /* 💡 탭 전환 함수 복구 (꼬임 해결) */
         function showTab(n, el) { 
             state.currentTab = n; 
             document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active')); 
@@ -192,19 +193,15 @@
 
         function handleFabClick() {
             closePopMenus();
-            if (state.currentTab === 'timeline') { alert('기록 추가 창은 기존 로직대로 유지됩니다.'); }
+            if (state.currentTab === 'timeline') { openModal('timelineModal'); }
             else if (state.currentTab === 'story') { document.getElementById('story-menu').classList.toggle('active'); }
             else if (state.currentTab === 'char') { document.getElementById('char-menu').classList.toggle('active'); }
         }
 
         function closePopMenus() { document.querySelectorAll('.pop-menu').forEach(m => m.classList.remove('active')); }
-        function openDrawer() { document.getElementById('story-drawer').style.left = '0'; }
-        function closeDrawer() { document.getElementById('story-drawer').style.left = '-280px'; }
 
-        /* 💡 10가지 색상 칩 생성 */
         function renderColorPalette() {
-            const palette = document.getElementById('color-palette');
-            palette.innerHTML = '';
+            const palette = document.getElementById('color-palette'); palette.innerHTML = '';
             paletteColors.forEach(color => {
                 const chip = document.createElement('div');
                 chip.style.cssText = `width:24px; height:24px; border-radius:50%; background:${color}; cursor:pointer; border:2px solid ${color === selectedColor ? '#343a40' : 'transparent'};`;
@@ -213,50 +210,49 @@
             });
         }
 
-        /* 💡 캐릭터 렌더링 (색상별 정렬 기능 포함) */
+        /* 💡 캐릭터 아이콘 클릭 시 상세 모달창 열기로 변경 */
         function renderCharacters() {
-            const list = document.getElementById('char-list');
-            list.innerHTML = '';
-            // 색상값을 기준으로 정렬하여 같은 색끼리 묶이게 함
+            const list = document.getElementById('char-list'); list.innerHTML = '';
             characters.sort((a, b) => a.color.localeCompare(b.color));
-            
             characters.forEach(c => {
                 const item = document.createElement('div');
                 item.className = 'char-circle';
                 item.style.background = c.color;
-                item.innerText = c.name.substring(0, 2); // 두글자만 표시
-                item.onclick = () => {
-                    if(confirm(`[${c.name}] 캐릭터를 삭제하시겠습니까?`)) {
-                        characters = characters.filter(char => char.id !== c.id);
-                        renderCharacters();
-                    }
-                };
+                item.innerText = c.name.substring(0, 2);
+                item.onclick = () => openCharDetailModal(c.id); // 수정/삭제 대신 상세보기 열기
                 list.appendChild(item);
             });
         }
 
-        function saveCharacter() {
-            const name = document.getElementById('c-name').value.trim();
-            if(!name) return alert('이름을 입력해주세요!');
-            
-            characters.push({
-                id: 'c' + Date.now(),
-                name: name,
-                color: selectedColor
-            });
-            
-            // 폼 초기화
-            document.getElementById('c-name').value = '';
-            document.getElementById('c-age').value = '';
-            document.getElementById('c-gender').value = '';
-            document.getElementById('c-feat').value = '';
-            document.getElementById('c-memo').value = '';
-            
-            closeModal('charRegModal');
-            renderCharacters();
+        /* 💡 캐릭터 상세보기 모달 구현 */
+        function openCharDetailModal(id) {
+            const c = characters.find(char => char.id === id);
+            if(!c) return;
+            document.getElementById('d-name').innerText = c.name;
+            document.getElementById('d-memo').innerText = c.memo || '작성된 메모가 없습니다.';
+            const avatar = document.getElementById('d-avatar');
+            avatar.style.background = c.color; avatar.innerText = c.name.substring(0, 2);
+            document.getElementById('btn-delete-char').onclick = () => deleteCharacter(c.id);
+            openModal('charDetailModal');
         }
 
-        /* 타임라인 렌더링 */
+        function deleteCharacter(id) {
+            if(confirm('이 캐릭터를 정말 삭제하시겠습니까?')) {
+                characters = characters.filter(char => char.id !== id);
+                renderCharacters();
+                closeModal('charDetailModal');
+            }
+        }
+
+        function saveCharacter() {
+            const name = document.getElementById('c-name').value.trim();
+            const memo = document.getElementById('c-memo').value.trim();
+            if(!name) return alert('이름을 입력해주세요!');
+            characters.push({ id: 'c' + Date.now(), name: name, color: selectedColor, memo: memo });
+            document.getElementById('c-name').value = ''; document.getElementById('c-feat').value = ''; document.getElementById('c-memo').value = '';
+            closeModal('charRegModal'); renderCharacters();
+        }
+
         function renderTimeline() {
             const list = document.getElementById('tl-list'); list.innerHTML = ''; 
             const grouped = state.storyboard.reduce((acc, cur) => {
