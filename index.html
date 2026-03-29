@@ -34,18 +34,13 @@
         .month-cluster { position: relative; width: 100%; margin-bottom: 25px; min-height: 50px; }
         .month-node { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); width: 10px; height: 10px; background: white; border: 2.5px solid var(--node); border-radius: 50%; z-index: 5; }
 
-        .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 15px; gap: 20px; }
-        .timeline-card { 
-            background: #fff; padding: 10px; border-radius: 8px; width: 88%; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10;
-        }
+        .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 15px; gap: 20px; min-height: 50px; }
+        .timeline-card { background: #fff; padding: 10px; border-radius: 8px; width: 88%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10; }
         .timeline-card.left { justify-self: end; }
         .timeline-card.right { justify-self: start; }
 
-        /* 💡 인덱스 위치 복구 (중앙선 반대쪽 바깥) */
         .card-index { position: absolute; top: 8px; width: 14px; height: 25%; background: #ced4da; border-radius: 3px; z-index: -1; }
-        .left .card-index { left: -7px; } 
-        .right .card-index { right: -7px; }
+        .left .card-index { left: -7px; } .right .card-index { right: -7px; }
 
         .modal-content.compact { width: 65%; height: 250px; position: relative; }
         .modal-main-card { background: white; border-radius: 12px; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
@@ -57,17 +52,15 @@
         .modal-footer-clean { display: flex; padding: 10px 5px 15px; justify-content: space-around; margin-top: auto; }
         .f-btn-text { background: none; border: none; font-size: 12px; color: var(--primary); font-weight: bold; cursor: pointer; }
 
-        /* 💡 연대수정 버튼(셀렉트) 복구 */
         .input-row { display: flex; gap: 5px; margin-bottom: 10px; width: 100%; }
-        .input-row select { flex: 1.5; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #ddd; display: block !important; }
+        .input-row select { flex: 1.5; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #ddd; }
         .input-row input { flex: 1; min-width: 0; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #ddd; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
 
-        /* FAB 서브메뉴 */
         #fab-sub { display: none; flex-direction: column; gap: 8px; position: absolute; bottom: 55px; right: 0; align-items: flex-end; }
-        .sub-btn { background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-size: 11px; border: none; color: var(--primary); cursor: pointer; white-space: nowrap; }
+        .sub-btn { background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-size: 11px; border: none; color: var(--primary); cursor: pointer; }
     </style>
 </head>
 <body>
@@ -149,7 +142,11 @@
                 for(const month in grouped[yearKey]) {
                     const cluster = document.createElement('div'); cluster.className = 'month-cluster';
                     cluster.innerHTML = `<div class="month-node"></div>`;
-                    const grid = document.createElement('div'); grid.className = 'event-grid';
+                    const grid = document.createElement('div'); 
+                    grid.className = 'event-grid';
+                    grid.dataset.month = month;
+                    grid.dataset.yearkey = yearKey;
+
                     grouped[yearKey][month].forEach((ev, idx) => {
                         const side = idx % 2 === 0 ? 'left' : 'right';
                         const card = document.createElement('div'); card.className = `timeline-card ${side}`; card.dataset.id = ev.id;
@@ -157,7 +154,16 @@
                         grid.appendChild(card);
                     });
                     cluster.appendChild(grid); list.appendChild(cluster);
-                    new Sortable(grid, { animation: 150, delay: 100, onEnd: reorderAll });
+
+                    // 💡 드래그 앤 드롭 정밀 수정: 모든 그리드가 'timeline' 그룹으로 묶여 자유롭게 이동 가능
+                    new Sortable(grid, { 
+                        group: { name: 'timeline', pull: true, put: true }, 
+                        animation: 150, 
+                        ghostClass: 'sortable-ghost',
+                        onEnd: function(evt) {
+                            reorderAll();
+                        }
+                    });
                 }
             }
         }
@@ -184,7 +190,6 @@
             document.querySelectorAll('.top-tab').forEach(t => { t.classList.remove('active'); t.style.background = '#e9ecef'; });
             el.classList.add('active'); el.style.background = (type === 'desc') ? 'white' : color;
             card.style.background = (type === 'desc') ? 'white' : color;
-
             if(type === 'desc') {
                 body.innerText = ev.text;
                 document.getElementById('btn-branch-act').style.display = 'block';
@@ -221,10 +226,17 @@
             closeModal('eventModal');
         }
 
+        function reorderAll() {
+            const updates = {};
+            document.querySelectorAll('.timeline-card').forEach((card, i) => {
+                updates[`${card.dataset.id}/order`] = i;
+            });
+            db.ref('users/Yuta/projects/기본/storyboard').update(updates);
+        }
+
         function saveBranch() { const bid = Date.now(); db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).set({ id:bid, text:document.getElementById('b-text').value }); closeModal('branchModal'); }
         function customConfirm(msg, onOk) { document.getElementById('confirm-msg').innerText = msg; openModal('confirmModal'); document.getElementById('confirm-ok').onclick = () => { onOk(); closeModal('confirmModal'); }; }
         function showTab(n, el) { state.currentTab = n; document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el.classList.add('active'); document.getElementById(n+'-view').classList.add('active'); toggleFab(); }
-        function reorderAll() { const updates = {}; document.querySelectorAll('.timeline-card').forEach((card, i) => { updates[`${card.dataset.id}/order`] = i; }); db.ref('users/Yuta/projects/기본/storyboard').update(updates); }
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
