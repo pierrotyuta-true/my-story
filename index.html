@@ -2,27 +2,36 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yuta's Engine</title>
-    <link rel="stylesheet" href="./style.css"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./style.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-    <div class="header">
-        <div class="tabs">
-            <div class="tab active">타임라인</div>
-        </div>
+    <header class="app-header">
+        <div class="logo">Y</div>
+        <div id="project-name">프로젝트 로딩 중...</div>
+        <button class="save-btn" onclick="saveData()">SAVE</button>
+    </header>
+
+    <div class="tab-menu">
+        <div class="tab-item active" onclick="showTab('timeline')">타임라인</div>
+        <div class="tab-item" onclick="showTab('story')">스토리</div>
+        <div class="tab-item" onclick="showTab('char')">캐릭터</div>
     </div>
 
-    <div id="timeline-view" class="view active">
-        <div class="tl-container" id="tl-list">
-            <p style="text-align:center; padding-top:50px; color:#999;">데이터를 불러오는 중...</p>
-        </div>
-    </div>
+    <main id="timeline" class="view active">
+        <div class="tl-wrapper" id="tl-list"></div>
+    </main>
 
     <div class="fab" onclick="addEvent()">+</div>
 
     <script src="./script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
 </body>
 </html>
