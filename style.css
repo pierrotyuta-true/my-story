@@ -1,61 +1,103 @@
-/* 1. 기본 설정 및 폰트 */
-:root { --primary: #4dabf7; --dark: #343a40; --bg: #f8f9fa; --card-shadow: 0 4px 15px rgba(0,0,0,0.06); }
-* { box-sizing: border-box; }
-body { margin: 0; padding: 0; background: var(--bg); font-family: 'Pretendard', -apple-system, sans-serif; overflow-x: hidden; }
+:root { --primary: #4dabf7; --node: #74c0fc; --bg: #f8f9fa; --dark: #343a40; --text: #495057; }
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+body { margin: 0; padding: 0; background: var(--bg); font-family: 'Pretendard', sans-serif; overflow-x: hidden; color: var(--text); }
 
-/* 2. 상단 헤더 고정 (Y 로고와 SAVE 버튼) */
-.app-header { 
-  position: fixed; top: 0; left: 0; right: 0; height: 50px;
-  background: var(--dark); color: #fff; display: flex; 
-  justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000;
-}
-.tab-menu { 
-  position: fixed; top: 50px; left: 0; right: 0; height: 45px;
-  background: #fff; display: flex; border-bottom: 1px solid #eee; z-index: 999;
-}
-.tab-item { flex: 1; text-align: center; line-height: 45px; font-size: 13px; color: #adb5bd; font-weight: bold; }
+/* 상단 헤더 고정 */
+.app-header { height: 55px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top: 0; width: 100%; z-index: 1000; }
+.logo { font-weight: 900; font-size: 20px; color: var(--primary); }
+.title-wrap { display: flex; align-items: center; cursor: pointer; gap: 5px; }
+#project-name { font-size: 15px; font-weight: 800; }
+.proj-dropdown { font-size: 10px; color: #adb5bd; }
+.cloud-save-btn { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 900; font-size: 11px; cursor: pointer; }
+
+/* 상단 탭 메뉴 고정 */
+.tab-menu { height: 45px; background: #fff; display: flex; border-bottom: 1px solid #eee; position: fixed; top: 55px; width: 100%; z-index: 999; }
+.tab-item { flex: 1; text-align: center; line-height: 45px; font-size: 13px; color: #adb5bd; font-weight: 800; cursor: pointer; }
 .tab-item.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
-/* 3. 타임라인 컨테이너 (모눈종이 배경) */
-.tl-container { 
-  margin-top: 95px; position: relative; width: 100%; min-height: calc(100vh - 95px);
-  background-image: radial-gradient(#dee2e6 1px, transparent 1px); background-size: 20px 20px;
-  padding: 40px 0;
-}
-.center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
+/* 메인 컨텐츠 영역 */
+.content-body { margin-top: 100px; min-height: calc(100vh - 100px); padding-bottom: 80px; }
+.view { display: none; }
+.view.active { display: block; }
 
-/* 4. 사건 행(Row) 및 카드 배치 */
-.event-row { position: relative; width: 100%; display: flex; align-items: center; margin-bottom: 40px; }
-.event-row.left { justify-content: flex-start; padding-left: 5%; }
-.event-row.right { justify-content: flex-end; padding-right: 5%; }
+/* 타임라인 컨테이너 - 모눈종이 배경 */
+.tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding: 50px 0; min-height: calc(100vh - 180px);
+  background-image: radial-gradient(#dee2e6 1px, transparent 1px); background-size: 20px 20px; z-index: 1; }
+.center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
 
-/* 중앙 노드 점 */
-.node-point { 
-  position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; 
-  background: #fff; border: 2.5px solid var(--primary); border-radius: 50%; 
-  transform: translate(-50%, -50%); z-index: 5; 
-}
+/* 연도 캡슐 */
+.node-year-label { position: absolute; left: 50%; transform: translateX(-50%); background: #495057; color: #fff; padding: 4px 12px; border-radius: 15px; font-size: 10px; font-weight: 800; z-index: 10; margin-top: -30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); white-space: nowrap; }
 
-/* 카드 디자인 */
-.card { 
-  background: #fff; width: 42%; padding: 12px; border-radius: 12px; 
-  box-shadow: var(--card-shadow); border-left: 4px solid var(--primary); 
-  position: relative; z-index: 2;
-}
-.card-meta { font-size: 10px; color: var(--primary); font-weight: 800; margin-bottom: 4px; }
-.card-content { font-size: 13px; font-weight: 600; color: #495057; line-height: 1.4; }
+/* 수평 지그재그 행 */
+.event-row { position: relative; width: 100%; display: flex; margin-bottom: 30px; align-items: center; min-height: 100px; }
+.node-point { position: absolute; left: 50%; width: 10px; height: 10px; background: #fff; border: 2.5px solid var(--node); border-radius: 50%; z-index: 5; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px #fff; }
 
-/* 연도 배지 */
-.year-badge {
-  position: absolute; left: 50%; top: -25px; transform: translateX(-50%);
-  background: #495057; color: #fff; padding: 4px 12px; border-radius: 15px;
-  font-size: 10px; font-weight: bold; z-index: 6; white-space: nowrap;
-}
+/* 가로 쫀득한 선 */
+.h-line { position: absolute; top: 50%; width: 20px; height: 1.5px; background: #dee2e6; z-index: 1; margin-top: -0.75px; }
+.left .h-line { right: 50%; margin-right: 5px; }
+.right .h-line { left: 50%; margin-left: 5px; }
 
-/* 5. 플러스 버튼(FAB) */
-.fab { 
-  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-  width: 55px; height: 55px; background: var(--primary); color: #fff; 
-  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-  font-size: 24px; box-shadow: 0 4px 15px rgba(77,171,247,0.4); z-index: 1001; 
-}
+/* 사건 카드 ( image_16.png 테두리 반영) */
+.card-side { width: calc(50% - 15px); position: relative; display: flex; align-items: center; justify-content: center; padding: 0 10px; }
+.left .card-side { margin-right: auto; }
+.right .card-side { margin-left: auto; }
+
+.card { background: #fff; padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); width: 100%; max-width: 160px; border-left: 5px solid rgba(0,0,0,0.03); cursor: pointer; }
+.card-meta { font-size: 10px; color: var(--node); font-weight: 900; margin-bottom: 5px; }
+.card-text { font-size: 13px; font-weight: 700; color: #444; line-height: 1.5; }
+
+/* 스토리 */
+.story-paper { background: white; width: calc(100% - 30px); margin: 15px auto; border-radius: 15px; padding: 25px; min-height: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+#story-editor { min-height: 350px; outline: none; line-height: 1.8; font-size: 14px; color: #444; }
+#story-editor[placeholder]:empty:before { content: attr(placeholder); color: #adb5bd; }
+.story-btn-wrap { display: flex; justify-content: center; gap: 8px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+.story-btn { border: none; background: #eee; color: #888; padding: 10px 18px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; }
+.story-btn.primary { background: var(--primary); color: white; }
+
+/* 캐릭터 도감 */
+.char-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 15px; }
+.char-item { text-align: center; }
+.char-icon { width: 65px; height: 65px; border-radius: 50%; background: #eee; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #888; font-size: 24px; }
+.char-name { font-size: 12px; font-weight: 800; color: #444; }
+
+/* 모달 디자인 통합 */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+.modal-content { background: white; width: calc(100% - 40px); max-width: 350px; padding: 25px; border-radius: 20px; box-sizing: border-box; }
+.modal-content.large { max-width: 400px; }
+input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 14px; box-sizing: border-box; font-family: inherit; }
+.btn-main { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; }
+.btn-sub { border: none; background: none; color: #adb5bd; font-weight: 800; font-size: 12px; padding: 10px; cursor: pointer; }
+.btn-sub.danger { color: #ff6b6b; }
+.btn-sub.small { padding: 5px; font-size: 11px; }
+
+/* 기록 편집 모달 전용 */
+.date-input-group { display: flex; gap: 8px; margin-bottom: 0px; }
+.date-input-group > * { flex: 1; }
+.modal-header-btns { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.modal-header-btns h3 { margin: 0; }
+
+/* 메모 상세보기 */
+.memo-detail-paper { min-height: 150px; background: #f8f9fa; padding: 15px; border-radius: 12px; font-size: 14px; line-height: 1.6; color: #444; margin-bottom: 15px; }
+.detail-btn-wrap { display: flex; justify-content: space-around; gap: 6px; margin-bottom: 10px; }
+.btn-detail { flex: 1; padding: 8px; background: #eee; border: none; border-radius: 6px; font-size: 11px; color: #888; font-weight: 800; }
+.btn-detail.primary { background: var(--primary); color: white; }
+.btn-detail.danger { background: #ff6b6b; color: white; }
+
+/* 캐릭터 폼 */
+.char-form .char-photo-zone { width: 70px; height: 70px; border-radius: 50%; border: 2px dashed #ddd; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 12px; }
+
+/* 프로젝트 관리 전용 */
+.proj-action-btns { display: flex; justify-content: space-around; align-items: center; gap: 5px; margin-bottom: 15px; }
+.btn-action { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; }
+.btn-action.primary { background: var(--primary); color: white; }
+.btn-action.danger { background: #ff6b6b; color: white; }
+
+/* 연대 편집 리스트 */
+.reorder-list { margin-bottom: 15px; border: 1px solid #eee; border-radius: 10px; padding: 5px; }
+.reorder-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f8f9fa; }
+.reorder-item:last-child { border-bottom: none; }
+.reorder-item input { margin: 0; padding: 5px; width: 60%; border: none; font-weight: bold; background: #f8f9fa; }
+
+/* 하단 통합 버튼 */
+.fab-wrap { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1001; }
+.fab { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 15px rgba(77,171,247,0.4); cursor: pointer; }
