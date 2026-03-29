@@ -1,29 +1,20 @@
-:root { --primary: #4dabf7; --bg: #f8f9fa; --node: #74c0fc; }
-body { margin: 0; padding: 0; background: var(--bg); font-family: sans-serif; }
+:root { --primary: #4dabf7; --node: #74c0fc; --bg: #f1f3f5; }
+body { margin: 0; background: var(--bg); font-family: sans-serif; }
 
-.tl-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding: 40px 0; min-height: 100vh; }
+/* 배경 격자 무늬 */
+#timeline { background-image: radial-gradient(#dee2e6 1px, transparent 1px); background-size: 20px 20px; }
+
+.tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding: 50px 0; min-height: 100vh; }
 .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); }
 
-/* 노드 크기 축소 (10px) */
+.event-row { position: relative; width: 100%; display: flex; align-items: center; margin-bottom: 40px; }
 .node-point { 
-    position: absolute; left: 50%; transform: translate(-50%, -50%);
-    width: 10px; height: 10px; background: #fff; border: 2px solid var(--node); 
-    border-radius: 50%; z-index: 5; 
+    position: absolute; left: 50%; width: 10px; height: 10px; 
+    background: #fff; border: 2.5px solid var(--node); 
+    border-radius: 50%; z-index: 5; transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 3px #fff;
 }
 
-/* 카드 배치 */
-.event-row { position: relative; width: 100%; display: flex; margin-bottom: 30px; align-items: center; }
-.card { 
-    background: #fff; padding: 15px; border-radius: 12px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 140px;
-    border-left: 4px solid var(--node);
-}
-.left .card { margin-left: auto; margin-right: calc(50% + 20px); }
-.right .card { margin-right: auto; margin-left: calc(50% + 20px); }
-
-.fab { 
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-    width: 60px; height: 60px; background: var(--primary); color: white;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100;
-}
+.card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); width: 140px; border-left: 5px solid var(--node); }
+.left .card { margin-left: auto; margin-right: calc(50% + 15px); text-align: right; }
+.right .card { margin-right: auto; margin-left: calc(50% + 15px); }
