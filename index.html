@@ -17,7 +17,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* 헤더 & 상단 버튼 다듬기 */
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
         .header-side { width: 70px; display: flex; gap: 12px; align-items: center; }
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 5px; border-radius: 8px; transition: 0.2s; }
@@ -65,7 +64,6 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
 
-        /* 💡 서브메뉴 디자인 예쁘게 교체 */
         #fab-sub { display: none; flex-direction: column; gap: 10px; position: absolute; bottom: 60px; right: 5px; align-items: flex-end; }
         .sub-btn { background: white; padding: 10px 18px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 13px; font-weight: bold; border: none; color: var(--dark); cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .sub-btn:active { background: #f8f9fa; transform: scale(0.95); }
@@ -165,8 +163,11 @@
             });
         }
 
+        // 💡 핵심 수정 파트: DOM 파괴 방식(innerHTML +=)에서 안전한 노드 추가 방식으로 전면 교체
         function renderTimeline() {
-            const list = document.getElementById('tl-list'); list.innerHTML = '';
+            const list = document.getElementById('tl-list'); 
+            list.innerHTML = ''; // 처음 한 번만 비우고
+            
             const grouped = state.storyboard.reduce((acc, cur) => {
                 const key = `${cur.era} ${cur.year}년`;
                 if(!acc[key]) acc[key] = {};
@@ -175,11 +176,18 @@
             }, {});
 
             for(const yearKey in grouped) {
-                list.innerHTML += `<div class="year-banner"><span class="year-text">${yearKey}</span></div>`;
+                const banner = document.createElement('div');
+                banner.className = 'year-banner';
+                banner.innerHTML = `<span class="year-text">${yearKey}</span>`;
+                list.appendChild(banner); // 💡 appendChild로 안전하게 추가
+
                 for(const month in grouped[yearKey]) {
-                    const cluster = document.createElement('div'); cluster.className = 'month-cluster';
+                    const cluster = document.createElement('div'); 
+                    cluster.className = 'month-cluster';
                     cluster.innerHTML = `<div class="month-node"></div>`;
-                    const grid = document.createElement('div'); grid.className = 'event-grid';
+                    
+                    const grid = document.createElement('div'); 
+                    grid.className = 'event-grid';
                     grid.dataset.month = month;
 
                     grouped[yearKey][month].forEach((ev, idx) => {
@@ -187,21 +195,25 @@
                         const card = document.createElement('div'); 
                         card.className = `timeline-card ${side}`; 
                         card.dataset.id = String(ev.id);
-                        card.innerHTML = `${(ev.branches) ? '<div class="card-index"></div>' : ''}<div class="click-area"><div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div></div>`;
                         
-                        card.querySelector('.click-area').onclick = () => openDetailModal(ev.id);
+                        // 💡 클릭 이벤트 직접 삽입
+                        card.innerHTML = `${(ev.branches) ? '<div class="card-index"></div>' : ''}<div onclick="openDetailModal('${ev.id}')"><div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div></div>`;
+                        
                         grid.appendChild(card);
                     });
-                    cluster.appendChild(grid); list.appendChild(cluster);
                     
-                    // 💡 드래그 복사 방지 엄격 설정 (pull: true, put: true)
+                    cluster.appendChild(grid); 
+                    list.appendChild(cluster); // 💡 appendChild로 안전하게 추가
+                    
+                    // 💡 드래그 설정 (터치와 클릭 충돌 방지 딜레이 0.15초 추가)
                     new Sortable(grid, { 
                         group: { name: 'timeline', pull: true, put: true }, 
                         animation: 150, 
+                        delay: 150, // 꾹 누를 때만 드래그 발동
+                        delayOnTouchOnly: true, // 모바일 기기(갤럭시 탭 등)에서만 딜레이 적용
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
                             const newMonth = evt.to.dataset.month;
-                            // 월 이동 즉시 업데이트 후 순서 재정렬
                             db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth }).then(reorderAll);
                         }
                     });
@@ -280,7 +292,6 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function toggleFab() { document.getElementById('fab-sub').style.display = 'none'; }
 
-        /* 프로젝트 모달용 더미 함수 */
         function addProjectDummy() { alert("프로젝트가 추가되었습니다."); document.getElementById('new-project-name').value = ""; }
         function editProjectDummy() { const p = prompt("새로운 프로젝트 이름을 입력하세요.", "이그리에가"); if(p) alert(`'${p}'(으)로 이름이 변경되었습니다.`); }
         function deleteProjectDummy() { customConfirm("정말로 이 프로젝트를 삭제하시겠습니까?", () => alert("삭제 완료")); }
