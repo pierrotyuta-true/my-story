@@ -3,17 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yuta's Engine</title>
-    <link rel="stylesheet" href="./style.css"> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-    <div id="timeline-view" class="view active">
-        <div class="tl-container" id="tl-list">
-            </div>
-    </div>
+    <header class="app-header">
+        <div style="font-weight:900; color:var(--primary);">Y</div>
+        <div id="project-name">연결 중...</div>
+        <button id="save-btn" style="background:var(--primary); color:#fff; border:none; padding:6px 15px; border-radius:6px; font-weight:bold;">SAVE</button>
+    </header>
+
+    <nav class="tab-menu">
+        <div class="tab-item active">타임라인</div>
+        <div class="tab-item">스토리</div>
+        <div class="tab-item">캐릭터</div>
+    </nav>
+
+    <main class="tl-wrapper" id="tl-list">
+        <div class="center-line"></div>
+        </main>
 
     <div class="fab" onclick="addEvent()">+</div>
 
-    <script src="./script.js"></script> </body>
+    <script src="./script.js"></script>
+</body>
 </html>
