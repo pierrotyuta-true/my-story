@@ -33,12 +33,13 @@
         </div>
 
         <div id="story-view" class="view">
-            <div class="story-paper">
-                <div id="story-editor" contenteditable="true" placeholder="이야기를 적어보세요..."></div>
-                <div class="story-btn-wrap">
-                    <button class="story-btn primary" onclick="saveStory()">저장</button>
-                    <button class="story-btn">문서 목록</button>
-                    <button class="story-btn">문단 추출</button>
+            <div class="story-container">
+                <div class="story-paper">
+                    <div id="story-editor" contenteditable="true" placeholder="이곳에 당신의 세계관 이야기를 펼쳐보세요..."></div>
+                    <div class="story-btn-wrap">
+                        <button class="story-btn primary" onclick="saveStory()">클라우드 저장</button>
+                        <button class="story-btn">목록보기</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,8 +49,8 @@
         </div>
     </main>
 
-    <div class="fab-wrap">
-        <div class="fab" id="main-add-btn" onclick="handleMainAdd()">+</div>
+    <div class="fab-wrap" id="fab-container">
+        <div class="fab" onclick="handleMainAdd()">+</div>
     </div>
 
     <div id="projModal" class="modal"><div class="modal-content large">
@@ -57,10 +58,10 @@
         <input type="text" id="cur-proj-name-in" placeholder="현재 프로젝트 이름">
         <div class="proj-action-btns">
             <button class="btn-action primary" onclick="updateProjName()">이름 변경</button>
-            <button class="btn-action danger" onclick="deleteCurrentProj()">프로젝트 삭제</button>
+            <button class="btn-action danger" onclick="deleteCurrentProj()">삭제</button>
         </div>
         <hr style="border:none; border-top:1px solid #eee; margin:20px 0;">
-        <input type="text" id="new-proj-name-in" placeholder="새 프로젝트 이름 입력">
+        <input type="text" id="new-proj-name-in" placeholder="새 프로젝트 이름">
         <button class="btn-main" onclick="createNewProj()">+ 새 프로젝트 추가</button>
         <button class="btn-sub" onclick="closeModal('projModal')">닫기</button>
     </div></div>
@@ -70,24 +71,20 @@
             <h3>기록 편집</h3>
             <button class="btn-sub small" onclick="openEraEditor()">연대 관리</button>
         </div>
-        <div id="era-select-zone">
-            <select id="e-era"></select>
-        </div>
+        <select id="e-era"></select>
         <div class="date-input-group">
             <input type="number" id="e-year" placeholder="년">
             <input type="number" id="e-month" placeholder="월">
         </div>
         <textarea id="e-text" rows="8" placeholder="내용을 입력하세요."></textarea>
-        <div class="date-input-group">
-            <button class="btn-main" onclick="saveEvent()">저장하기</button>
-            <button class="btn-sub" onclick="closeModal('eventModal')">닫기</button>
-        </div>
+        <button class="btn-main" onclick="saveEvent()">저장하기</button>
+        <button class="btn-sub" onclick="closeModal('eventModal')">닫기</button>
     </div></div>
 
     <div id="eraModal" class="modal"><div class="modal-content">
         <h3>연대 관리</h3>
         <div id="era-manager-list" class="reorder-list"></div>
-        <input type="text" id="new-era-in" placeholder="새 연대 이름 (예: 공통)">
+        <input type="text" id="new-era-in" placeholder="새 연대 이름">
         <button class="btn-action primary" onclick="addNewEra()">+ 연대 추가</button>
         <button class="btn-sub" onclick="closeModal('eraModal')">닫기</button>
     </div></div>
@@ -95,36 +92,22 @@
     <div id="memoDetailModal" class="modal"><div class="modal-content">
         <div id="memo-detail-text" class="memo-detail-paper"></div>
         <div class="detail-btn-wrap">
-            <button class="btn-detail" onclick="openEditFromDetail()">편집</button>
-            <button class="btn-detail danger" onclick="deleteEventFromDetail()">삭제</button>
-        </div>
-        <button class="btn-sub" style="width:100%" onclick="closeModal('memoDetailModal')">닫기</button>
+            </div>
+        <button class="btn-sub" style="width:100%; margin-top:10px;" onclick="closeModal('memoDetailModal')">닫기</button>
     </div></div>
 
-    <div id="charModal" class="modal"><div class="modal-content large char-form">
+    <div id="charModal" class="modal"><div class="modal-content large">
         <h3>캐릭터 등록</h3>
-        <div class="char-photo-zone">사진+</div>
         <input type="text" id="c-name" placeholder="이름">
         <div class="date-input-group">
             <input type="text" id="c-age" placeholder="나이">
             <input type="text" id="c-gender" placeholder="성별">
         </div>
-        <input type="text" id="c-feature" placeholder="외모/특징">
-        <textarea id="c-memo" rows="4" placeholder="중요 메모"></textarea>
-        <input type="text" id="c-group" placeholder="분류 (예: 주인공, 빌런)">
-        <button class="btn-main" onclick="saveChar()">캐릭터 저장</button>
-        <div class="proj-action-btns">
-            <button class="btn-sub" onclick="closeModal('charModal')">닫기</button>
-            <button class="btn-sub danger small" id="char-del-btn" style="display:none;" onclick="deleteChar()">삭제</button>
-        </div>
+        <textarea id="c-memo" rows="4" placeholder="특징 및 메모"></textarea>
+        <button class="btn-main" onclick="saveChar()">저장</button>
+        <button class="btn-sub" onclick="closeModal('charModal')">닫기</button>
     </div></div>
 
     <script src="./script.js"></script>
-    <script>
-        // PWA 서비스 워커 등록
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').then(() => console.log("SW 등록 완료"));
-        }
-    </script>
 </body>
 </html>
