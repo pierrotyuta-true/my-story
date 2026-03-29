@@ -11,8 +11,8 @@
         :root { 
             --primary: #4dabf7; 
             --dark: #343a40; 
-            --bg: #f8f9fa;
-            /* 파스텔톤 인덱스 색상 */
+            --bg: #f8f9fa; 
+            /* 💡 요청하신 파스텔톤 인덱스 색상 */
             --tab-blue: #a5d8ff;
             --tab-yellow: #fff3bf;
             --tab-green: #c3fae8;
@@ -22,131 +22,167 @@
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: #333; }
 
         /* 타임라인 레이아웃 */
-        .tl-container { position: relative; width: 100%; max-width: 500px; margin: 80px auto; padding-top: 20px; }
-        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); }
+        .content-body { margin-top: 70px; padding-bottom: 100px; }
+        .tl-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; }
+        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
 
-        /* 💡 연도 배너와 노드 위치 */
-        .year-section { position: relative; margin-bottom: 20px; } /* 전체 섹션 간격 축소 */
-        .year-banner { display: flex; justify-content: center; margin-bottom: 10px; position: relative; z-index: 10; }
+        /* 💡 연도 및 간격 조절 */
+        .year-section { position: relative; width: 100%; margin-bottom: 25px; }
+        .year-banner { display: flex; justify-content: center; margin-bottom: 5px; position: relative; z-index: 10; } /* 간격 줄임 */
         .year-text { background: var(--dark); color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+
+        /* 💡 월별 그룹화 및 공유 노드 */
+        .month-group { position: relative; width: 100%; margin-top: 5px; } 
         
-        /* 💡 노드 위치를 연도 바로 아래 선 위로 이동 */
+        /* 같은 월이 공유하는 단 하나의 노드 */
         .month-node { 
-            position: absolute; left: 50%; top: 40px; width: 10px; height: 10px; 
+            position: absolute; left: 50%; top: 5px; width: 10px; height: 10px; 
             background: white; border: 2px solid var(--primary); border-radius: 50%; 
             z-index: 5; transform: translateX(-50%);
         }
 
-        /* 💡 카드 간격 축소 및 정렬 */
-        .card-container { 
-            display: flex; flex-direction: column; gap: 5px; /* 화살표 부분: 카드 사이 간격 좁힘 */
-            width: 100%; padding: 10px 15px; margin-top: 15px; /* 연도와의 간격 좁힘 */
+        /* 💡 화살표 부분: 카드들 사이의 간격 축소 */
+        .cards-container { 
+            display: flex; flex-direction: column; 
+            gap: 6px; /* 카드 사이의 세로 간격을 좁게 설정 */
+            width: 100%; padding: 15px 10px 5px 10px; 
         }
 
+        /* 메모 박스 (기존 스타일 복원) */
         .card { 
             background: #fff; padding: 12px; border-radius: 12px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 180px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 165px;
             cursor: pointer; position: relative; border: 1px solid #eee;
         }
+        
         /* 지그재그 배치 */
-        .card.left { align-self: flex-start; margin-left: 10%; }
-        .card.right { align-self: flex-end; margin-right: 10%; }
+        .card.left { align-self: flex-start; margin-left: 5%; }
+        .card.right { align-self: flex-end; margin-right: 5%; }
 
-        .card-meta { font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 4px; }
-        .card-text { font-size: 13px; color: #444; }
+        .card-meta { font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 3px; }
+        .card-text { font-size: 13px; color: #444; line-height: 1.4; }
 
-        /* 💡 인덱스 탭 디자인 */
-        .card-tabs { position: absolute; right: -8px; top: 15px; display: flex; flex-direction: column; gap: 2px; }
-        .tab { width: 6px; height: 18px; border-radius: 2px; }
-        .tab-0 { background: var(--tab-blue); }
-        .tab-1 { background: var(--tab-yellow); }
-        .tab-2 { background: var(--tab-green); }
+        /* 💡 인덱스 탭 디자인 (오른쪽에 착 붙음) */
+        .card-tabs { position: absolute; right: -6px; top: 12px; display: flex; flex-direction: column; gap: 2px; }
+        .tab { width: 5px; height: 14px; border-radius: 1px; }
+        .tab-0 { background-color: var(--tab-blue); }
+        .tab-1 { background-color: var(--tab-yellow); }
+        .tab-2 { background-color: var(--tab-green); }
 
         /* 기타 UI */
-        .app-header { position: fixed; top: 0; width: 100%; height: 55px; background: var(--dark); color: white; display: flex; align-items: center; padding: 0 15px; z-index: 1000; }
-        .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 55px; height: 55px; background: var(--primary); border-radius: 50%; color: white; border: none; font-size: 24px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .app-header { position: fixed; top: 0; width: 100%; height: 50px; background: var(--dark); color: white; display: flex; align-items: center; padding: 0 15px; z-index: 1000; font-weight: bold; }
+        .fab { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 55px; height: 55px; background: var(--primary); border-radius: 50%; color: white; border: none; font-size: 24px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000; }
     </style>
 </head>
 <body>
 
     <header class="app-header">Project: 기본 ▾</header>
 
-    <div class="tl-container">
-        <div class="center-line"></div>
-        <div id="tl-list"></div>
-    </div>
+    <main class="content-body">
+        <div class="tl-container">
+            <div class="center-line"></div>
+            <div id="tl-list"></div>
+        </div>
+    </main>
 
-    <button class="fab" onclick="openAddModal()">+</button>
+    <button class="fab" onclick="addNewData()">+</button>
 
     <script>
-        // Firebase 설정 (기존 정보 사용)
+        // Firebase 설정
         const firebaseConfig = { databaseURL: "https://true-s-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function render() {
+        function renderTimeline() {
             db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
                 const list = document.getElementById('tl-list');
                 list.innerHTML = '';
                 const data = snap.val() ? Object.values(snap.val()) : [];
                 
-                // 연도별 그룹화
-                const grouped = data.reduce((acc, cur) => {
+                // 1. 연도별 그룹화
+                const yearGrouped = data.reduce((acc, cur) => {
                     if(!acc[cur.year]) acc[cur.year] = [];
                     acc[cur.year].push(cur);
                     return acc;
                 }, {});
 
-                for(const year in grouped) {
-                    const section = document.createElement('div');
-                    section.className = 'year-section';
-                    
-                    // 💡 요청하신 구조대로 노드와 카드 렌더링
-                    let cardsHtml = '';
-                    grouped[year].sort((a,b) => a.month - b.month).forEach((ev, idx) => {
-                        const side = idx % 2 === 0 ? 'left' : 'right';
-                        
-                        // 인덱스 탭 로직 (가지 추가 데이터일 경우 표시)
-                        let tabs = '';
-                        if(ev.branchCount > 0) {
-                            for(let i=0; i < Math.min(ev.branchCount, 3); i++) {
-                                tabs += `<div class="tab tab-${i}"></div>`;
-                            }
-                        }
+                for(const year in yearGrouped) {
+                    const yearSection = document.createElement('div');
+                    yearSection.className = 'year-section';
+                    yearSection.innerHTML = `<div class="year-banner"><div class="year-text">${year}년</div></div>`;
 
-                        cardsHtml += `
-                            <div class="card ${side}">
-                                <div class="card-meta">${ev.month}월</div>
-                                <div class="card-text">${ev.text}</div>
-                                <div class="card-tabs">${tabs}</div>
-                            </div>
-                        `;
+                    // 2. 월별 그룹화 (같은 월은 노드 하나를 공유하기 위해)
+                    const monthGrouped = yearGrouped[year].reduce((acc, cur) => {
+                        if(!acc[cur.month]) acc[cur.month] = [];
+                        acc[cur.month].push(cur);
+                        return acc;
+                    }, {});
+
+                    // 월 순서대로 정렬
+                    const sortedMonths = Object.keys(monthGrouped).sort((a, b) => a - b);
+
+                    sortedMonths.forEach(month => {
+                        const monthGroup = document.createElement('div');
+                        monthGroup.className = 'month-group';
+                        monthGroup.innerHTML = `<div class="month-node"></div>`; // 💡 공유 노드 1개 생성
+
+                        const cardsContainer = document.createElement('div');
+                        cardsContainer.className = 'cards-container';
+
+                        // 같은 월 내의 이벤트들을 등록 순서(선후 관계)대로 정렬
+                        const events = monthGrouped[month].sort((a, b) => a.id - b.id);
+
+                        events.forEach((ev, idx) => {
+                            const side = idx % 2 === 0 ? 'left' : 'right';
+                            
+                            // 💡 인덱스 탭 생성 로직 (가지는 최대 3개까지만)
+                            let tabsHtml = '';
+                            if (ev.branchCount > 0) {
+                                tabsHtml = `<div class="card-tabs">`;
+                                for (let i = 0; i < Math.min(ev.branchCount, 3); i++) {
+                                    tabsHtml += `<div class="tab tab-${i}"></div>`;
+                                }
+                                tabsHtml += `</div>`;
+                            }
+
+                            cardsContainer.innerHTML += `
+                                <div class="card ${side}">
+                                    <div class="card-meta">${ev.month}월</div>
+                                    <div class="card-text">${ev.text}</div>
+                                    ${tabsHtml}
+                                </div>
+                            `;
+                        });
+
+                        monthGroup.appendChild(cardsContainer);
+                        yearSection.appendChild(monthGroup);
                     });
 
-                    section.innerHTML = `
-                        <div class="year-banner"><div class="year-text">${year}년</div></div>
-                        <div class="month-node"></div>
-                        <div class="card-container">${cardsHtml}</div>
-                    `;
-                    list.appendChild(section);
+                    list.appendChild(yearSection);
                 }
             });
         }
 
-        // 새 데이터 추가 (테스트용: branchCount는 가지 추가 시 늘려주면 됩니다)
-        function openAddModal() {
-            const year = prompt("연도");
-            const month = prompt("월");
-            const text = prompt("내용");
+        // 테스트 데이터 추가용 (입력창 대신 간단한 prompt 사용)
+        function addNewData() {
+            const year = prompt("연도를 입력하세요 (예: 1234)");
+            const month = prompt("월을 입력하세요 (예: 1)");
+            const text = prompt("내용을 입력하세요");
+            const branchCount = prompt("가지는 몇 개인가요? (0~3)"); // 탭 테스트용
+
             if(year && month && text) {
                 const id = Date.now();
                 db.ref(`users/Yuta/projects/기본/storyboard/${id}`).set({
-                    id, year, month, text, branchCount: 0 // 가지 추가 시 이 값을 1, 2, 3으로 올림
+                    id, 
+                    year: parseInt(year), 
+                    month: parseInt(month), 
+                    text: text,
+                    branchCount: parseInt(branchCount) || 0
                 });
             }
         }
 
-        render();
+        renderTimeline();
     </script>
 </body>
 </html>
