@@ -21,69 +21,66 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: #333; overflow-x: hidden; }
 
-        /* 상단 고정 영역 */
+        /* 헤더 & 탭 */
         #fixed-top-area { position: fixed; top: 0; left: 0; right: 0; z-index: 2000; }
         .app-header { height: var(--header-h); background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
         .logo { font-weight: bold; font-size: 20px; color: var(--primary); }
-        .cloud-save-btn { background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
         .tab-menu { height: var(--nav-h); background: #fff; display: flex; border-bottom: 1px solid #eee; }
         .tab-item { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666; cursor: pointer; }
         .tab-item.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
 
-        /* 컨텐츠 영역 */
-        .content-body { margin-top: calc(var(--header-h) + var(--nav-h)); padding: 15px; min-height: 100vh; position: relative; }
+        /* 컨텐츠 */
+        .content-body { margin-top: calc(var(--header-h) + var(--nav-h)); padding-bottom: 100px; min-height: 100vh; position: relative; }
         .view { display: none; }
         .view.active { display: block; }
 
-        /* --- [여기서부터 타임라인 핵심 디자인] --- */
+        /* 타임라인 배경 격자 */
         #timeline-view.active {
             background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px);
             background-size: 20px 20px; background-attachment: fixed;
         }
+
+        /* --- [디자인 핵심: 대칭형 레이아웃] --- */
+        .tl-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; padding-top: 20px; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
 
-        /* 연도 구분 배너 */
-        .year-banner { 
-            position: relative; width: 100%; display: flex; justify-content: center; 
-            margin: 40px 0 20px; z-index: 10; 
-        }
-        .year-text { background: var(--dark); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        /* 연도 배너 */
+        .year-banner { position: relative; width: 100%; display: flex; justify-content: center; margin: 40px 0; z-index: 10; }
+        .year-text { background: var(--dark); color: white; padding: 5px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* 월별 그룹 컨테이너 */
-        .month-group { position: relative; width: 100%; margin-bottom: 50px; display: flex; flex-direction: column; align-items: center; }
-        
-        /* 중앙 월 표시 점 */
-        .month-node { 
-            width: 12px; height: 12px; background: white; border: 3px solid var(--node); 
-            border-radius: 50%; z-index: 5; margin-bottom: 15px; box-shadow: 0 0 0 4px var(--bg);
-        }
+        /* 월별 행 (가운데 점 기준 양옆 배치) */
+        .month-row { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; }
+        .month-node { width: 12px; height: 12px; background: white; border: 3px solid var(--node); border-radius: 50%; z-index: 5; margin-bottom: 10px; box-shadow: 0 0 0 4px var(--bg); }
 
-        /* 카드들이 나열되는 그리드 (나란히 배치) */
-        .event-grid { 
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; 
-            width: 100%; max-width: 400px; padding: 0 10px;
+        /* 카드 그리드: 양옆으로 나란히 배치되는 핵심 로직 */
+        .card-grid { 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; 
+            width: 100%; padding: 0 10px; z-index: 2;
         }
 
         .card { 
-            background: #fff; padding: 12px; border-radius: 10px; text-align: left;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 160px; /* 고정폭으로 나란히 배치 */
+            background: #fff; padding: 12px; border-radius: 12px; text-align: left;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.06); width: calc(50% - 25px); max-width: 170px;
             border-left: 4px solid var(--primary); cursor: pointer; position: relative;
         }
-        .card-index { font-size: 9px; color: #ced4da; margin-bottom: 2px; }
-        .card-meta { font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 3px; }
-        .card-text { font-size: 13px; color: #495057; line-height: 1.4; }
+        
+        /* 모바일 대응: 너무 좁으면 한 줄에 하나씩 */
+        @media (max-width: 350px) { .card { width: 90%; max-width: none; } }
 
-        /* --- [디자인 끝] --- */
+        .card-index { font-size: 9px; color: #ced4da; margin-bottom: 3px; font-family: monospace; }
+        .card-meta { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 4px; }
+        .card-text { font-size: 13px; color: #333; line-height: 1.5; font-weight: 500; }
 
-        /* 공통 UI */
+        /* FAB */
         .fab-wrap { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2001; }
-        .fab { width: 55px; height: 55px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; }
+        .fab { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 20px rgba(77,171,247,0.4); border: none; }
+
+        /* 모달 공통 */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-width: 360px; padding: 20px; border-radius: 12px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 6px; }
-        .btn-main { background: var(--primary); color: white; width: 100%; margin-bottom: 5px; padding: 10px; border-radius: 6px; border: none; font-weight: bold; }
-        .btn-sub { background: #e9ecef; color: #495057; width: 100%; padding: 10px; border-radius: 6px; border: none; }
+        .modal-content { background: white; width: 100%; max-width: 360px; padding: 25px; border-radius: 15px; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #eee; border-radius: 8px; background: #fdfdfd; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -91,10 +88,8 @@
     <div id="fixed-top-area">
         <header class="app-header">
             <div class="logo">Y</div>
-            <div class="title-wrap" onclick="openModal('projModal')">
-                <span id="project-name">기본 프로젝트</span> ▾
-            </div>
-            <button class="cloud-save-btn" onclick="saveStory()">저장</button>
+            <div id="project-name" style="font-weight:bold;">기본 프로젝트 ▾</div>
+            <button class="cloud-save-btn" style="background:none; border:1px solid #555; color:#ccc; padding:4px 8px; border-radius:4px; font-size:11px;">Cloud Sync</button>
         </header>
         <nav class="tab-menu">
             <div class="tab-item active" onclick="showTab('timeline', this)">타임라인</div>
@@ -105,33 +100,28 @@
 
     <main class="content-body">
         <div id="timeline-view" class="view active">
-            <div class="center-line"></div>
-            <div id="tl-list"></div>
-        </div>
-
-        <div id="story-view" class="view">
-            <div class="story-paper">
-                <div id="story-editor" contenteditable="true">스토리를 작성하세요...</div>
+            <div class="tl-container">
+                <div class="center-line"></div>
+                <div id="tl-list"></div>
             </div>
         </div>
 
-        <div id="char-view" class="view">
-            <div id="char-list" class="char-grid"></div>
+        <div id="story-view" class="view">
+            <div style="padding:20px; background:white; margin:15px; border-radius:10px; min-height:300px;" id="story-editor" contenteditable="true"></div>
         </div>
+
+        <div id="char-view" class="view"><div id="char-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:15px;"></div></div>
     </main>
 
-    <div class="fab-wrap"><div class="fab" onclick="handleClickFab()">+</div></div>
+    <div class="fab-wrap"><button class="fab" onclick="openModal('eventModal')">+</button></div>
 
     <div id="eventModal" class="modal"><div class="modal-content">
-        <h3>기록 편집</h3>
-        <select id="e-era"></select>
-        <div style="display:flex; gap:5px;">
-            <input type="number" id="e-year" placeholder="년">
-            <input type="number" id="e-month" placeholder="월">
-        </div>
-        <textarea id="e-text" rows="5" placeholder="내용을 입력하세요."></textarea>
-        <button class="btn-main" onclick="saveEvent()">기록 저장</button>
-        <button class="btn-sub" onclick="closeModal('eventModal')">닫기</button>
+        <h3>기록 추가</h3><br>
+        <select id="e-era"><option>제국력</option></select>
+        <div style="display:flex; gap:5px;"><input type="number" id="e-year" placeholder="년"><input type="number" id="e-month" placeholder="월"></div>
+        <textarea id="e-text" rows="4" placeholder="사건 내용"></textarea>
+        <button class="btn-main" onclick="saveEvent()">저장하기</button>
+        <button onclick="closeModal('eventModal')" style="width:100%; background:none; border:none; color:#aaa; margin-top:10px;">닫기</button>
     </div></div>
 
     <script>
@@ -140,23 +130,17 @@
             databaseURL: "https://true-s-default-rtdb.firebaseio.com",
             projectId: "true-s"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let state = { curProject: '기본', eras: ['제국력'], storyboard: [], story: "", characters: [] };
+        let state = { storyboard: [] };
 
-        function syncData() {
-            db.ref('users/Yuta/projects/' + state.curProject).on('value', snapshot => {
-                const data = snapshot.val();
-                if (data) {
-                    state.eras = data.eras || ['제국력'];
+        function sync() {
+            db.ref('users/Yuta/projects/기본').on('value', snap => {
+                const data = snap.val();
+                if(data) {
                     state.storyboard = data.storyboard ? Object.values(data.storyboard) : [];
-                    state.story = data.story || "";
-                    state.characters = data.characters ? Object.values(data.characters) : [];
                     renderTimeline();
-                    renderCharacters();
-                    document.getElementById('story-editor').innerText = state.story;
-                    document.getElementById('e-era').innerHTML = state.eras.map(e => `<option>${e}</option>`).join('');
                 }
             });
         }
@@ -164,72 +148,58 @@
         function renderTimeline() {
             const list = document.getElementById('tl-list');
             list.innerHTML = '';
+            
+            // 데이터 정렬 및 그룹화
+            const sorted = state.storyboard.sort((a,b) => a.year - b.year || a.month - b.month);
+            const grouped = {};
+            sorted.forEach(item => {
+                const yKey = item.year;
+                if(!grouped[yKey]) grouped[yKey] = {};
+                if(!grouped[yKey][item.month]) grouped[yKey][item.month] = [];
+                grouped[yKey][item.month].push(item);
+            });
 
-            // 연도별 -> 월별로 데이터 그룹화
-            const grouped = state.storyboard.sort((a,b) => a.year - b.year || a.month - b.month).reduce((acc, obj) => {
-                const key = `${obj.era} ${obj.year}`;
-                if (!acc[key]) acc[key] = {};
-                if (!acc[key][obj.month]) acc[key][obj.month] = [];
-                acc[key][obj.month].push(obj);
-                return acc;
-            }, {});
-
-            let globalIdx = 1;
-            for (const yearKey in grouped) {
-                // 연도 배너 생성
-                list.innerHTML += `<div class="year-banner"><div class="year-text">${yearKey}년</div></div>`;
-                
-                for (const month in grouped[yearKey]) {
-                    const events = grouped[yearKey][month];
-                    const monthGroup = document.createElement('div');
-                    monthGroup.className = 'month-group';
-                    
-                    let cardsHtml = events.map(ev => `
+            let idx = 1;
+            for(const y in grouped) {
+                list.innerHTML += `<div class="year-banner"><div class="year-text">제국력 ${y}년</div></div>`;
+                for(const m in grouped[y]) {
+                    const row = document.createElement('div');
+                    row.className = 'month-row';
+                    const cardsHtml = grouped[y][m].map(ev => `
                         <div class="card">
-                            <div class="card-index">INDEX ${String(globalIdx++).padStart(3, '0')}</div>
-                            <div class="card-meta">${month}월</div>
+                            <div class="card-index">INDEX ${String(idx++).padStart(3, '0')}</div>
+                            <div class="card-meta">${m}월</div>
                             <div class="card-text">${ev.text}</div>
                         </div>
                     `).join('');
-
-                    monthGroup.innerHTML = `
-                        <div class="month-node"></div>
-                        <div class="event-grid">${cardsHtml}</div>
-                    `;
-                    list.appendChild(monthGroup);
+                    
+                    row.innerHTML = `<div class="month-node"></div><div class="card-grid">${cardsHtml}</div>`;
+                    list.appendChild(row);
                 }
             }
         }
 
-        function showTab(name, el) {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById(name + '-view').classList.add('active');
+        function showTab(n, el) {
+            document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+            el.classList.add('active'); document.getElementById(n+'-view').classList.add('active');
         }
-
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        
-        function handleClickFab() { openModal('eventModal'); }
+        function openModal(id){ document.getElementById(id).classList.add('active'); }
+        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 
         function saveEvent() {
-            const era = document.getElementById('e-era').value;
             const year = document.getElementById('e-year').value;
             const month = document.getElementById('e-month').value;
             const text = document.getElementById('e-text').value;
-            if(!year || !month || !text) return alert("빈칸을 채워주세요.");
-
-            const newId = Date.now().toString();
-            db.ref(`users/Yuta/projects/${state.curProject}/storyboard/${newId}`).set({
-                id: newId, era, year: parseInt(year), month: parseInt(month), text
+            if(!year || !month || !text) return;
+            const id = Date.now();
+            db.ref(`users/Yuta/projects/기본/storyboard/${id}`).set({
+                id, era:'제국력', year:parseInt(year), month:parseInt(month), text
             });
             closeModal('eventModal');
         }
 
-        function renderCharacters() { /* 기존 캐릭터 렌더링 로직 */ }
-
-        syncData();
+        sync();
     </script>
 </body>
 </html>
