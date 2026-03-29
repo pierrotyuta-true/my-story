@@ -34,10 +34,14 @@
         .month-cluster { position: relative; width: 100%; margin-bottom: 25px; min-height: 50px; }
         .month-node { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); width: 10px; height: 10px; background: white; border: 2.5px solid var(--node); border-radius: 50%; z-index: 5; }
 
-        .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 15px; gap: 20px; min-height: 50px; }
-        .timeline-card { background: #fff; padding: 10px; border-radius: 8px; width: 88%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10; }
-        .timeline-card.left { justify-self: end; }
-        .timeline-card.right { justify-self: start; }
+        /* 💡 박스 간격 균형 조정 */
+        .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 10px; gap: 30px; min-height: 60px; }
+        .timeline-card { 
+            background: #fff; padding: 10px; border-radius: 8px; width: 95%; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10;
+        }
+        .timeline-card.left { justify-self: end; margin-right: -5px; }
+        .timeline-card.right { justify-self: start; margin-left: -5px; }
 
         .card-index { position: absolute; top: 8px; width: 14px; height: 25%; background: #ced4da; border-radius: 3px; z-index: -1; }
         .left .card-index { left: -7px; } .right .card-index { right: -7px; }
@@ -123,7 +127,7 @@
         function syncData() {
             db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
                 const data = snap.val() ? Object.values(snap.val()) : [];
-                state.storyboard = data.sort((a, b) => (a.order || 0) - (b.order || 0));
+                state.storyboard = data.map(item => ({...item, id: String(item.id)})).sort((a, b) => (a.order || 0) - (b.order || 0));
                 renderTimeline();
             });
         }
@@ -149,19 +153,19 @@
 
                     grouped[yearKey][month].forEach((ev, idx) => {
                         const side = idx % 2 === 0 ? 'left' : 'right';
-                        const card = document.createElement('div'); card.className = `timeline-card ${side}`; card.dataset.id = ev.id;
+                        const card = document.createElement('div'); card.className = `timeline-card ${side}`; card.dataset.id = String(ev.id);
                         card.innerHTML = `${(ev.branches && Object.keys(ev.branches).length > 0) ? '<div class="card-index"></div>' : ''}<div onclick="openDetailModal('${ev.id}')"><div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div></div>`;
                         grid.appendChild(card);
                     });
                     cluster.appendChild(grid); list.appendChild(cluster);
 
-                    // 💡 드래그 앤 드롭 정밀 수정: 모든 그리드가 'timeline' 그룹으로 묶여 자유롭게 이동 가능
                     new Sortable(grid, { 
-                        group: { name: 'timeline', pull: true, put: true }, 
-                        animation: 150, 
-                        ghostClass: 'sortable-ghost',
+                        group: 'timeline', animation: 150, 
                         onEnd: function(evt) {
-                            reorderAll();
+                            const movedId = evt.item.dataset.id;
+                            const newMonth = evt.to.dataset.month;
+                            // 💡 드래그 이동 시 월 정보 즉시 업데이트
+                            db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth }).then(() => reorderAll());
                         }
                     });
                 }
@@ -169,8 +173,9 @@
         }
 
         function openDetailModal(id) {
-            state.currentId = id;
-            const ev = state.storyboard.find(i => i.id == id);
+            state.currentId = String(id);
+            const ev = state.storyboard.find(i => i.id === state.currentId);
+            if(!ev) return;
             const container = document.getElementById('modal-tab-container');
             container.innerHTML = `<div class="top-tab active" onclick="switchDetailTab('desc', this)">내용</div>`;
             if(ev.branches) {
@@ -184,53 +189,44 @@
         }
 
         function switchDetailTab(type, el, bid = null, color = 'white') {
-            const ev = state.storyboard.find(i => i.id == state.currentId);
+            const ev = state.storyboard.find(i => i.id === state.currentId);
             const body = document.getElementById('detail-body');
             const card = document.querySelector('.modal-main-card');
             document.querySelectorAll('.top-tab').forEach(t => { t.classList.remove('active'); t.style.background = '#e9ecef'; });
             el.classList.add('active'); el.style.background = (type === 'desc') ? 'white' : color;
             card.style.background = (type === 'desc') ? 'white' : color;
-            if(type === 'desc') {
-                body.innerText = ev.text;
-                document.getElementById('btn-branch-act').style.display = 'block';
-            } else {
-                body.innerText = ev.branches[bid].text;
-                document.getElementById('btn-branch-act').style.display = 'none';
-            }
+            if(type === 'desc') { body.innerText = ev.text; document.getElementById('btn-branch-act').style.display = 'block'; } 
+            else { body.innerText = ev.branches[bid].text; document.getElementById('btn-branch-act').style.display = 'none'; }
         }
 
         function handleFabClick() {
             const sub = document.getElementById('fab-sub');
             if(state.currentTab === 'timeline') { openAddModal(); return; }
             sub.style.display = (sub.style.display === 'flex') ? 'none' : 'flex';
-            if(state.currentTab === 'story') {
-                sub.innerHTML = `<button class="sub-btn" onclick="toggleFab();">목록</button><button class="sub-btn" onclick="toggleFab();">단락 내보내기</button>`;
-            } else if(state.currentTab === 'char') {
-                sub.innerHTML = `<button class="sub-btn" onclick="toggleFab();">캐릭터 추가</button><button class="sub-btn" onclick="toggleFab();">관계도 설정</button>`;
-            }
+            if(state.currentTab === 'story') { sub.innerHTML = `<button class="sub-btn" onclick="toggleFab();">목록</button><button class="sub-btn" onclick="toggleFab();">단락 내보내기</button>`; } 
+            else if(state.currentTab === 'char') { sub.innerHTML = `<button class="sub-btn" onclick="toggleFab();">캐릭터 추가</button><button class="sub-btn" onclick="toggleFab();">관계도 설정</button>`; }
         }
 
         function toggleFab() { document.getElementById('fab-sub').style.display = 'none'; }
         function openAddModal() { state.currentId = null; document.getElementById('event-title').innerText = "기록 추가"; document.getElementById('e-text').value = ""; openModal('eventModal'); }
+        
         function openEditModal() { 
-            const ev = state.storyboard.find(i => i.id == state.currentId);
+            const ev = state.storyboard.find(i => i.id === state.currentId);
             document.getElementById('event-title').innerText = "기록 수정";
             document.getElementById('e-era').value = ev.era; document.getElementById('e-year').value = ev.year; document.getElementById('e-month').value = ev.month; document.getElementById('e-text').value = ev.text;
             closeModal('detailModal'); openModal('eventModal'); 
         }
 
         function saveEvent() {
-            const id = state.currentId || Date.now();
-            const data = { id, era: document.getElementById('e-era').value, year: document.getElementById('e-year').value, month: document.getElementById('e-month').value, text: document.getElementById('e-text').value, order: state.currentId ? state.storyboard.find(i=>i.id==id).order : state.storyboard.length };
+            const id = state.currentId || String(Date.now());
+            const data = { id, era: document.getElementById('e-era').value, year: document.getElementById('e-year').value, month: document.getElementById('e-month').value, text: document.getElementById('e-text').value, order: state.currentId ? state.storyboard.find(i=>i.id===id).order : state.storyboard.length };
             db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update(data);
             closeModal('eventModal');
         }
 
         function reorderAll() {
             const updates = {};
-            document.querySelectorAll('.timeline-card').forEach((card, i) => {
-                updates[`${card.dataset.id}/order`] = i;
-            });
+            document.querySelectorAll('.timeline-card').forEach((card, i) => { updates[`${card.dataset.id}/order`] = i; });
             db.ref('users/Yuta/projects/기본/storyboard').update(updates);
         }
 
