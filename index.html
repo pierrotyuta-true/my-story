@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* 1. 디자인 시스템 정의 */
         :root { 
             --primary: #4dabf7; 
             --dark: #343a40; 
@@ -21,12 +20,12 @@
             --bg: #f8f9fa; 
             --header-h: 60px; 
             --nav-h: 45px;
+            --branch-color: #fcc419; /* 가지 전용 인덱스 색상 */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* 2. 레이아웃 */
         #fixed-top-area { position: fixed; top: 0; left: 0; right: 0; z-index: 2000; }
         .app-header { height: var(--header-h); background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
         .logo { font-weight: 900; font-size: 20px; color: var(--primary); }
@@ -41,7 +40,6 @@
         .view { display: none; }
         .view.active { display: block; }
 
-        /* 3. 타임라인 (좌우 겹침 완전 방어 및 나란히 배치) */
         #timeline-view.active { background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px); background-size: 20px 20px; background-attachment: fixed; }
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 30px; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
@@ -49,47 +47,50 @@
         .year-banner { display: flex; justify-content: center; margin-bottom: 20px; position: relative; z-index: 10; }
         .year-text { background: var(--dark); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
 
-        .month-cluster { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+        /* 💡 드랍존 역할을 할 클러스터: 쫀득한 트랜지션 추가 */
+        .month-cluster { 
+            position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; 
+            border-radius: 12px; transition: background 0.3s ease; padding: 10px 0;
+        }
         
-        /* 첫 번째 박스에 맞춘 중앙 노드 위치 */
+        /* 💡 노드 크기 10px로 축소 */
         .month-node { 
-            position: absolute; left: 50%; top: 15px; transform: translateX(-50%);
-            width: 14px; height: 14px; background: white; border: 3px solid var(--node); 
-            border-radius: 50%; z-index: 5; box-shadow: 0 0 0 4px #fff;
+            position: absolute; left: 50%; top: 22px; transform: translateX(-50%);
+            width: 10px; height: 10px; background: white; border: 2px solid var(--node); 
+            border-radius: 50%; z-index: 5; box-shadow: 0 0 0 3px #fff;
         }
 
-        /* 💡 같은 월의 상자들을 양옆으로 나란히 배치하는 Flex Box */
         .event-grid { 
-            display: flex; 
-            flex-direction: row; 
-            flex-wrap: wrap; 
-            justify-content: space-between; 
-            width: 100%; 
-            position: relative; 
-            padding: 0 10px;
+            display: flex; flex-direction: row; flex-wrap: wrap; 
+            justify-content: space-between; width: 100%; position: relative; padding: 0 15px;
         }
 
-        /* 💡 너비를 44%로 제한하여 중앙선(50%)을 침범하지 않고 나란히 떨어지도록 수정 */
+        /* 💡 상자 가로 크기 40%로 축소 */
         .timeline-card { 
             background: #fff; padding: 12px 15px; border-radius: 12px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.06); 
-            width: 44%;
-            border-left: 5px solid #e9ecef; cursor: pointer; position: relative;
-            margin-bottom: 15px;
+            width: 40%;
+            border-left: 4px solid #e9ecef; cursor: pointer; position: relative;
+            margin-bottom: 15px; transition: transform 0.2s ease;
         }
-        
-        /* 드래그 중인 카드의 투명도 조절 */
-        .timeline-card:active { opacity: 0.7; }
+        .timeline-card:active { transform: scale(0.96); }
+
+        /* 💡 가지(Branch) 추가된 박스의 대칭 인덱스 색상 */
+        .timeline-card.has-branch.left {
+            border-left: 4px solid var(--branch-color) !important;
+        }
+        .timeline-card.has-branch.right {
+            border-left: none !important;
+            border-right: 4px solid var(--branch-color) !important;
+        }
 
         .card-meta { font-size: 11px; color: var(--node); font-weight: bold; margin-bottom: 3px; }
         .card-text { font-size: 13px; font-weight: bold; color: var(--dark); line-height: 1.5; }
 
-        /* 4. 스토리 탭 */
         .story-container { margin-top: 20px; padding: 0 15px; }
         .story-paper { background: white; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         #story-editor { min-height: 350px; height: auto; outline: none; line-height: 1.8; font-size: 14px; color: #444; }
 
-        /* 5. 하단 FAB 및 모달 UI */
         .fab-wrap { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2001; }
         .fab { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 6px 15px rgba(77,171,247,0.4); border: none; cursor: pointer; }
 
@@ -119,7 +120,7 @@
     <div id="fixed-top-area">
         <header class="app-header">
             <div class="logo">Y</div>
-            <div class="project-title" onclick="openProjModal()">이그리에가 ▾</div>
+            <div class="project-title">이그리에가 ▾</div>
             <button class="cloud-save-btn">클라우드 저장</button>
         </header>
         <nav class="tab-menu">
@@ -130,7 +131,6 @@
     </div>
 
     <main class="content-body">
-        
         <div id="timeline-view" class="view active">
             <div class="tl-wrapper">
                 <div class="center-line"></div>
@@ -161,7 +161,7 @@
         
         <div class="btn-modal-group">
             <button class="btn-main" onclick="openEditModal()">수정</button>
-            <button class="btn-sub">가지 추가</button>
+            <button class="btn-sub" style="background:#fff3bf; color:#e67700;" onclick="openBranchModal()">가지 추가</button>
             <button class="btn-sub btn-danger" onclick="deleteCurrentEvent()">삭제</button>
         </div>
         
@@ -214,6 +214,7 @@
 
         let state = { storyboard: [], eras: ['제국력', '대한민국'] };
         let currentDetailId = null;
+        let currentParentId = null; // 가지 추가 시 부모 ID 저장용
 
         function syncData() {
             db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
@@ -248,19 +249,30 @@
                     
                     const monthCluster = document.createElement('div');
                     monthCluster.className = 'month-cluster';
+                    
+                    // 💡 클러스터(월 단위) 자체를 드랍존으로 설정 (쫀득한 반응성 부여)
+                    const parsedHeader = yearEraLabel.split(' ');
+                    const eraStr = parsedHeader[0];
+                    const yearNum = parsedHeader[1].replace('년', '');
+                    
+                    monthCluster.setAttribute('ondragover', 'allowDrop(event)');
+                    monthCluster.setAttribute('ondragleave', 'leaveDrop(event)');
+                    monthCluster.setAttribute('ondrop', `dropToMonth(event, "${eraStr}", ${yearNum}, ${month})`);
+
                     monthCluster.innerHTML = `<div class="month-node"></div>`;
 
                     const grid = document.createElement('div');
                     grid.className = 'event-grid';
 
-                    // 💡 드래그 앤 드랍 이벤트 바인딩 및 나란히 렌더링
-                    monthEvents.forEach((ev) => {
+                    monthEvents.forEach((ev, i) => {
+                        const side = (i % 2 === 0) ? 'left' : 'right';
+                        // 가지(isBranch) 여부에 따라 클래스 부여
+                        const branchClass = ev.isBranch ? `has-branch ${side}` : '';
+
                         grid.innerHTML += `
-                            <div class="timeline-card" 
+                            <div class="timeline-card ${branchClass}" 
                                  draggable="true" 
                                  ondragstart="drag(event)" 
-                                 ondrop="drop(event)" 
-                                 ondragover="allowDrop(event)"
                                  data-id="${ev.id}" 
                                  onclick="openDetailModal('${ev.id}')">
                                 <div class="card-meta">${month}월</div>
@@ -275,33 +287,33 @@
             }
         }
 
-        /* 💡 드래그 앤 드롭 전용 기능 */
-        function allowDrop(ev) { ev.preventDefault(); }
+        /* 💡 드래그 앤 드롭 전용 기능 (쫀득하게 개선) */
+        function allowDrop(ev) { 
+            ev.preventDefault(); 
+            // 드래그해서 올라오면 연한 파란색 배경으로 쫀득하게 반응
+            ev.currentTarget.style.background = "rgba(77, 171, 247, 0.15)";
+        }
+        
+        function leaveDrop(ev) {
+            ev.currentTarget.style.background = "none";
+        }
         
         function drag(ev) {
             ev.dataTransfer.setData("text", ev.target.getAttribute('data-id'));
         }
 
-        function drop(ev) {
+        function dropToMonth(ev, era, year, month) {
             ev.preventDefault();
+            ev.currentTarget.style.background = "none";
             const draggedId = ev.dataTransfer.getData("text");
-            const targetCard = ev.target.closest('.timeline-card');
             
-            if (!targetCard) return;
-            const targetId = targetCard.getAttribute('data-id');
-
-            if (draggedId !== targetId) {
-                const draggedEv = state.storyboard.find(item => item.id == draggedId);
-                const targetEv = state.storyboard.find(item => item.id == targetId);
-
-                if (draggedEv && targetEv) {
-                    // 드래그한 카드의 날짜 정보를 타겟 카드의 날짜 정보로 덮어씌움
-                    db.ref(`users/Yuta/projects/기본/storyboard/${draggedId}`).update({
-                        era: targetEv.era,
-                        year: targetEv.year,
-                        month: targetEv.month
-                    });
-                }
+            if (draggedId) {
+                // 파이어베이스 데이터 업데이트 및 연월 자동 동기화
+                db.ref(`users/Yuta/projects/기본/storyboard/${draggedId}`).update({
+                    era: era,
+                    year: parseInt(year),
+                    month: parseInt(month)
+                });
             }
         }
 
@@ -314,6 +326,7 @@
 
         function openEditModal() {
             const ev = state.storyboard.find(item => item.id == currentDetailId);
+            currentParentId = ev.parentId || null; // 수정 시 기존 부모 정보 유지
             updateEraSelectOptions();
             document.getElementById('modal-mode-title').innerText = '기록 수정';
             document.getElementById('e-era').value = ev.era;
@@ -324,10 +337,29 @@
             openModal('eventModal');
         }
 
+        /* 💡 가지 추가 기능 활성화 */
+        function openBranchModal() {
+            const parentEv = state.storyboard.find(item => item.id == currentDetailId);
+            currentParentId = currentDetailId; // 현재 카드를 부모로 지정
+            updateEraSelectOptions();
+            
+            document.getElementById('modal-mode-title').innerText = '가지 추가 기록';
+            document.getElementById('e-era').value = parentEv.era;
+            document.getElementById('e-year').value = parentEv.year;
+            document.getElementById('e-month').value = parentEv.month;
+            document.getElementById('e-text').value = ''; // 내용은 비워줌
+            
+            closeModal('detailModal');
+            openModal('eventModal');
+        }
+
         function openAddModal() {
             currentDetailId = null;
+            currentParentId = null; // 일반 추가는 부모 없음
             updateEraSelectOptions();
             document.getElementById('modal-mode-title').innerText = '기록 추가';
+            document.getElementById('e-year').value = '';
+            document.getElementById('e-month').value = '';
             document.getElementById('e-text').value = '';
             openModal('eventModal');
         }
@@ -346,10 +378,25 @@
             if(!y || !m || !t) return alert("빈칸을 채워주세요.");
             
             const id = currentDetailId || Date.now();
-            db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update({
-                id, era: era, year:parseInt(y), month:parseInt(m), text:t
-            });
+            
+            const eventData = {
+                id: id,
+                era: era,
+                year: parseInt(y),
+                month: parseInt(m),
+                text: t
+            };
+
+            // 가지 추가로 생성된 데이터인 경우 flag 세팅
+            if (currentParentId) {
+                eventData.isBranch = true;
+                eventData.parentId = currentParentId;
+            }
+
+            db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update(eventData);
+            
             currentDetailId = null;
+            currentParentId = null;
             closeModal('eventModal');
         }
 
