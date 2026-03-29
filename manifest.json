@@ -1,15 +1,17 @@
 {
-  "name": "스토리마스터",
-  "short_name": "스토리",
+  "name": "Yuta Engine",
+  "short_name": "YutaE",
   "start_url": "./index.html",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f8f9fa",
   "theme_color": "#4dabf7",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3502/3502688.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
