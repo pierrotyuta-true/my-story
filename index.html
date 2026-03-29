@@ -20,84 +20,87 @@
         /* 헤더 & 메뉴 */
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
         .tab-menu { position:fixed; top:60px; width:100%; display:flex; background:white; z-index:1999; height:45px; border-bottom:1px solid #eee; }
-        .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; }
+        .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; cursor:pointer; }
         .tab-item.active { color:var(--dark); font-weight:bold; border-bottom: 2px solid var(--dark); }
 
-        /* 타임라인 레이아웃 (한 줄에 좌/우 하나씩) */
+        /* 타임라인 레이아웃 */
         .content-body { margin-top: 115px; padding-bottom: 100px; }
+        .view { display: none; width: 100%; }
+        .view.active { display: block; }
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 1; }
         
-        .year-banner { position: relative; z-index: 10; display: flex; justify-content: center; margin: 30px 0 10px; }
+        .year-banner { position: relative; z-index: 10; display: flex; justify-content: center; margin: 25px 0 10px; }
         .year-text { background: var(--dark); color: white; padding: 4px 12px; border-radius: 15px; font-size: 11px; }
 
         .month-cluster { position: relative; width: 100%; margin-bottom: 15px; min-height: 40px; }
         .month-node { 
-            position: absolute; left: 50%; top: 22px; 
+            position: absolute; left: 50%; top: 18px; 
             transform: translateX(-50%); width: 10px; height: 10px; background: white; border: 2.5px solid var(--node); border-radius: 50%; z-index: 5; 
         }
 
-        /* 💡 핵심: 나란히 배치 로직 */
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 10px; gap: 20px; position: relative; }
         
+        /* 박스 폭 20% 축소 (42% -> 34%) */
         .timeline-card { 
-            background: #fff; padding: 12px; border-radius: 10px; width: 100%; 
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10;
+            background: #fff; padding: 10px; border-radius: 8px; width: 34%; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: absolute; cursor: grab; z-index: 10;
         }
-        /* 노드와의 간격 10px 유지 */
-        .timeline-card.left { grid-column: 1; margin-right: 10px; }
-        .timeline-card.right { grid-column: 2; margin-left: 10px; }
+        .timeline-card.left { left: 10%; } /* 중앙 여백 유지 */
+        .timeline-card.right { right: 10%; }
 
-        /* 4색 인덱스 */
-        .timeline-card.is-branch::before {
-            content: ''; position: absolute; top: 10px; bottom: 10px; width: 4px; border-radius: 2px; left: -2px;
+        /* 💡 톡 튀어나온 인덱스 이미지 (가지 있는 경우만) */
+        .card-index {
+            position: absolute; top: 25%; width: 15px; height: 50%; background: var(--c2);
+            border-radius: 4px; z-index: -1;
         }
-        .timeline-card.is-branch.c1::before { background: var(--c1); }
-        .timeline-card.is-branch.c2::before { background: var(--c2); }
-        .timeline-card.is-branch.c3::before { background: var(--c3); }
-        .timeline-card.is-branch.c4::before { background: var(--c4); }
+        .left .card-index { left: -8px; }
+        .right .card-index { right: -8px; }
 
-        /* 상세보기 (옆면 톡 튀어나온 탭) */
-        .modal-content.side-index-layout { width: 85%; max-width: 340px; position: relative; background: none; }
-        .modal-main-card { background: white; border-radius: 15px; width: 100%; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; height: 400px; }
+        /* 상세보기 창 (가로 -20%, 세로 -50%) */
+        .modal-content.compact { width: 65%; height: 250px; position: relative; background: none; }
+        .modal-main-card { background: white; border-radius: 12px; width: 100%; height: 100%; display: flex; flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
         
-        .side-tabs { position: absolute; right: -35px; top: 30px; display: flex; flex-direction: column; gap: 8px; }
-        .side-tab { 
-            width: 35px; padding: 15px 0; background: #e9ecef; writing-mode: vertical-lr; 
-            text-align: center; font-size: 11px; border-radius: 0 10px 10px 0; color: #868e96; cursor: pointer;
+        /* 상단 탭 (옆면 모양 그대로 위로) */
+        .top-tabs { position: absolute; top: -28px; left: 15px; display: flex; gap: 4px; }
+        .top-tab { 
+            padding: 6px 15px; background: #e9ecef; border-radius: 8px 8px 0 0;
+            font-size: 11px; color: #868e96; cursor: pointer; transition: 0.2s;
         }
-        .side-tab.active { background: white; color: var(--dark); font-weight: bold; }
+        .top-tab.active { background: white; color: var(--dark); font-weight: bold; padding-top: 8px; margin-top: -2px; }
 
-        #detail-body { flex: 1; padding: 25px; overflow-y: auto; font-size: 14px; line-height: 1.7; }
+        #detail-body { flex: 1; padding: 15px; overflow-y: auto; font-size: 13px; line-height: 1.6; }
         .modal-footer-simple { display: flex; border-top: 1px solid #eee; }
-        .f-btn { flex: 1; padding: 15px; border: none; background: white; font-size: 12px; color: #868e96; border-right: 1px solid #eee; }
+        .f-btn { flex: 1; padding: 12px; border: none; background: white; font-size: 11px; color: var(--primary); border-right: 1px solid #eee; cursor: pointer; }
+        .f-btn.gray { color: #adb5bd; }
         .f-btn:last-child { border-right: none; }
-        .f-btn.main { color: var(--primary); font-weight: bold; }
 
-        /* 입력 폼 비율 조정 */
         .input-row { display: flex; gap: 5px; margin-bottom: 10px; }
-        .input-row select { flex: 2; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
-        .input-row input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; min-width: 0; }
+        .input-row select, .input-row input { padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
+
+        /* 가지 리스트 스타일 */
+        .branch-item { display: flex; justify-content: space-between; align-items: center; background: var(--c1); padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
+        .del-b-btn { color: #ff6b6b; font-size: 14px; font-weight: bold; padding-left: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header class="app-header">
         <div class="logo">Y</div>
-        <div class="project-title" onclick="openModal('projModal')">이그리에가 ▾</div>
+        <div class="project-title">이그리에가 ▾</div>
         <div class="header-right">
             <button onclick="location.reload()" style="background:none; border:none; color:white; font-size:18px; margin-right:10px;">↻</button>
-            <button class="cloud-save-btn" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; font-size:13px;">저장</button>
+            <button style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:4px; font-weight:bold; font-size:12px;">저장</button>
         </div>
     </header>
 
     <nav class="tab-menu">
-        <div class="tab-item active" onclick="showTab('timeline')">타임라인</div>
-        <div class="tab-item" onclick="showTab('story')">스토리</div>
-        <div class="tab-item" onclick="showTab('char')">캐릭터도감</div>
+        <div class="tab-item active" onclick="showTab('timeline', this)">타임라인</div>
+        <div class="tab-item" onclick="showTab('story', this)">스토리</div>
+        <div class="tab-item" onclick="showTab('char', this)">캐릭터도감</div>
     </nav>
 
     <main class="content-body">
@@ -107,52 +110,53 @@
                 <div id="tl-list"></div>
             </div>
         </div>
+        <div id="story-view" class="view" style="padding:20px;">스토리 에디터 준비 중...</div>
+        <div id="char-view" class="view" style="padding:20px;">캐릭터 도감 준비 중...</div>
     </main>
 
-    <div id="detailModal" class="modal"><div class="modal-content side-index-layout">
+    <div id="detailModal" class="modal"><div class="modal-content compact">
+        <div class="top-tabs" id="modal-tab-container">
+            <div id="tab-desc" class="top-tab active" onclick="switchDetailTab('desc')">내용</div>
+            <div id="tab-branch" class="top-tab" onclick="switchDetailTab('branch')">가지</div>
+        </div>
         <div class="modal-main-card">
             <div id="detail-body"></div>
             <div class="modal-footer-simple">
-                <button class="f-btn main" id="btn-edit">수정</button>
-                <button class="f-btn" style="color:#fab005;" id="btn-branch">가지추가</button>
-                <button class="f-btn" style="color:#ff6b6b;" id="btn-delete">삭제</button>
-                <button class="f-btn" onclick="closeModal('detailModal')">닫기</button>
+                <button class="f-btn" id="btn-edit">수정</button>
+                <button class="f-btn" id="btn-branch">가지추가</button>
+                <button class="f-btn" id="btn-delete" style="color:#ff6b6b;">삭제</button>
+                <button class="f-btn gray" onclick="closeModal('detailModal')">닫기</button>
             </div>
         </div>
-        <div class="side-tabs">
-            <div id="tab-desc" class="side-tab active" onclick="switchDetailTab('desc')">내용</div>
-            <div id="tab-branch" class="side-tab" onclick="switchDetailTab('branch')">가지</div>
+    </div></div>
+
+    <div id="branchModal" class="modal"><div class="modal-content" style="background:white; padding:15px; border-radius:12px; width:250px;">
+        <textarea id="b-text" rows="4" style="width:100%; padding:10px; border:1px solid #eee; border-radius:6px; font-size:12px;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="f-btn" style="border:1px solid #eee; border-radius:6px;" onclick="saveBranch()">저장</button>
+            <button class="f-btn gray" style="border:1px solid #eee; border-radius:6px;" onclick="closeModal('branchModal')">취소</button>
         </div>
     </div></div>
 
-    <div id="branchModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;">
-        <h4 style="margin-bottom:10px; font-size:15px;">새 메모 추가</h4>
-        <textarea id="b-text" rows="5" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;"></textarea>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="f-btn main" style="border:1px solid #eee; border-radius:8px;" onclick="saveBranch()">저장</button>
-            <button class="f-btn" style="border:1px solid #eee; border-radius:8px;" onclick="closeModal('branchModal')">취소</button>
-        </div>
-    </div></div>
-
-    <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:25px; border-radius:15px; width:320px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <h4 id="ev-title" style="font-size:16px;">기록 추가</h4>
-            <span style="font-size:11px; color:var(--primary);" onclick="openEraModal()">연대편집</span>
+    <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:12px; width:300px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <h4 style="font-size:14px;">기록 추가</h4>
+            <span style="font-size:10px; color:var(--primary); cursor:pointer;" onclick="alert('연대 편집창 준비 중')">연대편집</span>
         </div>
         <div class="input-row">
-            <select id="e-era"></select>
-            <input type="number" id="e-year" placeholder="년">
-            <input type="number" id="e-month" placeholder="월">
+            <select id="e-era" style="width:50%;"></select>
+            <input type="number" id="e-year" placeholder="년" style="width:25%;">
+            <input type="number" id="e-month" placeholder="월" style="width:25%;">
         </div>
-        <textarea id="e-text" rows="5" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px;" placeholder="내용 입력"></textarea>
-        <div style="display:flex; gap:10px;">
-            <button class="f-btn main" style="border:1px solid #eee; border-radius:8px;" onclick="saveEvent()">저장</button>
-            <button class="f-btn" style="border:1px solid #eee; border-radius:8px;" onclick="closeModal('eventModal')">취소</button>
+        <textarea id="e-text" rows="4" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:13px; margin-bottom:10px;"></textarea>
+        <div style="display:flex; gap:8px;">
+            <button class="f-btn" style="border:1px solid #eee; border-radius:6px;" onclick="saveEvent()">저장</button>
+            <button class="f-btn gray" style="border:1px solid #eee; border-radius:6px;" onclick="closeModal('eventModal')">취소</button>
         </div>
     </div></div>
 
     <div class="fab-wrap" style="position:fixed; bottom:25px; right:20px; z-index:2001;">
-        <button onclick="openAddModal()" style="width:50px; height:50px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:24px; box-shadow:0 4px 10px rgba(0,0,0,0.2);">+</button>
+        <button onclick="openAddModal()" style="width:45px; height:45px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:22px; box-shadow:0 4px 10px rgba(0,0,0,0.2);">+</button>
     </div>
 
     <script>
@@ -194,20 +198,22 @@
 
                     grouped[yearKey][month].forEach((ev, idx) => {
                         const side = idx % 2 === 0 ? 'left' : 'right';
-                        const bCount = ev.branches ? Object.keys(ev.branches).length : 0;
-                        const bClass = bCount > 0 ? `is-branch c${(bCount-1)%4 + 1}` : '';
-                        
-                        grid.innerHTML += `
-                            <div class="timeline-card ${side} ${bClass}" data-id="${ev.id}" onclick="openDetailModal('${ev.id}')">
-                                <div style="font-size:10px; color:var(--node); font-weight:bold;">${month}월</div>
-                                <div style="font-size:12px; margin-top:3px; line-height:1.4;">${ev.text}</div>
+                        const hasBranch = ev.branches && Object.keys(ev.branches).length > 0;
+                        const card = document.createElement('div');
+                        card.className = `timeline-card ${side}`;
+                        card.dataset.id = ev.id;
+                        card.innerHTML = `
+                            ${hasBranch ? '<div class="card-index"></div>' : ''}
+                            <div onclick="openDetailModal('${ev.id}')">
+                                <div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div>
+                                <div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div>
                             </div>
                         `;
+                        grid.appendChild(card);
                     });
                     cluster.appendChild(grid);
                     list.appendChild(cluster);
 
-                    // 드래그 앤 드롭 재설정
                     new Sortable(grid, { group: 'shared', animation: 150, onEnd: reorderAll });
                 }
             }
@@ -230,19 +236,19 @@
         function switchDetailTab(type) {
             const ev = state.storyboard.find(i => i.id == state.currentId);
             const body = document.getElementById('detail-body');
-            const bCount = ev.branches ? Object.keys(ev.branches).length : 0;
-            const bColor = bCount > 0 ? `var(--c${(bCount-1)%4 + 1})` : 'var(--dark)';
-
-            document.querySelectorAll('.side-tab').forEach(t => t.classList.remove('active'));
-            const activeTab = document.getElementById(`tab-${type}`);
-            activeTab.classList.add('active');
+            
+            document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${type}`).classList.add('active');
 
             if(type === 'desc') {
                 body.innerText = ev.text;
             } else {
                 body.innerHTML = ev.branches ? Object.values(ev.branches).map((b, idx) => 
-                    `<div style="background:var(--c${idx%4+1}); padding:12px; border-radius:10px; margin-bottom:10px; font-size:13px;">${b.text}</div>`
-                ).join('') : '<p style="text-align:center; color:#ccc; margin-top:50px;">메모 없음</p>';
+                    `<div class="branch-item" style="background:var(--c${idx%4+1})">
+                        <span>${b.text}</span>
+                        <span class="del-b-btn" onclick="deleteBranch('${b.id}')">×</span>
+                    </div>`
+                ).join('') : '<p style="text-align:center; color:#ccc; margin-top:20px;">메모 없음</p>';
             }
 
             document.getElementById('btn-edit').onclick = openEditModal;
@@ -253,15 +259,22 @@
         function saveBranch() {
             const text = document.getElementById('b-text').value;
             if(!text) return;
-            db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${Date.now()}`).set({ id:Date.now(), text:text });
+            const bid = Date.now();
+            db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).set({ id:bid, text:text });
             document.getElementById('b-text').value = '';
             closeModal('branchModal');
             setTimeout(() => switchDetailTab('branch'), 200);
         }
 
+        function deleteBranch(bid) {
+            if(confirm("이 메모를 삭제할까요?")) {
+                db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).remove();
+                setTimeout(() => switchDetailTab('branch'), 200);
+            }
+        }
+
         function openAddModal() {
             state.currentId = null;
-            document.getElementById('ev-title').innerText = "기록 추가";
             document.getElementById('e-text').value = "";
             document.getElementById('e-era').innerHTML = state.eras.map(e => `<option>${e}</option>`).join('');
             openModal('eventModal');
@@ -269,7 +282,6 @@
 
         function openEditModal() {
             const ev = state.storyboard.find(i => i.id == state.currentId);
-            document.getElementById('ev-title').innerText = "기록 수정";
             document.getElementById('e-era').innerHTML = state.eras.map(e => `<option ${e===ev.era?'selected':''}>${e}</option>`).join('');
             document.getElementById('e-year').value = ev.year;
             document.getElementById('e-month').value = ev.month;
@@ -293,15 +305,21 @@
         }
 
         function deleteEvent() {
-            if(confirm("삭제하시겠습니까?")) {
+            if(confirm("정말 삭제하시겠습니까?")) {
                 db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove();
                 closeModal('detailModal');
             }
         }
 
+        function showTab(n, el) {
+            document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(n+'-view').classList.add('active');
+        }
+
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function showTab(n) { } // 탭 기능은 이미 UI에서 제어중
 
         syncData();
     </script>
