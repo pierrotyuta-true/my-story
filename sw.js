@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yuta-engine-v2.1';
+const CACHE_NAME = 'yuta-engine-v2.2';
 const ASSETS = ['./', './index.html', './style.css', './script.js', './manifest.json'];
 
 self.addEventListener('install', (e) => {
