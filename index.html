@@ -17,7 +17,16 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
+        /* 💡 헤더 수정: 타이틀 중앙, 우측 버튼 추가 */
+        .app-header { 
+            height: 60px; background: var(--dark); color: white; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; 
+        }
+        .header-side { width: 80px; display: flex; gap: 15px; }
+        .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; }
+        .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; }
+
         .tab-menu { position:fixed; top:60px; width:100%; display:flex; background:white; z-index:1999; height:45px; border-bottom:1px solid #eee; }
         .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; cursor:pointer; }
         .tab-item.active { color:var(--dark); font-weight:bold; border-bottom: 2px solid var(--dark); }
@@ -34,7 +43,6 @@
         .month-cluster { position: relative; width: 100%; margin-bottom: 25px; min-height: 50px; }
         .month-node { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); width: 10px; height: 10px; background: white; border: 2.5px solid var(--node); border-radius: 50%; z-index: 5; }
 
-        /* 💡 박스 간격 균형 조정 */
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 10px; gap: 30px; min-height: 60px; }
         .timeline-card { 
             background: #fff; padding: 10px; border-radius: 8px; width: 95%; 
@@ -62,14 +70,18 @@
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-
-        #fab-sub { display: none; flex-direction: column; gap: 8px; position: absolute; bottom: 55px; right: 0; align-items: flex-end; }
-        .sub-btn { background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-size: 11px; border: none; color: var(--primary); cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <header class="app-header"><div class="logo">Y</div><div class="project-title">이그리에가 ▾</div></header>
+    <header class="app-header">
+        <div class="header-side"><div class="logo">Y</div></div>
+        <div class="project-title">이그리에가 ▾</div>
+        <div class="header-side" style="justify-content: flex-end;">
+            <button class="icon-btn" onclick="location.reload()">↻</button>
+            <button class="icon-btn" onclick="alert('자동 저장 중입니다.')">💾</button>
+        </div>
+    </header>
 
     <nav class="tab-menu">
         <div class="tab-item active" onclick="showTab('timeline', this)">타임라인</div>
@@ -79,8 +91,8 @@
 
     <main class="content-body">
         <div id="timeline-view" class="view active"><div class="tl-wrapper"><div class="center-line"></div><div id="tl-list"></div></div></div>
-        <div id="story-view" class="view" style="padding:20px; text-align:center; color:#999;">스토리 목록</div>
-        <div id="char-view" class="view" style="padding:20px; text-align:center; color:#999;">캐릭터 도감</div>
+        <div id="story-view" class="view" style="padding:20px; text-align:center;">스토리 에디터</div>
+        <div id="char-view" class="view" style="padding:20px; text-align:center;">캐릭터 도감</div>
     </main>
 
     <div id="detailModal" class="modal"><div class="modal-content compact">
@@ -88,9 +100,9 @@
         <div class="modal-main-card">
             <div id="detail-body"></div>
             <div class="modal-footer-clean">
-                <button class="f-btn-text" id="btn-edit-act">수정</button>
-                <button class="f-btn-text" id="btn-branch-act">가지추가</button>
-                <button class="f-btn-text" id="btn-delete-act" style="color:#ff6b6b;">삭제</button>
+                <button class="f-btn-text" onclick="openEditModal()">수정</button>
+                <button class="f-btn-text" onclick="openModal('branchModal')">가지추가</button>
+                <button class="f-btn-text" style="color:#ff6b6b;" onclick="customConfirm('이 기록을 삭제할까요?', deleteCurrentEvent)">삭제</button>
                 <button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('detailModal')">닫기</button>
             </div>
         </div>
@@ -98,7 +110,10 @@
 
     <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:12px; width:300px;">
         <h4 id="event-title" style="font-size:14px; margin-bottom:12px;">기록 추가</h4>
-        <div class="input-row"><select id="e-era"><option>제국력</option><option>대한민국</option></select><input type="number" id="e-year" placeholder="년"><input type="number" id="e-month" placeholder="월"></div>
+        <div class="input-row">
+            <select id="e-era"><option value="제국력">제국력</option><option value="대한민국">대한민국</option></select>
+            <input type="number" id="e-year" placeholder="년"><input type="number" id="e-month" placeholder="월">
+        </div>
         <textarea id="e-text" rows="4" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:13px; margin-bottom:10px;"></textarea>
         <div style="display:flex; gap:10px;"><button class="f-btn-text" onclick="saveEvent()">저장</button><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('eventModal')">취소</button></div>
     </div></div>
@@ -127,7 +142,8 @@
         function syncData() {
             db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
                 const data = snap.val() ? Object.values(snap.val()) : [];
-                state.storyboard = data.map(item => ({...item, id: String(item.id)})).sort((a, b) => (a.order || 0) - (b.order || 0));
+                // 💡 ID를 문자열로 강제 변환하여 매칭 오류 방지
+                state.storyboard = data.map(i => ({...i, id: String(i.id)})).sort((a, b) => (a.order || 0) - (b.order || 0));
                 renderTimeline();
             });
         }
@@ -146,26 +162,27 @@
                 for(const month in grouped[yearKey]) {
                     const cluster = document.createElement('div'); cluster.className = 'month-cluster';
                     cluster.innerHTML = `<div class="month-node"></div>`;
-                    const grid = document.createElement('div'); 
-                    grid.className = 'event-grid';
+                    const grid = document.createElement('div'); grid.className = 'event-grid';
                     grid.dataset.month = month;
-                    grid.dataset.yearkey = yearKey;
 
                     grouped[yearKey][month].forEach((ev, idx) => {
                         const side = idx % 2 === 0 ? 'left' : 'right';
-                        const card = document.createElement('div'); card.className = `timeline-card ${side}`; card.dataset.id = String(ev.id);
-                        card.innerHTML = `${(ev.branches && Object.keys(ev.branches).length > 0) ? '<div class="card-index"></div>' : ''}<div onclick="openDetailModal('${ev.id}')"><div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div></div>`;
+                        const card = document.createElement('div'); 
+                        card.className = `timeline-card ${side}`; 
+                        card.dataset.id = String(ev.id);
+                        card.innerHTML = `${(ev.branches) ? '<div class="card-index"></div>' : ''}<div class="click-area"><div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div></div>`;
+                        
+                        // 💡 상세보기 클릭 이벤트 분리
+                        card.querySelector('.click-area').onclick = () => openDetailModal(ev.id);
                         grid.appendChild(card);
                     });
                     cluster.appendChild(grid); list.appendChild(cluster);
-
                     new Sortable(grid, { 
                         group: 'timeline', animation: 150, 
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
                             const newMonth = evt.to.dataset.month;
-                            // 💡 드래그 이동 시 월 정보 즉시 업데이트
-                            db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth }).then(() => reorderAll());
+                            db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth }).then(reorderAll);
                         }
                     });
                 }
@@ -195,21 +212,26 @@
             document.querySelectorAll('.top-tab').forEach(t => { t.classList.remove('active'); t.style.background = '#e9ecef'; });
             el.classList.add('active'); el.style.background = (type === 'desc') ? 'white' : color;
             card.style.background = (type === 'desc') ? 'white' : color;
-            if(type === 'desc') { body.innerText = ev.text; document.getElementById('btn-branch-act').style.display = 'block'; } 
-            else { body.innerText = ev.branches[bid].text; document.getElementById('btn-branch-act').style.display = 'none'; }
+            body.innerText = (type === 'desc') ? ev.text : ev.branches[bid].text;
+        }
+
+        function deleteCurrentEvent() {
+            if(!state.currentId) return;
+            db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove().then(() => {
+                closeModal('detailModal');
+                state.currentId = null;
+            });
         }
 
         function handleFabClick() {
             const sub = document.getElementById('fab-sub');
             if(state.currentTab === 'timeline') { openAddModal(); return; }
             sub.style.display = (sub.style.display === 'flex') ? 'none' : 'flex';
-            if(state.currentTab === 'story') { sub.innerHTML = `<button class="sub-btn" onclick="toggleFab();">목록</button><button class="sub-btn" onclick="toggleFab();">단락 내보내기</button>`; } 
-            else if(state.currentTab === 'char') { sub.innerHTML = `<button class="sub-btn" onclick="toggleFab();">캐릭터 추가</button><button class="sub-btn" onclick="toggleFab();">관계도 설정</button>`; }
+            const menu = state.currentTab === 'story' ? ['목록', '단락 내보내기'] : ['캐릭터 추가', '관계도 설정'];
+            sub.innerHTML = menu.map(m => `<button class="sub-btn" onclick="toggleFab();">${m}</button>`).join('');
         }
 
-        function toggleFab() { document.getElementById('fab-sub').style.display = 'none'; }
         function openAddModal() { state.currentId = null; document.getElementById('event-title').innerText = "기록 추가"; document.getElementById('e-text').value = ""; openModal('eventModal'); }
-        
         function openEditModal() { 
             const ev = state.storyboard.find(i => i.id === state.currentId);
             document.getElementById('event-title').innerText = "기록 수정";
@@ -235,10 +257,7 @@
         function showTab(n, el) { state.currentTab = n; document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el.classList.add('active'); document.getElementById(n+'-view').classList.add('active'); toggleFab(); }
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        document.getElementById('btn-edit-act').onclick = openEditModal;
-        document.getElementById('btn-branch-act').onclick = () => openModal('branchModal');
-        document.getElementById('btn-delete-act').onclick = () => customConfirm('기록을 삭제할까요?', () => { db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove(); closeModal('detailModal'); });
+        function toggleFab() { document.getElementById('fab-sub').style.display = 'none'; }
 
         syncData();
     </script>
