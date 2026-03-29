@@ -16,29 +16,24 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* 헤더 및 프로젝트 타이틀 */
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
         
-        /* 탭 메뉴 */
         .tab-menu { position:fixed; top:60px; width:100%; display:flex; background:white; z-index:1999; height:45px; border-bottom:1px solid #eee; }
         .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; cursor:pointer; }
         .tab-item.active { color:var(--dark); font-weight:bold; border-bottom: 2px solid var(--dark); }
 
         .content-body { margin-top: 105px; padding-bottom: 120px; }
-        
-        /* 💡 화면 겹침 완벽 해결 (!important 강제 적용) */
         .view { display: none !important; width: 100%; }
         .view.active { display: block !important; }
-        #story-view.active { display: flex !important; } /* 스토리 뷰만 예외적으로 flex 적용하여 가운데 정렬 유지 */
+        #story-view.active { display: flex !important; }
 
-        /* 💡 타임라인 뼈대 원상복구 (연도, 노드, 선) */
+        /* 타임라인 스타일 */
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 10px; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
         .year-banner { display: flex; justify-content: center; margin: 30px 0 15px; width: 100%; position: relative; z-index: 10; }
         .year-text { background: var(--dark); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
         .month-cluster { position: relative; width: 100%; margin-bottom: 40px; }
-        /* 노드가 선 위로 정확히 올라가도록 조정 */
         .month-node { position: absolute; left: 50%; top: 15px; transform: translate(-50%, -50%); width: 10px; height: 10px; background: white; border: 3px solid var(--node); border-radius: 50%; z-index: 5; }
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 15px; gap: 40px; position: relative; }
         .timeline-card { background: #fff; padding: 12px; border-radius: 10px; width: 100%; box-shadow: 0 3px 10px rgba(0,0,0,0.06); position: relative; cursor: pointer; z-index: 10; align-self: center; }
@@ -46,29 +41,25 @@
         .timeline-card:nth-child(odd) .card-index { right: -20px; } 
         .timeline-card:nth-child(even) .card-index { left: -20px; }
 
-        /* 💡 캐릭터 아이콘: 테두리만 색상, 바탕 회색, 첫 글자 */
+        /* 캐릭터 아이콘 */
         .char-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: #f1f3f5; color: #495057; font-weight: bold; font-size: 18px; cursor: pointer; border: 3px solid #dee2e6; }
 
-        /* 모달 공통 스타일 */
+        /* 모달 공통 & 인풋 */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; width: 340px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-
-        /* 스토리 뷰 */
-        #story-view { background: #f1f3f5; min-height: calc(100vh - 105px); padding: 15px; justify-content:center; }
-        #story-treatment { background: white; width:100%; max-width:600px; height:calc(100vh - 150px); border:none; padding:25px; border-radius: 8px; box-shadow:0 2px 8px rgba(0,0,0,0.05); resize:none; font-size:15px; line-height:1.6; outline:none; }
-
-        /* 인풋창 스타일 */
+        .modal-content { background: white; border-radius: 20px; width: 340px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        
         .input-row { display: flex; gap: 10px; margin-bottom: 12px; width: 100%; }
         .input-row input, .input-row select, .input-row textarea { padding: 12px; border: 1px solid #f1f3f5; border-radius: 8px; font-size: 14px; background: #f8f9fa; flex: 1; min-width: 0; outline: none; }
 
-        /* 플로팅 버튼 */
+        #story-view { background: #f1f3f5; min-height: calc(100vh - 105px); padding: 15px; justify-content:center; }
+        #story-treatment { background: white; width:100%; max-width:600px; height:calc(100vh - 150px); border:none; padding:25px; border-radius: 8px; box-shadow:0 2px 8px rgba(0,0,0,0.05); resize:none; font-size:15px; line-height:1.6; outline:none; }
+
         .fab-wrap { position:fixed; bottom:30px; right:25px; z-index:2001; }
         .main-fab { width:54px; height:54px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:28px; box-shadow:0 5px 15px rgba(77,171,247,0.4); cursor:pointer;}
-        
-        .pop-menu { display: none; position: absolute; bottom: 65px; right: 0; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 150px; overflow: hidden; }
+        .pop-menu { display: none; position: absolute; bottom: 65px; right: 0; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 160px; overflow: hidden; }
         .pop-menu.active { display: block; }
-        .pop-item { padding: 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f1f3f5; }
+        .pop-item { padding: 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f1f3f5; display: flex; gap: 8px; align-items: center; }
 
         .detail-btn-group { display: flex; gap: 8px; margin-top: 20px; }
         .detail-btn { flex:1; padding: 10px; border-radius: 8px; border:none; font-weight:bold; cursor:pointer; font-size: 13px; }
@@ -78,7 +69,7 @@
 
     <header class="app-header">
         <div style="width:80px;"><div style="width:32px; height:32px; background:var(--primary); border-radius:8px; display:flex; justify-content:center; align-items:center; font-weight:bold;">YE</div></div>
-        <div class="project-title" onclick="alert('프로젝트 목록 창')">이그리에가 ▾</div>
+        <div class="project-title" onclick="document.getElementById('projectModal').classList.add('active')">이그리에가 ▾</div>
         <div style="width:80px; text-align:right;">
             <span onclick="location.reload()" style="cursor:pointer; margin-right:10px;">⟳</span>
             <span onclick="alert('저장 완료')" style="cursor:pointer;">✔</span>
@@ -92,33 +83,40 @@
     </nav>
 
     <main class="content-body">
-        <div id="timeline-view" class="view active">
-            <div class="tl-wrapper"><div class="center-line"></div><div id="tl-list"></div></div>
-        </div>
-        
-        <div id="story-view" class="view">
-            <textarea id="story-treatment">첫 번째 단락 내용을 입력하세요.</textarea>
-        </div>
-        
-        <div id="char-view" class="view" style="padding:20px;">
-            <div id="char-list" style="display:flex; flex-wrap:wrap; gap:15px; justify-content:center;"></div>
-        </div>
+        <div id="timeline-view" class="view active"><div class="tl-wrapper"><div class="center-line"></div><div id="tl-list"></div></div></div>
+        <div id="story-view" class="view"><textarea id="story-treatment">첫 번째 단락 내용을 입력하세요.</textarea></div>
+        <div id="char-view" class="view" style="padding:20px;"><div id="char-list" style="display:flex; flex-wrap:wrap; gap:15px; justify-content:center;"></div></div>
     </main>
+
+    <div id="projectModal" class="modal"><div class="modal-content">
+        <h4 style="margin-bottom:15px; text-align:center;">프로젝트 관리</h4>
+        <div style="border:1px solid var(--primary); padding:12px; border-radius:8px; margin-bottom:10px; color:var(--primary); font-weight:bold;">이그리에가 (현재)</div>
+        <div style="border:1px dashed #dee2e6; padding:12px; border-radius:8px; margin-bottom:20px; text-align:center; color:#adb5bd; cursor:pointer;">+ 새 프로젝트 만들기</div>
+        <button style="width:100%; padding:12px; background:#f1f3f5; border:none; border-radius:8px; cursor:pointer;" onclick="closeModal('projectModal')">닫기</button>
+    </div></div>
 
     <div id="timelineModal" class="modal"><div class="modal-content" style="padding:25px; background:white; border-radius:18px;">
         <h4 style="margin-bottom:15px; font-size:16px;">새로운 기록</h4>
-        <p style="font-size:12px; color:#ff6b6b; margin-bottom:10px;">날짜(년/월)를 입력해주세요!</p>
-        <div class="input-row">
-            <input type="number" placeholder="년도 입력"> 
-            <input type="number" placeholder="월 입력">
-        </div>
-        <div class="input-row">
-            <textarea rows="3" placeholder="내용을 입력하세요..." style="width:100%; resize:none;"></textarea>
-        </div>
+        <div class="input-row"><input type="number" placeholder="년도 입력"> <input type="number" placeholder="월 입력"></div>
+        <div class="input-row"><textarea rows="3" placeholder="내용을 입력하세요..." style="width:100%; resize:none;"></textarea></div>
         <div style="display:flex; justify-content:space-between; margin-top:15px;">
-            <button style="color:var(--primary); font-weight:bold; border:none; background:none; cursor:pointer;" onclick="alert('데이터베이스 연동 준비중'); closeModal('timelineModal')">저장</button>
+            <button style="color:var(--primary); font-weight:bold; border:none; background:none; cursor:pointer;">저장</button>
             <button style="color:#adb5bd; border:none; background:none; cursor:pointer;" onclick="closeModal('timelineModal')">닫기</button>
         </div>
+    </div></div>
+
+    <div id="charAddModal" class="modal"><div class="modal-content">
+        <h4 style="text-align:center; margin-bottom:20px;">캐릭터 등록</h4>
+        <div style="display:flex; justify-content:center; margin-bottom:20px;">
+            <div style="width:80px; height:80px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; border:2px solid #f1f3f5; color:#adb5bd; font-size:16px;">사진+</div>
+        </div>
+        <div class="input-row"><input type="text" id="add-c-name" placeholder="이름"></div>
+        <div class="input-row"><input type="text" id="add-c-age" placeholder="나이"><input type="text" id="add-c-gender" placeholder="성별"></div>
+        <div class="input-row"><input type="text" id="add-c-appearance" placeholder="외모/특징"></div>
+        <div class="input-row"><textarea id="add-c-memo" rows="3" placeholder="중요 메모"></textarea></div>
+        <div class="input-row"><input type="text" id="add-c-type" placeholder="분류 (예: 주인공, 빌런)"></div>
+        <button style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;">캐릭터 저장</button>
+        <button style="width:100%; padding:14px; background:white; color:var(--text); border:none; border-radius:8px; font-weight:bold; margin-top:5px; cursor:pointer;" onclick="closeModal('charAddModal')">닫기</button>
     </div></div>
 
     <div id="charDetailModal" class="modal"><div class="modal-content">
@@ -128,7 +126,7 @@
         </div>
         <div id="d-memo" style="background:#f8f9fa; padding:15px; border-radius:10px; min-height:100px; font-size:14px; color:#495057; line-height:1.5;"></div>
         <div class="detail-btn-group">
-            <button class="detail-btn" style="background:#e7f5ff; color:var(--primary);" onclick="alert('수정 준비중')">수정</button>
+            <button class="detail-btn" style="background:#e7f5ff; color:var(--primary);">수정</button>
             <button class="detail-btn" style="background:#fff5f5; color:#ff6b6b;">삭제</button>
             <button class="detail-btn" style="background:#f1f3f5; color:#adb5bd;" onclick="closeModal('charDetailModal')">닫기</button>
         </div>
@@ -136,11 +134,11 @@
 
     <div class="fab-wrap">
         <div class="pop-menu" id="story-menu">
-            <div class="pop-item" onclick="alert('목록열기')">○ 목록 열기</div>
-            <div class="pop-item" onclick="alert('내보내기')">○ 단락 내보내기</div>
+            <div class="pop-item">📚 목록 열기</div>
+            <div class="pop-item">📥 단락 내보내기</div>
         </div>
         <div class="pop-menu" id="char-menu">
-            <div class="pop-item" onclick="alert('캐릭터 추가')">○ 캐릭터 추가</div>
+            <div class="pop-item" onclick="document.getElementById('charAddModal').classList.add('active'); closePopMenus();">👤 캐릭터 추가</div>
         </div>
         <button class="main-fab" onclick="handleFabClick()">+</button>
     </div>
@@ -150,13 +148,8 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let state = { storyboard: [], currentTab: 'timeline' };
-        let characters = [
-            {id:'c1', name:'홍길동', color:'#ff6b6b', memo:'정의로운 주인공. 의적 활동을 한다.'},
-            {id:'c2', name:'이몽룡', color:'#339af0', memo:'청렴한 암행어사. 성춘향과 사랑에 빠진다.'}
-        ];
+        let state = { currentTab: 'timeline' };
 
-        /* 탭 전환 로직 */
         function showTab(tabId, el) {
             state.currentTab = tabId;
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -176,15 +169,12 @@
         function closePopMenus() { document.querySelectorAll('.pop-menu').forEach(m => m.classList.remove('active')); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        /* 💡 통째로 날아갔던 타임라인 그룹화 및 렌더링 로직 완벽 복구 */
         function renderTimeline() {
             db.ref('users/Yuta/projects/기본/storyboard').once('value', snap => {
                 const raw = snap.val();
                 if(!raw) return;
-                
                 const dataArr = Object.keys(raw).map(key => ({...raw[key], id: String(key)})).sort((a,b) => (a.order || 0) - (b.order || 0));
                 
-                // 연도/월별 그룹화
                 const grouped = dataArr.reduce((acc, cur) => {
                     const key = `${cur.era || '제국력'} ${cur.year || 1234}년`;
                     if(!acc[key]) acc[key] = {};
@@ -192,24 +182,17 @@
                     acc[key][cur.month].push(cur); return acc;
                 }, {});
 
-                const list = document.getElementById('tl-list'); 
-                list.innerHTML = '';
-
+                const list = document.getElementById('tl-list'); list.innerHTML = '';
                 for(const yearKey in grouped) {
                     const banner = document.createElement('div'); banner.className = 'year-banner';
-                    banner.innerHTML = `<span class="year-text">${yearKey}</span>`;
-                    list.appendChild(banner); 
-
+                    banner.innerHTML = `<span class="year-text">${yearKey}</span>`; list.appendChild(banner); 
                     for(const month in grouped[yearKey]) {
                         const cluster = document.createElement('div'); cluster.className = 'month-cluster';
-                        cluster.innerHTML = `<div class="month-node"></div>`; // 교차점 노드
+                        cluster.innerHTML = `<div class="month-node"></div>`;
                         const grid = document.createElement('div'); grid.className = 'event-grid';
-
                         grouped[yearKey][month].forEach((ev) => {
                             const card = document.createElement('div'); card.className = 'timeline-card';
                             card.innerHTML = `<div class="card-index"></div><div><div style="font-size:10px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:12px; margin-top:5px; line-height:1.5;">${ev.text}</div></div>`;
-                            
-                            // 💡 카드 터치 시 상세보기 알림창 복구
                             card.onclick = () => alert(`[${month}월 기록 상세]\n${ev.text}`); 
                             grid.appendChild(card);
                         });
@@ -219,23 +202,33 @@
             });
         }
 
-        /* 💡 캐릭터 아이콘 디자인 (회색 바탕 + 테두리 색상 + 첫 글자) */
+        /* 💡 임의 데이터(characters 배열) 삭제 후 실제 파이어베이스 연동 복구 */
         function renderCharacters() {
-            const list = document.getElementById('char-list'); list.innerHTML = '';
-            characters.forEach(c => {
-                const item = document.createElement('div');
-                item.className = 'char-circle';
-                item.style.borderColor = c.color; // 테두리 색상
-                item.innerText = c.name.charAt(0); // 이름 첫 글자
+            db.ref('users/Yuta/projects/기본/characters').once('value', snap => {
+                const data = snap.val();
+                const list = document.getElementById('char-list'); list.innerHTML = '';
                 
-                item.onclick = () => {
-                    document.getElementById('d-name').innerText = c.name;
-                    document.getElementById('d-memo').innerText = c.memo;
-                    document.getElementById('d-avatar').style.borderColor = c.color;
-                    document.getElementById('d-avatar').innerText = c.name.charAt(0);
-                    document.getElementById('charDetailModal').classList.add('active');
-                };
-                list.appendChild(item);
+                if(!data) {
+                    list.innerHTML = '<div style="color:#adb5bd; margin-top:50px;">등록된 캐릭터가 없습니다.</div>';
+                    return;
+                }
+
+                Object.keys(data).forEach(key => {
+                    const c = data[key];
+                    const item = document.createElement('div');
+                    item.className = 'char-circle';
+                    item.style.borderColor = c.color || '#dee2e6'; 
+                    item.innerText = c.name ? c.name.charAt(0) : '?'; 
+                    
+                    item.onclick = () => {
+                        document.getElementById('d-name').innerText = c.name || '이름 없음';
+                        document.getElementById('d-memo').innerText = c.memo || '메모 없음';
+                        document.getElementById('d-avatar').style.borderColor = c.color || '#dee2e6';
+                        document.getElementById('d-avatar').innerText = c.name ? c.name.charAt(0) : '?';
+                        document.getElementById('charDetailModal').classList.add('active');
+                    };
+                    list.appendChild(item);
+                });
             });
         }
 
