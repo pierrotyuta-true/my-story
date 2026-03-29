@@ -8,7 +8,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        :root { --primary: #4dabf7; --dark: #343a40; --bg: #f8f9fa; --node: #dee2e6; }
+        :root { 
+            --primary: #4dabf7; 
+            --dark: #343a40; 
+            --bg: #f8f9fa; 
+            --node: #dee2e6; 
+            /* 파스텔톤 인덱스 색상 */
+            --tab-blue: #a5d8ff;
+            --tab-yellow: #fff3bf;
+            --tab-green: #c3fae8;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: #333; overflow-x: hidden; }
 
@@ -20,38 +30,54 @@
 
         /* 타임라인 레이아웃 */
         .content-body { margin-top: 100px; padding-bottom: 100px; min-height: 100vh; position: relative; }
+        .tl-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; padding-top: 10px; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
 
-        /* 연도 섹션 */
-        .year-section { position: relative; width: 100%; padding: 40px 0; }
-        .year-banner { display: flex; justify-content: center; margin-bottom: 30px; position: relative; z-index: 10; }
+        /* 연도 섹션 및 간격 축소 */
+        .year-section { position: relative; width: 100%; padding: 20px 0; } /* 간격 줄임 */
+        .year-banner { display: flex; justify-content: center; margin-bottom: 20px; position: relative; z-index: 10; } /* 간격 줄임 */
         .year-text { background: var(--dark); color: white; padding: 6px 20px; border-radius: 20px; font-size: 13px; font-weight: bold; }
 
-        /* 월별 그룹 및 노드 정렬 */
-        .month-group { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        /* 월별 그룹 및 노드 위치 수정 */
+        .month-group { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; } /* 간격 줄임 */
         
-        /* 💡 노드 위치를 박스 중앙 높이에 맞춤 */
+        /* 💡 노드를 타임라인 선 위에 정확히 위치 */
         .month-node { 
-            position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; 
+            position: absolute; left: 50%; top: -10px; width: 12px; height: 12px; 
             background: white; border: 2.5px solid var(--primary); border-radius: 50%; 
-            z-index: 5; transform: translate(-50%, -50%); box-shadow: 0 0 0 4px var(--bg);
+            z-index: 5; transform: translateX(-50%); box-shadow: 0 0 0 4px var(--bg);
         }
 
-        .card-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; 
-            width: 100%; max-width: 450px; padding: 0 20px; z-index: 2;
-        }
+        .card-container { display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 0 20px; } /* 간격 줄임 */
 
-        /* 💡 메모박스 디자인 (파란 라인 제거 및 정렬) */
+        /* 지그재그 배치용 CSS */
+        .event-wrapper { display: flex; width: 100%; align-items: center; position: relative; }
+        .event-wrapper.left { justify-content: flex-end; padding-right: calc(50% + 15px); }
+        .event-wrapper.right { justify-content: flex-start; padding-left: calc(50% + 15px); }
+
+        /* 수평 연결선 */
+        .event-wrapper::before { content: ''; position: absolute; top: 50%; width: 15px; height: 1.5px; background: #dee2e6; z-index: 1; }
+        .event-wrapper.left::before { right: 50%; }
+        .event-wrapper.right::before { left: 50%; }
+
+        /* 메모박스 디자인 */
         .card { 
-            background: #fff; padding: 14px; border-radius: 12px; text-align: left;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06); width: 100%;
-            cursor: grab; position: relative; border: 1px solid #eee;
+            background: #fff; padding: 12px; border-radius: 12px; text-align: left;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06); width: 100%; max-width: 170px;
+            cursor: pointer; position: relative; border: 1px solid #eee; display: flex;
         }
-        .card:active { cursor: grabbing; }
+        
+        .card-content { flex: 1; }
         .card-index { font-size: 9px; color: #adb5bd; margin-bottom: 4px; font-family: monospace; }
         .card-meta { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 4px; }
         .card-text { font-size: 13px; color: #444; line-height: 1.5; font-weight: 500; }
+
+        /* 💡 멀티 인덱스 탭 디자인 */
+        .card-tabs { display: flex; flex-direction: column; gap: 3px; margin-left: 8px; position: absolute; right: -12px; top: 12px; }
+        .card-tab { width: 8px; height: 16px; border-radius: 2px; }
+        .tab-1 { background-color: var(--tab-blue); }
+        .tab-2 { background-color: var(--tab-yellow); }
+        .tab-3 { background-color: var(--tab-green); }
 
         /* FAB */
         .fab-wrap { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2001; }
@@ -84,8 +110,10 @@
 
     <main class="content-body">
         <div id="timeline-view" class="view active">
-            <div class="center-line"></div>
-            <div id="tl-list"></div>
+            <div class="tl-container">
+                <div class="center-line"></div>
+                <div id="tl-list"></div>
+            </div>
         </div>
     </main>
 
@@ -112,6 +140,7 @@
     </div></div>
 
     <script>
+        // Firebase 설정 (기존 Yuta님의 설정 유지)
         const firebaseConfig = {
             apiKey: "AIzaSyCK3At50Eo49KIydPU6ibqtzZt0itO9-Oc",
             databaseURL: "https://true-s-default-rtdb.firebaseio.com",
@@ -121,24 +150,27 @@
         const db = firebase.database();
 
         let state = { storyboard: [] };
-        let draggedId = null;
         let selectedId = null;
 
         function sync() {
             db.ref('users/Yuta/projects/기본').on('value', snap => {
                 const data = snap.val();
                 if(data) {
+                    // 데이터 정렬 로직 강화 (parentId 기반 계층 구조 처리 포함)
                     state.storyboard = data.storyboard ? Object.values(data.storyboard) : [];
                     renderTimeline();
                 }
             });
         }
 
+        // 💡 탭 순서 정의 (3개까지)
+        const tabColors = ['tab-1', 'tab-2', 'tab-3'];
+
         function renderTimeline() {
             const list = document.getElementById('tl-list');
-            list.innerHTML = '';
+            list.innerHTML = '<div class="center-line"></div>';
             
-            const sorted = state.storyboard.sort((a,b) => a.year - b.year || a.month - b.month);
+            const sorted = state.storyboard.sort((a,b) => a.year - b.year || a.month - b.month || a.id - b.id);
             const grouped = {};
             sorted.forEach(item => {
                 if(!grouped[item.year]) grouped[item.year] = {};
@@ -150,45 +182,59 @@
             for(const year in grouped) {
                 const yearSection = document.createElement('div');
                 yearSection.className = 'year-section';
-                yearSection.dataset.year = year;
-                
-                // 드롭 영역 설정
-                yearSection.ondragover = e => e.preventDefault();
-                yearSection.ondrop = e => handleDrop(e, year);
+                yearSection.innerHTML = `<div class="year-banner"><div class="year-text">${year}년</div></div>`;
 
                 let monthsHtml = '';
                 for(const month in grouped[year]) {
                     const events = grouped[year][month];
                     let cardsHtml = '';
+                    
+                    // 💡 같은 월 내 지그재그 로직 (왼-오-왼-오)
                     events.forEach((ev, i) => {
+                        const side = i % 2 === 0 ? 'left' : 'right';
+                        
+                        // 가지 추가 탭 디자인 로직
+                        let tabsHtml = '';
+                        if(ev.parentId) {
+                            const parent = state.storyboard.find(p => p.id === ev.parentId);
+                            if(parent) {
+                                // 부모로부터 상속받은 레벨 또는 형제 순서에 따라 색상 지정
+                                const siblings = grouped[year][month].filter(s => s.parentId === ev.parentId);
+                                const order = siblings.findIndex(s => s.id === ev.id);
+                                const colorClass = tabColors[order % tabColors.length];
+                                tabsHtml = `<div class="card-tabs"><div class="card-tab ${colorClass}"></div></div>`;
+                            }
+                        }
+
                         cardsHtml += `
-                            <div class="card" draggable="true" 
-                                 ondragstart="draggedId='${ev.id}'" 
-                                 onclick="openDetail('${ev.id}')">
-                                <div class="card-index">INDEX ${String(globalIdx++).padStart(3, '0')}</div>
-                                <div class="card-meta">${month}월</div>
-                                <div class="card-text">${ev.text}</div>
+                            <div class="event-wrapper ${side}">
+                                <div class="card" onclick="openDetail('${ev.id}')">
+                                    <div class="card-content">
+                                        <div class="card-index">INDEX ${String(globalIdx++).padStart(3, '0')}</div>
+                                        <div class="card-meta">${month}월</div>
+                                        <div class="card-text">${ev.text}</div>
+                                    </div>
+                                    ${tabsHtml}
+                                </div>
                             </div>
                         `;
                     });
-                    if(events.length % 2 !== 0) cardsHtml += `<div></div>`;
 
                     monthsHtml += `<div class="month-group">
                         <div class="month-node"></div>
-                        <div class="card-grid">${cardsHtml}</div>
+                        <div class="card-container">${cardsHtml}</div>
                     </div>`;
                 }
-
-                yearSection.innerHTML = `<div class="year-banner"><div class="year-text">${year}년</div></div>${monthsHtml}`;
+                yearSection.innerHTML += monthsHtml;
                 list.appendChild(yearSection);
             }
         }
 
-        /* 💡 상세보기 관련 함수 */
+        // 상세보기 및 기능
         function openDetail(id) {
             selectedId = id;
             const ev = state.storyboard.find(item => item.id == id);
-            document.getElementById('d-title').innerText = `${ev.year}년 ${ev.month}월 기록`;
+            document.getElementById('d-title').innerText = `${ev.year}년 ${ev.month}월 기록 (INDEX ${ev.id.slice(-3)})`;
             document.getElementById('d-text').innerText = ev.text;
             openModal('detailModal');
         }
@@ -202,6 +248,7 @@
 
         function editEvent() {
             const ev = state.storyboard.find(item => item.id == selectedId);
+            document.getElementById('modal-mode-title').innerText = '기록 수정';
             document.getElementById('e-year').value = ev.year;
             document.getElementById('e-month').value = ev.month;
             document.getElementById('e-text').value = ev.text;
@@ -209,38 +256,57 @@
             openModal('eventModal');
         }
 
+        // 💡 가지 추가 기능 (parentId 링크)
         function branchEvent() {
             const ev = state.storyboard.find(item => item.id == selectedId);
+            document.getElementById('modal-mode-title').innerText = '가지 추가';
             document.getElementById('e-year').value = ev.year;
             document.getElementById('e-month').value = ev.month;
-            document.getElementById('e-text').value = `[${ev.text}] 에서 이어지는 이야기: `;
+            document.getElementById('e-text').value = `[${ev.text.slice(0, 15)}...] 에서 파생됨: `;
             closeModal('detailModal');
             openModal('eventModal');
-        }
-
-        /* 드래그 앤 드롭 */
-        function handleDrop(e, targetYear) {
-            e.preventDefault();
-            if(!draggedId) return;
-            db.ref(`users/Yuta/projects/기본/storyboard/${draggedId}`).update({ year: parseInt(targetYear) });
-            draggedId = null;
+            // 부모 ID 저장
+            sessionStorage.setItem('tempParentId', selectedId);
+            selectedId = null; // 새 기록 저장을 위해 ID 초기화
         }
 
         function saveEvent() {
             const y = document.getElementById('e-year').value;
             const m = document.getElementById('e-month').value;
             const t = document.getElementById('e-text').value;
+            const parentId = sessionStorage.getItem('tempParentId');
+            
             const id = selectedId || Date.now().toString();
-            db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update({
+            const data = {
                 id, era:'제국력', year:parseInt(y), month:parseInt(m), text:t
-            });
+            };
+            if(parentId) data.parentId = parentId; // 가지 추가 시 부모 ID 저장
+
+            db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update(data);
+            
+            // 초기화
             selectedId = null;
+            sessionStorage.removeItem('tempParentId');
             closeModal('eventModal');
+            document.getElementById('e-year').value = '';
+            document.getElementById('e-month').value = '';
             document.getElementById('e-text').value = '';
         }
 
         function openModal(id){ document.getElementById(id).classList.add('active'); }
-        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+        function closeModal(id){ 
+            document.getElementById(id).classList.remove('active'); 
+            // 모달 닫을 때 ID 및 제목 초기화
+            selectedId = null; 
+            sessionStorage.removeItem('tempParentId');
+            document.getElementById('modal-mode-title').innerText = '기록 추가';
+        }
+        function showTab(n) {
+            document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(n+'-view').classList.add('active');
+        }
         sync();
     </script>
 </body>
