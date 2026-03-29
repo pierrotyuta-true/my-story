@@ -4,124 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Yuta's Engine</title>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        :root { 
-            --primary: #4dabf7; 
-            --dark: #343a40; 
-            --bg: #f8f9fa; 
-            --header-h: 55px; 
-            --nav-h: 45px; 
-            --node: #74c0fc;
-        }
-
+        :root { --primary: #4dabf7; --dark: #343a40; --bg: #f8f9fa; --node: #74c0fc; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: #333; overflow-x: hidden; }
 
-        /* 헤더 & 탭 */
-        #fixed-top-area { position: fixed; top: 0; left: 0; right: 0; z-index: 2000; }
-        .app-header { height: var(--header-h); background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
+        /* 헤더 */
+        .app-header { position: fixed; top: 0; width: 100%; height: 55px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
         .logo { font-weight: bold; font-size: 20px; color: var(--primary); }
-        .tab-menu { height: var(--nav-h); background: #fff; display: flex; border-bottom: 1px solid #eee; }
+        .tab-menu { position: fixed; top: 55px; width: 100%; height: 45px; background: #fff; display: flex; border-bottom: 1px solid #eee; z-index: 2000; }
         .tab-item { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666; cursor: pointer; }
         .tab-item.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
 
-        /* 컨텐츠 */
-        .content-body { margin-top: calc(var(--header-h) + var(--nav-h)); padding-bottom: 100px; min-height: 100vh; position: relative; }
-        .view { display: none; }
-        .view.active { display: block; }
+        /* 타임라인 레이아웃 */
+        .content-body { margin-top: 100px; padding-bottom: 100px; min-height: 100vh; position: relative; }
+        #timeline-view { background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px); background-size: 20px 20px; }
+        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); }
 
-        /* 타임라인 배경 격자 */
-        #timeline-view.active {
-            background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px);
-            background-size: 20px 20px; background-attachment: fixed;
-        }
+        /* 연도 드롭존 */
+        .year-section { position: relative; width: 100%; padding: 40px 0; min-height: 150px; }
+        .year-banner { display: flex; justify-content: center; margin-bottom: 30px; position: relative; z-index: 10; }
+        .year-text { background: var(--dark); color: white; padding: 6px 20px; border-radius: 20px; font-size: 13px; font-weight: bold; }
 
-        /* --- [디자인 핵심: 대칭형 레이아웃] --- */
-        .tl-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; padding-top: 20px; }
-        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
+        /* 월별 그룹 */
+        .month-group { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+        .month-node { width: 14px; height: 14px; background: white; border: 3px solid var(--node); border-radius: 50%; z-index: 5; margin-bottom: 15px; box-shadow: 0 0 0 4px var(--bg); }
 
-        /* 연도 배너 */
-        .year-banner { position: relative; width: 100%; display: flex; justify-content: center; margin: 40px 0; z-index: 10; }
-        .year-text { background: var(--dark); color: white; padding: 5px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-        /* 월별 행 (가운데 점 기준 양옆 배치) */
-        .month-row { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; }
-        .month-node { width: 12px; height: 12px; background: white; border: 3px solid var(--node); border-radius: 50%; z-index: 5; margin-bottom: 10px; box-shadow: 0 0 0 4px var(--bg); }
-
-        /* 카드 그리드: 양옆으로 나란히 배치되는 핵심 로직 */
+        /* 카드 그리드: 좌우 대칭 배치 */
         .card-grid { 
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; 
-            width: 100%; padding: 0 10px; z-index: 2;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
+            width: 100%; max-width: 400px; padding: 0 15px; z-index: 2;
         }
 
+        /* 메모박스 디자인 */
         .card { 
             background: #fff; padding: 12px; border-radius: 12px; text-align: left;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.06); width: calc(50% - 25px); max-width: 170px;
-            border-left: 4px solid var(--primary); cursor: pointer; position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 100%;
+            border-left: 5px solid var(--primary); cursor: grab; position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        
-        /* 모바일 대응: 너무 좁으면 한 줄에 하나씩 */
-        @media (max-width: 350px) { .card { width: 90%; max-width: none; } }
+        .card:active { cursor: grabbing; transform: scale(0.95); }
+        .card.dragging { opacity: 0.5; }
 
-        .card-index { font-size: 9px; color: #ced4da; margin-bottom: 3px; font-family: monospace; }
+        /* 홀수일 때 왼쪽 정렬을 위한 빈 칸 처리 (JS에서 처리) */
+        .card-empty { width: 100%; height: 1px; }
+
+        .card-index { font-size: 9px; color: #adb5bd; margin-bottom: 4px; font-family: monospace; letter-spacing: 1px; }
         .card-meta { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 4px; }
-        .card-text { font-size: 13px; color: #333; line-height: 1.5; font-weight: 500; }
+        .card-text { font-size: 13px; color: #444; line-height: 1.5; word-break: break-all; }
 
-        /* FAB */
+        /* 하단 FAB */
         .fab-wrap { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2001; }
-        .fab { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 20px rgba(77,171,247,0.4); border: none; }
+        .fab { width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 20px rgba(77,171,247,0.4); border: none; outline: none; }
 
-        /* 모달 공통 */
+        /* 모달 */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-width: 360px; padding: 25px; border-radius: 15px; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #eee; border-radius: 8px; background: #fdfdfd; }
-        .btn-main { background: var(--primary); color: white; width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: bold; }
+        .modal-content { background: white; width: 100%; max-width: 360px; padding: 25px; border-radius: 20px; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; font-size: 14px; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="fixed-top-area">
-        <header class="app-header">
-            <div class="logo">Y</div>
-            <div id="project-name" style="font-weight:bold;">기본 프로젝트 ▾</div>
-            <button class="cloud-save-btn" style="background:none; border:1px solid #555; color:#ccc; padding:4px 8px; border-radius:4px; font-size:11px;">Cloud Sync</button>
-        </header>
-        <nav class="tab-menu">
-            <div class="tab-item active" onclick="showTab('timeline', this)">타임라인</div>
-            <div class="tab-item" onclick="showTab('story', this)">스토리</div>
-            <div class="tab-item" onclick="showTab('char', this)">캐릭터</div>
-        </nav>
-    </div>
+    <header class="app-header">
+        <div class="logo">Y</div>
+        <div style="font-size:16px; font-weight:bold;">Project: 기본 ▾</div>
+        <div style="width:20px;"></div>
+    </header>
+
+    <nav class="tab-menu">
+        <div class="tab-item active" onclick="showTab('timeline')">타임라인</div>
+        <div class="tab-item" onclick="showTab('story')">스토리</div>
+        <div class="tab-item" onclick="showTab('char')">캐릭터</div>
+    </nav>
 
     <main class="content-body">
         <div id="timeline-view" class="view active">
-            <div class="tl-container">
-                <div class="center-line"></div>
-                <div id="tl-list"></div>
-            </div>
+            <div class="center-line"></div>
+            <div id="tl-list"></div>
         </div>
-
-        <div id="story-view" class="view">
-            <div style="padding:20px; background:white; margin:15px; border-radius:10px; min-height:300px;" id="story-editor" contenteditable="true"></div>
+        <div id="story-view" class="view" style="padding:20px;">
+            <div id="story-editor" contenteditable="true" style="background:white; padding:20px; border-radius:15px; min-height:400px; box-shadow:0 4px 10px rgba(0,0,0,0.05);"></div>
         </div>
-
-        <div id="char-view" class="view"><div id="char-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:15px;"></div></div>
+        <div id="char-view" class="view" style="padding:20px;">
+            <div id="char-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+        </div>
     </main>
 
     <div class="fab-wrap"><button class="fab" onclick="openModal('eventModal')">+</button></div>
 
     <div id="eventModal" class="modal"><div class="modal-content">
-        <h3>기록 추가</h3><br>
-        <select id="e-era"><option>제국력</option></select>
-        <div style="display:flex; gap:5px;"><input type="number" id="e-year" placeholder="년"><input type="number" id="e-month" placeholder="월"></div>
-        <textarea id="e-text" rows="4" placeholder="사건 내용"></textarea>
-        <button class="btn-main" onclick="saveEvent()">저장하기</button>
-        <button onclick="closeModal('eventModal')" style="width:100%; background:none; border:none; color:#aaa; margin-top:10px;">닫기</button>
+        <h3 style="margin-bottom:15px;">새 기록</h3>
+        <input type="number" id="e-year" placeholder="연도 (예: 2024)">
+        <input type="number" id="e-month" placeholder="월 (1~12)">
+        <textarea id="e-text" rows="4" placeholder="내용을 입력하세요"></textarea>
+        <button class="btn-main" onclick="saveEvent()">저장</button>
+        <button onclick="closeModal('eventModal')" style="width:100%; border:none; background:none; color:#999; margin-top:10px;">취소</button>
     </div></div>
 
     <script>
@@ -134,6 +116,7 @@
         const db = firebase.database();
 
         let state = { storyboard: [] };
+        let draggedId = null;
 
         function sync() {
             db.ref('users/Yuta/projects/기본').on('value', snap => {
@@ -149,55 +132,92 @@
             const list = document.getElementById('tl-list');
             list.innerHTML = '';
             
-            // 데이터 정렬 및 그룹화
             const sorted = state.storyboard.sort((a,b) => a.year - b.year || a.month - b.month);
             const grouped = {};
             sorted.forEach(item => {
-                const yKey = item.year;
-                if(!grouped[yKey]) grouped[yKey] = {};
-                if(!grouped[yKey][item.month]) grouped[yKey][item.month] = [];
-                grouped[yKey][item.month].push(item);
+                if(!grouped[item.year]) grouped[item.year] = {};
+                if(!grouped[item.year][item.month]) grouped[item.year][item.month] = [];
+                grouped[item.year][item.month].push(item);
             });
 
-            let idx = 1;
-            for(const y in grouped) {
-                list.innerHTML += `<div class="year-banner"><div class="year-text">제국력 ${y}년</div></div>`;
-                for(const m in grouped[y]) {
-                    const row = document.createElement('div');
-                    row.className = 'month-row';
-                    const cardsHtml = grouped[y][m].map(ev => `
-                        <div class="card">
-                            <div class="card-index">INDEX ${String(idx++).padStart(3, '0')}</div>
-                            <div class="card-meta">${m}월</div>
-                            <div class="card-text">${ev.text}</div>
-                        </div>
-                    `).join('');
+            let globalIdx = 1;
+            for(const year in grouped) {
+                const yearSection = document.createElement('div');
+                yearSection.className = 'year-section';
+                yearSection.dataset.year = year;
+                
+                // 드래그 앤 드롭 이벤트 리스너 (연도 이동)
+                yearSection.ondragover = e => e.preventDefault();
+                yearSection.ondrop = e => handleDrop(e, year);
+
+                let monthsHtml = '';
+                for(const month in grouped[year]) {
+                    const events = grouped[year][month];
+                    let cardsHtml = '';
                     
-                    row.innerHTML = `<div class="month-node"></div><div class="card-grid">${cardsHtml}</div>`;
-                    list.appendChild(row);
+                    events.forEach((ev, i) => {
+                        cardsHtml += `
+                            <div class="card" draggable="true" ondragstart="handleDragStart('${ev.id}')" ondragend="handleDragEnd(this)">
+                                <div class="card-index">INDEX ${String(globalIdx++).padStart(3, '0')}</div>
+                                <div class="card-meta">${month}월</div>
+                                <div class="card-text">${ev.text}</div>
+                            </div>
+                        `;
+                    });
+
+                    // 홀수일 경우 오른쪽에 빈 칸 추가하여 왼쪽 정렬 유지
+                    if(events.length % 2 !== 0) cardsHtml += `<div class="card-empty"></div>`;
+
+                    monthsHtml += `
+                        <div class="month-group">
+                            <div class="month-node"></div>
+                            <div class="card-grid">${cardsHtml}</div>
+                        </div>
+                    `;
                 }
+
+                yearSection.innerHTML = `
+                    <div class="year-banner"><div class="year-text">제국력 ${year}년</div></div>
+                    ${monthsHtml}
+                `;
+                list.appendChild(yearSection);
             }
         }
 
-        function showTab(n, el) {
-            document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
-            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-            el.classList.add('active'); document.getElementById(n+'-view').classList.add('active');
+        /* 드래그 앤 드롭 로직 */
+        function handleDragStart(id) { draggedId = id; }
+        function handleDragEnd(el) { el.classList.remove('dragging'); }
+        
+        function handleDrop(e, targetYear) {
+            e.preventDefault();
+            if(!draggedId) return;
+            // Firebase에서 해당 아이템의 연도를 변경
+            db.ref(`users/Yuta/projects/기본/storyboard/${draggedId}`).update({
+                year: parseInt(targetYear)
+            });
+            draggedId = null;
         }
-        function openModal(id){ document.getElementById(id).classList.add('active'); }
-        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 
         function saveEvent() {
-            const year = document.getElementById('e-year').value;
-            const month = document.getElementById('e-month').value;
-            const text = document.getElementById('e-text').value;
-            if(!year || !month || !text) return;
-            const id = Date.now();
+            const y = document.getElementById('e-year').value;
+            const m = document.getElementById('e-month').value;
+            const t = document.getElementById('e-text').value;
+            if(!y || !m || !t) return;
+            const id = Date.now().toString();
             db.ref(`users/Yuta/projects/기본/storyboard/${id}`).set({
-                id, era:'제국력', year:parseInt(year), month:parseInt(month), text
+                id, era:'제국력', year:parseInt(y), month:parseInt(m), text:t
             });
             closeModal('eventModal');
         }
+
+        function showTab(n) {
+            document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(n+'-view').classList.add('active');
+        }
+        function openModal(id){ document.getElementById(id).classList.add('active'); }
+        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 
         sync();
     </script>
