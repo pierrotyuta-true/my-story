@@ -41,7 +41,7 @@
         .view { display: none; }
         .view.active { display: block; }
 
-        /* 3. 타임라인 (좌우 겹침 완전 방어) */
+        /* 3. 타임라인 (좌우 겹침 완전 방어 및 나란히 배치) */
         #timeline-view.active { background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px); background-size: 20px 20px; background-attachment: fixed; }
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 30px; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 0; }
@@ -58,16 +58,28 @@
             border-radius: 50%; z-index: 5; box-shadow: 0 0 0 4px #fff;
         }
 
-        .event-grid { display: flex; flex-direction: column; gap: 15px; width: 100%; position: relative; }
+        /* 💡 같은 월의 상자들을 양옆으로 나란히 배치하는 Flex Box */
+        .event-grid { 
+            display: flex; 
+            flex-direction: row; 
+            flex-wrap: wrap; 
+            justify-content: space-between; 
+            width: 100%; 
+            position: relative; 
+            padding: 0 10px;
+        }
 
-        /* 겹침 방지: 가로폭 42% 제한 및 margin 밀기 */
+        /* 💡 너비를 44%로 제한하여 중앙선(50%)을 침범하지 않고 나란히 떨어지도록 수정 */
         .timeline-card { 
             background: #fff; padding: 12px 15px; border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06); width: 42%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06); 
+            width: 44%;
             border-left: 5px solid #e9ecef; cursor: pointer; position: relative;
+            margin-bottom: 15px;
         }
-        .timeline-card.left { align-self: flex-start; margin-left: 5%; }
-        .timeline-card.right { align-self: flex-end; margin-right: 5%; }
+        
+        /* 드래그 중인 카드의 투명도 조절 */
+        .timeline-card:active { opacity: 0.7; }
 
         .card-meta { font-size: 11px; color: var(--node); font-weight: bold; margin-bottom: 3px; }
         .card-text { font-size: 13px; font-weight: bold; color: var(--dark); line-height: 1.5; }
@@ -75,8 +87,6 @@
         /* 4. 스토리 탭 */
         .story-container { margin-top: 20px; padding: 0 15px; }
         .story-paper { background: white; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        
-        /* 텍스트 입력 시 아래로 자동 확장 */
         #story-editor { min-height: 350px; height: auto; outline: none; line-height: 1.8; font-size: 14px; color: #444; }
 
         /* 5. 하단 FAB 및 모달 UI */
@@ -92,7 +102,6 @@
         .btn-sub { flex: 1; padding: 12px; background: #e9ecef; color: #495057; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center;}
         .btn-danger { background: #ff6b6b; color: white; }
 
-        /* 연대-년-월 나란히 배치 */
         .input-inline-group { display: flex; gap: 8px; margin-bottom: 12px; }
         .input-inline-group select { flex: 1.5; margin-bottom: 0; }
         .input-inline-group input { flex: 1; margin-bottom: 0; }
@@ -100,7 +109,6 @@
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #e1e4e8; border-radius: 8px; background: #fdfdfd; font-size: 14px; }
         textarea { resize: none; }
 
-        /* 연대 순서 관리 리스트 */
         .era-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
         .era-actions { display: flex; gap: 5px; }
         .era-btn { padding: 4px 8px; font-size: 11px; border: none; border-radius: 4px; cursor: pointer; }
@@ -165,7 +173,7 @@
     <div id="eventModal" class="modal"><div class="modal-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 id="modal-mode-title" style="margin: 0;">기록 수정</h3>
-            <button class="btn-sub" style="font-size: 11px; padding: 5px 10px; border-radius: 6px;" onclick="openEraModal()">연대 편집</button>
+            <span style="font-size: 12px; color: #868e96; text-decoration: underline; cursor: pointer;" onclick="openEraModal()">연대 편집</span>
         </div>
         
         <div class="input-inline-group">
@@ -184,14 +192,11 @@
 
     <div id="eraModal" class="modal"><div class="modal-content">
         <h3 style="margin-bottom: 15px;">연대 순서 관리</h3>
-        
         <div id="era-list-container"></div>
-
         <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
-            <input type="text" id="new-era-name" placeholder="새 연대 이름 (예: 대한민국)" style="margin-bottom: 8px;">
+            <input type="text" id="new-era-name" placeholder="새 연대 이름" style="margin-bottom: 8px;">
             <button class="btn-main" style="width: 100%;" onclick="addNewEra()">+ 연대 추가</button>
         </div>
-
         <div style="text-align: center; margin-top: 15px;">
             <button class="btn-sub" onclick="closeModal('eraModal')">닫기</button>
         </div>
@@ -207,11 +212,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 연대 순서를 관리하기 위한 배열 추가
-        let state = { 
-            storyboard: [],
-            eras: ['제국력', '대한민국']
-        };
+        let state = { storyboard: [], eras: ['제국력', '대한민국'] };
         let currentDetailId = null;
 
         function syncData() {
@@ -221,12 +222,10 @@
             });
         }
 
-        // 연동 규칙에 연대 순서 배열 인덱스 활용
         function renderTimeline() {
             const list = document.getElementById('tl-list');
             list.innerHTML = '';
             
-            // 사용자가 정의한 연대 순서 -> 년도 -> 월 순서로 정렬
             const sorted = state.storyboard.sort((a, b) => {
                 const eraDiff = state.eras.indexOf(a.era) - state.eras.indexOf(b.era);
                 if (eraDiff !== 0) return eraDiff;
@@ -249,15 +248,21 @@
                     
                     const monthCluster = document.createElement('div');
                     monthCluster.className = 'month-cluster';
-                    monthCluster.innerHTML = `<div class="month-node"></div>`; // 위치는 CSS에서 첫 박스 기준 정렬
+                    monthCluster.innerHTML = `<div class="month-node"></div>`;
 
                     const grid = document.createElement('div');
                     grid.className = 'event-grid';
 
-                    monthEvents.forEach((ev, i) => {
-                        const side = (i % 2 === 0) ? 'left' : 'right';
+                    // 💡 드래그 앤 드랍 이벤트 바인딩 및 나란히 렌더링
+                    monthEvents.forEach((ev) => {
                         grid.innerHTML += `
-                            <div class="timeline-card ${side}" onclick="openDetailModal('${ev.id}')">
+                            <div class="timeline-card" 
+                                 draggable="true" 
+                                 ondragstart="drag(event)" 
+                                 ondrop="drop(event)" 
+                                 ondragover="allowDrop(event)"
+                                 data-id="${ev.id}" 
+                                 onclick="openDetailModal('${ev.id}')">
                                 <div class="card-meta">${month}월</div>
                                 <div class="card-text">${ev.text}</div>
                             </div>
@@ -266,6 +271,36 @@
 
                     monthCluster.appendChild(grid);
                     list.appendChild(monthCluster);
+                }
+            }
+        }
+
+        /* 💡 드래그 앤 드롭 전용 기능 */
+        function allowDrop(ev) { ev.preventDefault(); }
+        
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.getAttribute('data-id'));
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const draggedId = ev.dataTransfer.getData("text");
+            const targetCard = ev.target.closest('.timeline-card');
+            
+            if (!targetCard) return;
+            const targetId = targetCard.getAttribute('data-id');
+
+            if (draggedId !== targetId) {
+                const draggedEv = state.storyboard.find(item => item.id == draggedId);
+                const targetEv = state.storyboard.find(item => item.id == targetId);
+
+                if (draggedEv && targetEv) {
+                    // 드래그한 카드의 날짜 정보를 타겟 카드의 날짜 정보로 덮어씌움
+                    db.ref(`users/Yuta/projects/기본/storyboard/${draggedId}`).update({
+                        era: targetEv.era,
+                        year: targetEv.year,
+                        month: targetEv.month
+                    });
                 }
             }
         }
@@ -300,9 +335,7 @@
         function updateEraSelectOptions() {
             const select = document.getElementById('e-era');
             select.innerHTML = '';
-            state.eras.forEach(e => {
-                select.innerHTML += `<option>${e}</option>`;
-            });
+            state.eras.forEach(e => { select.innerHTML += `<option>${e}</option>`; });
         }
 
         function saveEvent() {
@@ -327,11 +360,7 @@
             }
         }
 
-        /* 💡 연대 순서 관리 로직들 */
-        function openEraModal() {
-            renderEraList();
-            openModal('eraModal');
-        }
+        function openEraModal() { renderEraList(); openModal('eraModal'); }
 
         function renderEraList() {
             const container = document.getElementById('era-list-container');
@@ -367,11 +396,11 @@
             state.eras[index] = state.eras[newIndex];
             state.eras[newIndex] = temp;
             renderEraList();
-            renderTimeline(); // 순서가 바뀌면 타임라인도 연동되어 리렌더링
+            renderTimeline();
         }
 
         function deleteEra(index) {
-            if (confirm("연대를 삭제하시겠습니까? 기록의 연대명은 유지되지만 정렬 순서에 영향을 줍니다.")) {
+            if (confirm("연대를 삭제하시겠습니까?")) {
                 state.eras.splice(index, 1);
                 renderEraList();
                 renderTimeline();
@@ -381,18 +410,12 @@
         function showTab(n) {
             document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
             document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-            
-            // 클릭된 탭 활성화
             event.target.classList.add('active');
             document.getElementById(n+'-view').classList.add('active');
 
-            // 스토리 탭일 경우에만 하단 FAB을 숨김
             const fabWrap = document.querySelector('.fab-wrap');
-            if (n === 'story') {
-                fabWrap.style.display = 'none';
-            } else {
-                fabWrap.style.display = 'block';
-            }
+            if (n === 'story') { fabWrap.style.display = 'none'; } 
+            else { fabWrap.style.display = 'block'; }
         }
 
         function openModal(id){ document.getElementById(id).classList.add('active'); }
