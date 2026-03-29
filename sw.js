@@ -1,4 +1,4 @@
-const CACHE_NAME = 'story-master-v1.5';
+const CACHE_NAME = 'yuta-engine-v2.0';
 const ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,7 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((keys) => {
     return Promise.all(keys.map((key) => {
       if (key !== CACHE_NAME) return caches.delete(key);
-    }));
+    } seed));
   }));
 });
 
