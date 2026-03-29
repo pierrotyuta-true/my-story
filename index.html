@@ -18,7 +18,7 @@
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
-        .header-side { width: 80px; display: flex; gap: 10px; align-items: center; }
+        .header-side { width: 80px; display: flex; gap: 15px; align-items: center; }
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
         .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; }
         .icon-btn:active { opacity: 1; transform: scale(0.9); }
@@ -34,7 +34,7 @@
         /* 타임라인 레이아웃 최적화 */
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 10px; }
         .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #dee2e6; transform: translateX(-50%); z-index: 1; }
-        .year-banner { display: flex; justify: center; margin: 30px 0 15px; width: 100%; position: relative; z-index: 10; display: flex; justify-content: center;}
+        .year-banner { display: flex; justify-content: center; margin: 30px 0 15px; width: 100%; position: relative; z-index: 10; }
         .year-text { background: var(--dark); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         .month-cluster { position: relative; width: 100%; margin-bottom: 40px; }
@@ -42,7 +42,7 @@
 
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 15px; gap: 40px; position: relative; }
         
-        /* 💡 노드 위치 정렬: 중앙선으로 이어지는 얇은 라인 배치 */
+        /* 노드 위치 정렬 */
         .timeline-card { background: #fff; padding: 12px; border-radius: 10px; width: 100%; box-shadow: 0 3px 10px rgba(0,0,0,0.06); position: relative; cursor: grab; z-index: 10; }
         .timeline-card:nth-child(odd) { justify-self: end; }
         .timeline-card:nth-child(even) { justify-self: start; }
@@ -65,7 +65,7 @@
         .modal-footer-clean { display: flex; padding: 12px; justify-content: space-around; border-top: 1px solid #f1f3f5; }
         .f-btn-text { background: none; border: none; font-size: 13px; color: var(--primary); font-weight: bold; cursor: pointer; padding: 5px 10px; }
 
-        /* 💡 입력 폼 정렬 개선 */
+        /* 입력 폼 정렬 */
         .input-group { margin-bottom: 15px; }
         .input-label { font-size: 11px; color: #adb5bd; margin-bottom: 5px; display: block; }
         .input-row { display: flex; gap: 5px; margin-bottom: 12px; width: 100%; }
@@ -79,9 +79,12 @@
 <body>
 
     <header class="app-header">
-        <div class="header-side"><button class="icon-btn" onclick="location.reload()">⟳</button></div>
+        <div class="header-side"></div>
         <div class="project-title" onclick="openModal('projectModal')">이그리에가 ▾</div>
-        <div class="header-side" style="justify-content: flex-end;"><button class="icon-btn" onclick="alert('자동 저장되었습니다.')">✔</button></div>
+        <div class="header-side" style="justify-content: flex-end;">
+            <button class="icon-btn" onclick="location.reload()">⟳</button>
+            <button class="icon-btn" onclick="alert('자동 저장되었습니다.')">✔</button>
+        </div>
     </header>
 
     <nav class="tab-menu">
@@ -105,7 +108,11 @@
     </div></div>
 
     <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:25px; border-radius:18px; width:320px;">
-        <h4 id="event-title" style="margin-bottom:20px; font-size:16px;">기록하기</h4>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h4 id="event-title" style="font-size:16px;">기록하기</h4>
+            <button class="f-btn-text" style="font-size:12px; border:1px solid #eee; border-radius:6px; padding:4px 8px; color:#495057;" onclick="openModal('eraModal')">연대관리</button>
+        </div>
         
         <div class="input-row">
             <select id="e-era" style="flex:1.5;"></select>
@@ -166,6 +173,15 @@
             });
         }
 
+        /* 💡 탭 전환 함수 복구 (스토리, 캐릭터 도감 열기 가능) */
+        function showTab(n, el) { 
+            state.currentTab = n; 
+            document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active')); 
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); 
+            el.classList.add('active'); 
+            document.getElementById(n+'-view').classList.add('active'); 
+        }
+
         function renderTimeline() {
             const list = document.getElementById('tl-list'); list.innerHTML = ''; 
             const grouped = state.storyboard.reduce((acc, cur) => {
@@ -208,7 +224,6 @@
             select.innerHTML = state.eras.map(e => `<option value="${e}">${e}</option>`).join('');
         }
 
-        /* 💡 연대 관리 기능 */
         function renderEras() {
             const list = document.getElementById('era-list');
             list.innerHTML = state.eras.map((era, idx) => `
@@ -236,7 +251,6 @@
             db.ref('users/Yuta/projects/기본/settings/eras').set(state.eras);
         }
 
-        /* 💡 가지 탭 푸터 조작 및 배경 유지 */
         function openDetailModal(id) {
             state.currentId = String(id);
             const ev = state.storyboard.find(i => i.id === state.currentId); if(!ev) return;
@@ -259,11 +273,9 @@
             document.querySelectorAll('.top-tab').forEach(t => { t.classList.remove('active'); t.style.background = 'rgba(255,255,255,0.4)'; });
             el.classList.add('active');
             
-            // 💡 본문은 항상 흰색, 탭에만 색상 부여
             if(type === 'desc') { el.style.background = 'white'; body.innerText = ev.text; } 
             else { el.style.background = color; body.innerText = ev.branches[bid].text; }
             
-            // 💡 탭 상태에 따라 푸터 버튼 완전 분리
             if(type === 'desc') {
                 footer.innerHTML = `
                     <button class="f-btn-text" onclick="openEditModal()">수정</button>
@@ -282,7 +294,6 @@
             db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove().then(() => { closeModal('detailModal'); });
         }
 
-        /* 💡 가지만 삭제하는 기능 */
         function deleteBranch(bid) {
             db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).remove().then(() => { closeModal('detailModal'); });
         }
