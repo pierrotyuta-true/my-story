@@ -41,12 +41,14 @@
         .month-node { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); width: 10px; height: 10px; background: white; border: 2.5px solid var(--node); border-radius: 50%; z-index: 5; }
 
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 10px; gap: 30px; min-height: 60px; }
+        
+        /* 💡 드래그 위치 꼬임 완치: CSS 자동 지그재그 정렬 */
         .timeline-card { background: #fff; padding: 10px; border-radius: 8px; width: 95%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10; }
-        .timeline-card.left { justify-self: end; margin-right: -5px; }
-        .timeline-card.right { justify-self: start; margin-left: -5px; }
-
+        .timeline-card:nth-child(odd) { justify-self: end; margin-right: -5px; }
+        .timeline-card:nth-child(even) { justify-self: start; margin-left: -5px; }
         .card-index { position: absolute; top: 8px; width: 14px; height: 25%; background: #ced4da; border-radius: 3px; z-index: -1; }
-        .left .card-index { left: -7px; } .right .card-index { right: -7px; }
+        .timeline-card:nth-child(odd) .card-index { left: -7px; } 
+        .timeline-card:nth-child(even) .card-index { right: -7px; }
 
         .modal-content.compact { width: 65%; height: 250px; position: relative; }
         .modal-main-card { background: white; border-radius: 12px; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
@@ -155,18 +157,18 @@
         const db = firebase.database();
         let state = { storyboard: [], currentId: null, currentTab: 'timeline' };
 
+        // 💡 삭제 & 가지추가 먹통 원인 해결: Firebase null 에러 방어선 구축 (filter)
         function syncData() {
             db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
-                const data = snap.val() ? Object.values(snap.val()) : [];
-                state.storyboard = data.map(i => ({...i, id: String(i.id)})).sort((a, b) => (a.order || 0) - (b.order || 0));
+                const rawData = snap.val() ? Object.values(snap.val()) : [];
+                state.storyboard = rawData.filter(Boolean).map(i => ({...i, id: String(i.id)})).sort((a, b) => (a.order || 0) - (b.order || 0));
                 renderTimeline();
             });
         }
 
-        // 💡 핵심 수정 파트: DOM 파괴 방식(innerHTML +=)에서 안전한 노드 추가 방식으로 전면 교체
         function renderTimeline() {
             const list = document.getElementById('tl-list'); 
-            list.innerHTML = ''; // 처음 한 번만 비우고
+            list.innerHTML = ''; 
             
             const grouped = state.storyboard.reduce((acc, cur) => {
                 const key = `${cur.era} ${cur.year}년`;
@@ -179,7 +181,7 @@
                 const banner = document.createElement('div');
                 banner.className = 'year-banner';
                 banner.innerHTML = `<span class="year-text">${yearKey}</span>`;
-                list.appendChild(banner); // 💡 appendChild로 안전하게 추가
+                list.appendChild(banner); 
 
                 for(const month in grouped[yearKey]) {
                     const cluster = document.createElement('div'); 
@@ -190,27 +192,20 @@
                     grid.className = 'event-grid';
                     grid.dataset.month = month;
 
-                    grouped[yearKey][month].forEach((ev, idx) => {
-                        const side = idx % 2 === 0 ? 'left' : 'right';
+                    grouped[yearKey][month].forEach((ev) => {
                         const card = document.createElement('div'); 
-                        card.className = `timeline-card ${side}`; 
+                        card.className = 'timeline-card'; // 💡 클래스 고정값 제거 (CSS nth-child로 위임)
                         card.dataset.id = String(ev.id);
-                        
-                        // 💡 클릭 이벤트 직접 삽입
                         card.innerHTML = `${(ev.branches) ? '<div class="card-index"></div>' : ''}<div onclick="openDetailModal('${ev.id}')"><div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div></div>`;
-                        
                         grid.appendChild(card);
                     });
                     
                     cluster.appendChild(grid); 
-                    list.appendChild(cluster); // 💡 appendChild로 안전하게 추가
+                    list.appendChild(cluster); 
                     
-                    // 💡 드래그 설정 (터치와 클릭 충돌 방지 딜레이 0.15초 추가)
                     new Sortable(grid, { 
                         group: { name: 'timeline', pull: true, put: true }, 
-                        animation: 150, 
-                        delay: 150, // 꾹 누를 때만 드래그 발동
-                        delayOnTouchOnly: true, // 모바일 기기(갤럭시 탭 등)에서만 딜레이 적용
+                        animation: 150, delay: 150, delayOnTouchOnly: true,
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
                             const newMonth = evt.to.dataset.month;
@@ -249,9 +244,10 @@
 
         function deleteCurrentEvent() {
             if(!state.currentId) return;
-            db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove().then(() => {
+            const targetId = state.currentId;
+            state.currentId = null; 
+            db.ref(`users/Yuta/projects/기본/storyboard/${targetId}`).remove().then(() => {
                 closeModal('detailModal');
-                state.currentId = null;
             });
         }
 
@@ -285,7 +281,18 @@
             db.ref('users/Yuta/projects/기본/storyboard').update(updates);
         }
 
-        function saveBranch() { const bid = Date.now(); db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).set({ id:bid, text:document.getElementById('b-text').value }); closeModal('branchModal'); }
+        // 💡 가지 추가 즉시 반영 및 입력창 초기화 로직 보강
+        function saveBranch() { 
+            const bid = String(Date.now()); 
+            db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`)
+              .set({ id: bid, text: document.getElementById('b-text').value })
+              .then(() => {
+                  document.getElementById('b-text').value = "";
+                  closeModal('branchModal');
+                  setTimeout(() => openDetailModal(state.currentId), 150);
+              }); 
+        }
+        
         function customConfirm(msg, onOk) { document.getElementById('confirm-msg').innerText = msg; openModal('confirmModal'); document.getElementById('confirm-ok').onclick = () => { onOk(); closeModal('confirmModal'); }; }
         function showTab(n, el) { state.currentTab = n; document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); el.classList.add('active'); document.getElementById(n+'-view').classList.add('active'); toggleFab(); }
         function openModal(id) { document.getElementById(id).classList.add('active'); }
