@@ -17,15 +17,13 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* 💡 헤더 수정: 타이틀 중앙, 우측 버튼 추가 */
-        .app-header { 
-            height: 60px; background: var(--dark); color: white; 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; 
-        }
-        .header-side { width: 80px; display: flex; gap: 15px; }
-        .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; }
-        .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; }
+        /* 헤더 & 상단 버튼 다듬기 */
+        .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
+        .header-side { width: 70px; display: flex; gap: 12px; align-items: center; }
+        .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 5px; border-radius: 8px; transition: 0.2s; }
+        .project-title:active { background: rgba(255,255,255,0.1); }
+        .icon-btn { cursor: pointer; font-size: 16px; background: rgba(255,255,255,0.1); width: 30px; height: 30px; border-radius: 50%; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .icon-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.9); }
 
         .tab-menu { position:fixed; top:60px; width:100%; display:flex; background:white; z-index:1999; height:45px; border-bottom:1px solid #eee; }
         .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; cursor:pointer; }
@@ -44,10 +42,7 @@
         .month-node { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); width: 10px; height: 10px; background: white; border: 2.5px solid var(--node); border-radius: 50%; z-index: 5; }
 
         .event-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; padding: 0 10px; gap: 30px; min-height: 60px; }
-        .timeline-card { 
-            background: #fff; padding: 10px; border-radius: 8px; width: 95%; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10;
-        }
+        .timeline-card { background: #fff; padding: 10px; border-radius: 8px; width: 95%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; cursor: grab; z-index: 10; }
         .timeline-card.left { justify-self: end; margin-right: -5px; }
         .timeline-card.right { justify-self: start; margin-left: -5px; }
 
@@ -65,20 +60,24 @@
         .f-btn-text { background: none; border: none; font-size: 12px; color: var(--primary); font-weight: bold; cursor: pointer; }
 
         .input-row { display: flex; gap: 5px; margin-bottom: 10px; width: 100%; }
-        .input-row select { flex: 1.5; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #ddd; }
         .input-row input { flex: 1; min-width: 0; padding: 8px; font-size: 12px; border-radius: 6px; border: 1px solid #ddd; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
+
+        /* 💡 서브메뉴 디자인 예쁘게 교체 */
+        #fab-sub { display: none; flex-direction: column; gap: 10px; position: absolute; bottom: 60px; right: 5px; align-items: flex-end; }
+        .sub-btn { background: white; padding: 10px 18px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 13px; font-weight: bold; border: none; color: var(--dark); cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .sub-btn:active { background: #f8f9fa; transform: scale(0.95); }
     </style>
 </head>
 <body>
 
     <header class="app-header">
         <div class="header-side"><div class="logo">Y</div></div>
-        <div class="project-title">이그리에가 ▾</div>
+        <div class="project-title" onclick="openModal('projectModal')">이그리에가 ▾</div>
         <div class="header-side" style="justify-content: flex-end;">
-            <button class="icon-btn" onclick="location.reload()">↻</button>
+            <button class="icon-btn" onclick="location.reload()">⟳</button>
             <button class="icon-btn" onclick="alert('자동 저장 중입니다.')">💾</button>
         </div>
     </header>
@@ -109,11 +108,13 @@
     </div></div>
 
     <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:12px; width:300px;">
-        <h4 id="event-title" style="font-size:14px; margin-bottom:12px;">기록 추가</h4>
-        <div class="input-row">
-            <select id="e-era"><option value="제국력">제국력</option><option value="대한민국">대한민국</option></select>
-            <input type="number" id="e-year" placeholder="년"><input type="number" id="e-month" placeholder="월">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4 id="event-title" style="font-size:14px; margin:0;">기록 추가</h4>
+            <select id="e-era" style="padding:4px 8px; font-size:11px; border-radius:6px; border:1px solid #ddd;">
+                <option value="제국력">제국력</option><option value="대한민국">대한민국</option>
+            </select>
         </div>
+        <div class="input-row"><input type="number" id="e-year" placeholder="년도 입력"><input type="number" id="e-month" placeholder="월 입력"></div>
         <textarea id="e-text" rows="4" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:13px; margin-bottom:10px;"></textarea>
         <div style="display:flex; gap:10px;"><button class="f-btn-text" onclick="saveEvent()">저장</button><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('eventModal')">취소</button></div>
     </div></div>
@@ -128,9 +129,26 @@
         <div style="display:flex; gap:10px;"><button class="f-btn-text" id="confirm-ok" style="flex:1; background:#f1f3f5; padding:10px; border-radius:8px;">확인</button><button class="f-btn-text" onclick="closeModal('confirmModal')" style="flex:1; background:#f1f3f5; padding:10px; border-radius:8px; color:#adb5bd;">취소</button></div>
     </div></div>
 
+    <div id="projectModal" class="modal">
+        <div class="modal-content" style="background:white; padding:20px; border-radius:12px; width:300px;">
+            <h4 style="font-size:14px; margin-bottom:15px;">프로젝트 관리</h4>
+            <div style="display:flex; gap:5px; margin-bottom:15px;">
+                <input type="text" id="new-project-name" placeholder="새 프로젝트명" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:12px;">
+                <button class="f-btn-text" onclick="addProjectDummy()" style="background:var(--primary); color:white; padding:0 12px; border-radius:6px;">추가</button>
+            </div>
+            <ul style="list-style:none; padding:0; margin-bottom:15px; max-height:150px; overflow-y:auto;">
+                <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; font-size:13px; font-weight:bold;">
+                    <span>✔ 이그리에가</span>
+                    <div><button class="f-btn-text" style="font-size:11px; margin-right:8px;" onclick="editProjectDummy()">수정</button><button class="f-btn-text" style="font-size:11px; color:#ff6b6b;" onclick="deleteProjectDummy()">삭제</button></div>
+                </li>
+            </ul>
+            <div style="text-align:right;"><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('projectModal')">닫기</button></div>
+        </div>
+    </div>
+
     <div class="fab-wrap" style="position:fixed; bottom:25px; right:20px; z-index:2001;">
         <div id="fab-sub"></div>
-        <button onclick="handleFabClick()" style="width:45px; height:45px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:22px; box-shadow:0 4px 10px rgba(0,0,0,0.2);">+</button>
+        <button onclick="handleFabClick()" style="width:45px; height:45px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:22px; box-shadow:0 4px 10px rgba(0,0,0,0.2); transition:0.2s; cursor:pointer;">+</button>
     </div>
 
     <script>
@@ -142,7 +160,6 @@
         function syncData() {
             db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
                 const data = snap.val() ? Object.values(snap.val()) : [];
-                // 💡 ID를 문자열로 강제 변환하여 매칭 오류 방지
                 state.storyboard = data.map(i => ({...i, id: String(i.id)})).sort((a, b) => (a.order || 0) - (b.order || 0));
                 renderTimeline();
             });
@@ -172,16 +189,19 @@
                         card.dataset.id = String(ev.id);
                         card.innerHTML = `${(ev.branches) ? '<div class="card-index"></div>' : ''}<div class="click-area"><div style="font-size:9px; color:var(--node); font-weight:bold;">${month}월</div><div style="font-size:11px; margin-top:3px; line-height:1.4;">${ev.text}</div></div>`;
                         
-                        // 💡 상세보기 클릭 이벤트 분리
                         card.querySelector('.click-area').onclick = () => openDetailModal(ev.id);
                         grid.appendChild(card);
                     });
                     cluster.appendChild(grid); list.appendChild(cluster);
+                    
+                    // 💡 드래그 복사 방지 엄격 설정 (pull: true, put: true)
                     new Sortable(grid, { 
-                        group: 'timeline', animation: 150, 
+                        group: { name: 'timeline', pull: true, put: true }, 
+                        animation: 150, 
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
                             const newMonth = evt.to.dataset.month;
+                            // 월 이동 즉시 업데이트 후 순서 재정렬
                             db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth }).then(reorderAll);
                         }
                     });
@@ -231,11 +251,12 @@
             sub.innerHTML = menu.map(m => `<button class="sub-btn" onclick="toggleFab();">${m}</button>`).join('');
         }
 
-        function openAddModal() { state.currentId = null; document.getElementById('event-title').innerText = "기록 추가"; document.getElementById('e-text').value = ""; openModal('eventModal'); }
+        function openAddModal() { state.currentId = null; document.getElementById('event-title').innerText = "기록 추가"; document.getElementById('e-text').value = ""; document.getElementById('e-year').value = ""; document.getElementById('e-month').value = ""; openModal('eventModal'); }
+        
         function openEditModal() { 
             const ev = state.storyboard.find(i => i.id === state.currentId);
             document.getElementById('event-title').innerText = "기록 수정";
-            document.getElementById('e-era').value = ev.era; document.getElementById('e-year').value = ev.year; document.getElementById('e-month').value = ev.month; document.getElementById('e-text').value = ev.text;
+            document.getElementById('e-era').value = ev.era || '제국력'; document.getElementById('e-year').value = ev.year; document.getElementById('e-month').value = ev.month; document.getElementById('e-text').value = ev.text;
             closeModal('detailModal'); openModal('eventModal'); 
         }
 
@@ -258,6 +279,11 @@
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function toggleFab() { document.getElementById('fab-sub').style.display = 'none'; }
+
+        /* 프로젝트 모달용 더미 함수 */
+        function addProjectDummy() { alert("프로젝트가 추가되었습니다."); document.getElementById('new-project-name').value = ""; }
+        function editProjectDummy() { const p = prompt("새로운 프로젝트 이름을 입력하세요.", "이그리에가"); if(p) alert(`'${p}'(으)로 이름이 변경되었습니다.`); }
+        function deleteProjectDummy() { customConfirm("정말로 이 프로젝트를 삭제하시겠습니까?", () => alert("삭제 완료")); }
 
         syncData();
     </script>
