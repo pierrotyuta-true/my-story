@@ -29,7 +29,7 @@
         /* 상단 네비게이션 & 탭바 */
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; }
+        .icon-btn { cursor: pointer; font-size: 14px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; font-weight: 500; }
 
         .tab-menu { position:fixed; top:60px; width:100%; display:flex; background:white; z-index:1999; height:45px; border-bottom:1px solid #eee; }
         .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; cursor:pointer; }
@@ -46,7 +46,7 @@
         .year-banner { display: flex; justify-content: center; margin: 25px 0 10px; width: 100%; position: relative; z-index: 10; }
         .year-text { background: var(--dark); color: white; padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
-        /* 같은 달의 그룹 묶음 (간격 줄임) */
+        /* 같은 달의 그룹 묶음 */
         .month-cluster { 
             position: relative; 
             margin-bottom: 15px; 
@@ -66,7 +66,7 @@
             z-index: 10;
         }
         
-        /* 2열 구조 (자유롭지만 안정적인 자리 지정) */
+        /* 2열 구조 */
         .event-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -75,12 +75,11 @@
             position: relative;
         }
 
-        /* 왼쪽/오른쪽 세로 정렬 영역 */
         .col {
             display: flex;
             flex-direction: column;
-            gap: 6px; /* 그룹화 느낌을 위해 카드 간격 대폭 축소 */
-            min-height: 40px; /* 비어있어도 드롭 가능하도록 공간 유지 */
+            gap: 6px; 
+            min-height: 40px; 
         }
         .left-col { align-items: flex-end; }
         .right-col { align-items: flex-start; }
@@ -105,9 +104,9 @@
 
         .card-text { font-size: 13px; color: #212529; line-height: 1.4; font-weight: 500; white-space: pre-wrap; width: 100%; pointer-events: none; }
 
-        /* 인덱스 탭 디자인 */
-        .left-col .timeline-card .branch-tab { position: absolute; left: -5px; top: 12px; width: 5px; height: 16px; background: #ffd43b; border-radius: 3px 0 0 3px; }
-        .right-col .timeline-card .branch-tab { position: absolute; right: -5px; top: 12px; width: 5px; height: 16px; background: #ffd43b; border-radius: 0 3px 3px 0; }
+        /* 인덱스 탭 디자인 (회색, 위쪽 이동, 더 튀어나옴) */
+        .left-col .timeline-card .branch-tab { position: absolute; left: -8px; top: 6px; width: 8px; height: 16px; background: #adb5bd; border-radius: 3px 0 0 3px; }
+        .right-col .timeline-card .branch-tab { position: absolute; right: -8px; top: 6px; width: 8px; height: 16px; background: #adb5bd; border-radius: 0 3px 3px 0; }
 
         /* 모달 및 기타 UI */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
@@ -137,9 +136,12 @@
 <body>
 
     <header class="app-header">
-        <div style="width: 50px;"></div>
-        <div class="project-title">이그리에가 ▾</div>
-        <div style="display:flex; gap: 15px;"><button class="icon-btn">✔</button><button class="icon-btn">✔</button></div>
+        <div style="width: 40px; font-weight: 900; color: #4dabf7; font-size: 18px;">YE</div>
+        <div class="project-title" onclick="openModal('projectModal')">이그리에가 ▾</div>
+        <div style="display:flex; gap: 10px;">
+            <button class="icon-btn" onclick="syncData()">갱신</button>
+            <button class="icon-btn" onclick="alert('데이터가 자동 저장되고 있습니다.')">저장</button>
+        </div>
     </header>
 
     <nav class="tab-menu">
@@ -200,6 +202,24 @@
         </div>
     </div></div>
 
+    <div id="confirmModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:260px; text-align:center;">
+        <p id="confirm-msg" style="margin-bottom:20px; font-size:14px; color:#495057;">정말 삭제하시겠습니까?</p>
+        <div style="display:flex; gap:10px;">
+            <button style="flex:1; background:#ff6b6b; color:white; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer;" id="confirm-yes">삭제</button>
+            <button style="flex:1; background:#f1f3f5; color:#868e96; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer;" onclick="closeModal('confirmModal')">취소</button>
+        </div>
+    </div></div>
+
+    <div id="projectModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:260px;">
+        <h4 style="margin-bottom:15px; font-size:14px; text-align:center;">프로젝트 관리</h4>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <button style="border:none; background:#f1f3f5; border-radius:8px; padding:12px; color:#495057; font-size:13px; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">프로젝트 설정</button>
+            <button style="border:none; background:#f1f3f5; border-radius:8px; padding:12px; color:#495057; font-size:13px; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">프로젝트 수정</button>
+            <button style="border:none; background:#ffe3e3; border-radius:8px; padding:12px; color:#ff6b6b; font-size:13px; font-weight:bold; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">프로젝트 삭제</button>
+        </div>
+        <div style="display:flex; justify-content:center; margin-top:15px;"><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('projectModal')">닫기</button></div>
+    </div></div>
+
     <div class="fab-wrap"><button class="main-fab" onclick="openAddModal()">+</button></div>
 
     <script>
@@ -253,7 +273,6 @@
                     node.className = 'month-node';
                     cluster.appendChild(node);
 
-                    // 그리드 및 좌우 컬럼 구조 생성
                     const grid = document.createElement('div'); grid.className = 'event-grid'; 
                     
                     const leftCol = document.createElement('div'); leftCol.className = 'col left-col';
@@ -276,13 +295,13 @@
                             indexTabHtml = `<div class="branch-tab"></div>`;
                         }
 
-                        card.innerHTML = `${indexTabHtml}<div class="card-text">${ev.text}</div>`;
+                        // 카드 텍스트 내부에 월 표시 추가
+                        card.innerHTML = `${indexTabHtml}<div class="card-text"><span style="display:block; font-size:11px; color:#adb5bd; margin-bottom:2px;">${ev.month}월</span>${ev.text}</div>`;
                         
                         card.addEventListener('click', () => {
                             openDetailModal(ev.id);
                         });
 
-                        // 저장된 방향에 맞게 카드 분배
                         if (side === 'left') leftCol.appendChild(card);
                         else rightCol.appendChild(card);
                     });
@@ -290,7 +309,6 @@
                     cluster.appendChild(grid); 
                     list.appendChild(cluster); 
                     
-                    // 각 컬럼별로 SortableJS를 독립 부여하되 group으로 연동
                     const sortableOptions = {
                         group: 'timeline',
                         animation: 150,
@@ -298,10 +316,10 @@
                         delayOnTouchOnly: true,
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
-                            const targetCol = evt.to; // 도착한 컬럼
+                            const targetCol = evt.to; 
                             const newMonth = targetCol.dataset.month;
                             const parts = targetCol.dataset.yearKey.split(' ');
-                            const side = targetCol.dataset.side; // 드롭된 컬럼의 방향 (left/right)
+                            const side = targetCol.dataset.side; 
                             
                             db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ 
                                 month: newMonth, 
@@ -322,7 +340,6 @@
             setTimeout(renderCurves, 100);
         }
 
-        // 선은 지우고 노드 위치만 잡아주는 함수
         function renderCurves() {
             document.querySelectorAll('.month-cluster').forEach(cluster => {
                 const node = cluster.querySelector('.month-node');
@@ -335,7 +352,6 @@
                 const clusterRect = cluster.getBoundingClientRect();
                 const firstCardRect = firstCard.getBoundingClientRect();
                 
-                // 노드의 Y 위치를 첫 번째 카드의 중간 높이로 정밀 조정
                 const nodeY = firstCardRect.top + firstCardRect.height / 2 - clusterRect.top;
                 node.style.top = `${nodeY}px`;
             });
@@ -383,6 +399,16 @@
             }
         }
 
+        // 시스템 확인창을 대체하는 커스텀 확인 함수
+        function customConfirm(msg, callback) {
+            document.getElementById('confirm-msg').innerText = msg;
+            openModal('confirmModal');
+            document.getElementById('confirm-yes').onclick = function() {
+                callback();
+                closeModal('confirmModal');
+            };
+        }
+
         function openAddModal() { state.currentId = null; document.getElementById('event-title').innerText = "기록하기"; document.getElementById('e-text').value = ""; openModal('eventModal'); }
         function openEditModal() { 
             const ev = state.storyboard.find(i => i.id === state.currentId);
@@ -391,8 +417,19 @@
             closeModal('detailModal'); openModal('eventModal'); 
         }
         function saveEvent() { const id = state.currentId || String(Date.now()); const data = { id, era: document.getElementById('e-era').value, year: document.getElementById('e-year').value, month: document.getElementById('e-month').value, text: document.getElementById('e-text').value, order: state.currentId ? state.storyboard.find(i=>i.id===id).order : state.storyboard.length, branches: state.currentId ? state.storyboard.find(i=>i.id===id).branches : {} }; db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update(data).then(() => closeModal('eventModal')); }
-        function deleteCurrentEvent() { if(confirm('삭제하시겠습니까?')) db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove().then(() => closeModal('detailModal')); }
-        function deleteBranch(bid) { if(confirm('가지를 삭제할까요?')) db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).remove().then(() => { closeModal('detailModal'); setTimeout(() => openDetailModal(state.currentId), 100); }); }
+        
+        // 커스텀 확인 모달 적용
+        function deleteCurrentEvent() { 
+            customConfirm('삭제하시겠습니까?', () => {
+                db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove().then(() => closeModal('detailModal')); 
+            });
+        }
+        
+        function deleteBranch(bid) { 
+            customConfirm('가지를 삭제할까요?', () => {
+                db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).remove().then(() => { closeModal('detailModal'); setTimeout(() => openDetailModal(state.currentId), 100); }); 
+            });
+        }
         
         function updateEraSelect() { const select = document.getElementById('e-era'); select.innerHTML = state.eras.map(e => `<option value="${e}">${e}</option>`).join(''); }
         function renderEras() { const list = document.getElementById('era-list'); list.innerHTML = state.eras.map((era, idx) => `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:12px;"><span style="color:#495057;">${era}</span><button class="f-btn-text" style="font-size:11px;" onclick="moveEra(${idx}, -1)">▲</button><button class="f-btn-text" style="font-size:11px;" onclick="moveEra(${idx}, 1)">▼</button><button class="f-btn-text" style="color:#ff6b6b; font-size:11px;" onclick="deleteEra(${idx})">삭제</button></div>`).join(''); }
