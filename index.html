@@ -53,16 +53,15 @@
             padding: 15px 0;
         }
 
-        /* 중앙 모이는 지점에 위치할 고정 노드 */
+        /* 중앙 모이는 지점에 위치할 고정 노드 (JS에서 top 위치 제어) */
         .month-node {
             position: absolute;
             left: 50%;
-            top: 50%;
             transform: translate(-50%, -50%);
             width: 10px;
             height: 10px;
             background: white;
-            border: 2px solid var(--primary);
+            border: 2px solid #4dabf7; /* 노드 링 색상은 포인트로 유지 */
             border-radius: 50%;
             z-index: 10;
         }
@@ -272,7 +271,6 @@
 
                         card.innerHTML = `${indexTabHtml}<div class="card-text">${ev.text}</div>`;
                         
-                        // 안정적인 클릭 처리
                         card.addEventListener('click', () => {
                             openDetailModal(ev.id);
                         });
@@ -283,11 +281,10 @@
                     cluster.appendChild(grid); 
                     list.appendChild(cluster); 
                     
-                    // 드래그 앤 드롭 터치 감도 조절 (클릭 먹통 해결)
                     new Sortable(grid, { 
                         group: 'timeline', 
                         animation: 200, 
-                        delay: 150, // 0.15초 동안 꾹 누르면 드래그 시작 (모바일 스크롤 및 클릭 확보)
+                        delay: 150, 
                         delayOnTouchOnly: true,
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
@@ -307,35 +304,41 @@
                                 side: side
                             }).then(() => {
                                 reorderAll();
-                                setTimeout(renderCurves, 100); // 드롭 완료 후 선 다시 그리기
+                                setTimeout(renderCurves, 100); 
                             });
                         }
                     });
                 }
             }
-            // 렌더링 완료 후 곡선 생성
             setTimeout(renderCurves, 100);
         }
 
-        // SVG 곡선을 그려주는 동적 함수
+        // SVG 곡선을 그려주는 동적 함수 (노드를 첫 번째 줄에 고정)
         function renderCurves() {
             document.querySelectorAll('.month-cluster').forEach(cluster => {
                 const oldSvg = cluster.querySelector('.month-svg');
                 if (oldSvg) oldSvg.remove();
                 
                 const node = cluster.querySelector('.month-node');
-                const cards = cluster.querySelectorAll('.timeline-card');
-                if (!node || cards.length === 0) return;
+                const grid = cluster.querySelector('.event-grid');
+                if (!node || !grid) return;
+                
+                const firstCard = grid.querySelector('.timeline-card');
+                if (!firstCard) return; // 카드가 없으면 그리지 않음
                 
                 const clusterRect = cluster.getBoundingClientRect();
-                const nodeRect = node.getBoundingClientRect();
+                const firstCardRect = firstCard.getBoundingClientRect();
                 
-                const nodeX = nodeRect.left + nodeRect.width / 2 - clusterRect.left;
-                const nodeY = nodeRect.top + nodeRect.height / 2 - clusterRect.top;
+                // ★ 노드의 Y 위치를 첫 번째 카드의 중간 높이로 정밀 조정
+                const nodeY = firstCardRect.top + firstCardRect.height / 2 - clusterRect.top;
+                node.style.top = `${nodeY}px`;
+                
+                const nodeX = clusterRect.width / 2;
                 
                 const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 svg.setAttribute('class', 'month-svg');
                 
+                const cards = grid.querySelectorAll('.timeline-card');
                 cards.forEach(card => {
                     const cardRect = card.getBoundingClientRect();
                     const isLeft = card.classList.contains('left');
@@ -352,18 +355,24 @@
                     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     const dist = Math.abs(nodeX - cardX);
                     
-                    // Bezier 곡선 컨트롤 포인트 계산 (거리의 40%만큼 부드럽게 꺾임)
-                    const cp1X = isLeft ? cardX + dist * 0.4 : cardX - dist * 0.4;
-                    const cp1Y = cardY;
-                    const cp2X = isLeft ? nodeX - dist * 0.4 : nodeX + dist * 0.4;
-                    const cp2Y = nodeY;
+                    let d;
+                    // 높이 차이가 거의 없다면(첫 번째 줄 등) 깔끔하게 수평 직선 처리
+                    if (Math.abs(cardY - nodeY) < 5) {
+                        d = `M ${cardX} ${nodeY} L ${nodeX} ${nodeY}`;
+                    } else {
+                        // 그 외엔 부드럽게 흘러들어가는 S자 곡선 처리
+                        const cp1X = isLeft ? cardX + dist * 0.5 : cardX - dist * 0.5;
+                        const cp1Y = cardY;
+                        const cp2X = cp1X;
+                        const cp2Y = nodeY;
+                        
+                        d = `M ${cardX} ${cardY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${nodeX} ${nodeY}`;
+                    }
                     
-                    const d = `M ${cardX} ${cardY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${nodeX} ${nodeY}`;
                     path.setAttribute('d', d);
-                    path.setAttribute('stroke', '#4dabf7'); // primary 컬러
-                    path.setAttribute('stroke-width', '2');
+                    path.setAttribute('stroke', '#e2e8f0'); // 중앙선 색상 맞춤
+                    path.setAttribute('stroke-width', '2'); // 중앙선 굵기 맞춤
                     path.setAttribute('fill', 'none');
-                    path.setAttribute('opacity', '0.7');
                     
                     svg.appendChild(path);
                 });
@@ -372,7 +381,7 @@
             });
         }
 
-        window.addEventListener('resize', renderCurves); // 화면 크기 변할 때 곡선 갱신
+        window.addEventListener('resize', renderCurves); 
 
         function reorderAll() { const updates = {}; document.querySelectorAll('.timeline-card').forEach((card, i) => { updates[`${card.dataset.id}/order`] = i; }); db.ref('users/Yuta/projects/기본/storyboard').update(updates); }
 
