@@ -28,8 +28,12 @@
 
         /* 상단 네비게이션 & 탭바 */
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
-        .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        .icon-btn { cursor: pointer; font-size: 14px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; font-weight: 500; }
+        
+        /* 프로젝트 명 폰트 축소 (16px -> 14px) */
+        .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 14px; cursor: pointer; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* 갱신, 저장 폰트 축소 (14px -> 12px) */
+        .icon-btn { cursor: pointer; font-size: 12px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; font-weight: 500; }
 
         .tab-menu { position:fixed; top:60px; width:100%; display:flex; background:white; z-index:1999; height:45px; border-bottom:1px solid #eee; }
         .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; cursor:pointer; }
@@ -43,7 +47,7 @@
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 10px; }
         .center-line { position: absolute; left: 50%; transform: translateX(-50%); top: 0; bottom: 0; width: 2px; background: var(--line); z-index: 1; }
         
-        .year-banner { display: flex; justify-content: center; margin: 25px 0 10px; width: 100%; position: relative; z-index: 10; }
+        .year-banner { display: flex; justify: center; margin: 25px 0 10px; width: 100%; position: relative; z-index: 10; }
         .year-text { background: var(--dark); color: white; padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
         /* 같은 달의 그룹 묶음 */
@@ -136,7 +140,7 @@
 <body>
 
     <header class="app-header">
-        <div style="width: 40px; font-weight: 900; color: #4dabf7; font-size: 18px;">YE</div>
+        <div style="width: 40px; font-weight: 900; color: #4dabf7; font-size: 18px;">✦</div>
         <div class="project-title" onclick="openModal('projectModal')">이그리에가 ▾</div>
         <div style="display:flex; gap: 10px;">
             <button class="icon-btn" onclick="syncData()">갱신</button>
@@ -210,13 +214,28 @@
         </div>
     </div></div>
 
-    <div id="projectModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:260px;">
+    <div id="projectModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;">
         <h4 style="margin-bottom:15px; font-size:14px; text-align:center;">프로젝트 관리</h4>
+        
         <div style="display:flex; flex-direction:column; gap:10px;">
-            <button style="border:none; background:#f1f3f5; border-radius:8px; padding:12px; color:#495057; font-size:13px; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">프로젝트 설정</button>
-            <button style="border:none; background:#f1f3f5; border-radius:8px; padding:12px; color:#495057; font-size:13px; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">프로젝트 수정</button>
-            <button style="border:none; background:#ffe3e3; border-radius:8px; padding:12px; color:#ff6b6b; font-size:13px; font-weight:bold; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">프로젝트 삭제</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;">
+                <span style="font-size:13px; font-weight:bold; color:#495057;">이그리에가</span>
+                <div style="display:flex; gap:5px;">
+                    <button class="f-btn-text" style="font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">수정</button>
+                    <button class="f-btn-text" style="color:#ff6b6b; font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">삭제</button>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;">
+                <span style="font-size:13px; font-weight:bold; color:#495057;">기본 프로젝트</span>
+                <div style="display:flex; gap:5px;">
+                    <button class="f-btn-text" style="font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">수정</button>
+                    <button class="f-btn-text" style="color:#ff6b6b; font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">삭제</button>
+                </div>
+            </div>
         </div>
+
+        <button style="width:100%; border:none; background:var(--primary); color:white; border-radius:8px; padding:12px; font-size:13px; font-weight:bold; margin-top:15px; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">+ 새 프로젝트 생성</button>
+        
         <div style="display:flex; justify-content:center; margin-top:15px;"><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('projectModal')">닫기</button></div>
     </div></div>
 
@@ -259,13 +278,33 @@
                 acc[key][cur.month].push(cur); return acc;
             }, {});
 
-            for(const yearKey in grouped) {
+            // 연대순(eras 배열에 등록된 순서) -> 년도순으로 정렬하는 로직
+            const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                const partsA = a.split(' ');
+                const partsB = b.split(' ');
+                const eraA = partsA[0];
+                const eraB = partsB[0];
+                const yearA = parseInt(partsA[1].replace('년', ''));
+                const yearB = parseInt(partsB[1].replace('년', ''));
+
+                const indexA = state.eras.indexOf(eraA);
+                const indexB = state.eras.indexOf(eraB);
+
+                const fixIdxA = indexA === -1 ? 999 : indexA;
+                const fixIdxB = indexB === -1 ? 999 : indexB;
+
+                if (fixIdxA !== fixIdxB) return fixIdxA - fixIdxB; 
+                return yearA - yearB; 
+            });
+
+            sortedKeys.forEach(yearKey => {
                 const banner = document.createElement('div'); banner.className = 'year-banner'; 
                 banner.innerHTML = `<span class="year-text">${yearKey}</span>`; 
                 list.appendChild(banner); 
 
-                for(const month in grouped[yearKey]) {
-                    if (grouped[yearKey][month].length === 0) continue;
+                const months = Object.keys(grouped[yearKey]).sort((a, b) => parseInt(a) - parseInt(b));
+                months.forEach(month => {
+                    if (grouped[yearKey][month].length === 0) return;
                     
                     const cluster = document.createElement('div'); cluster.className = 'month-cluster';
                     
@@ -295,7 +334,6 @@
                             indexTabHtml = `<div class="branch-tab"></div>`;
                         }
 
-                        // 카드 텍스트 내부에 월 표시 추가
                         card.innerHTML = `${indexTabHtml}<div class="card-text"><span style="display:block; font-size:11px; color:#adb5bd; margin-bottom:2px;">${ev.month}월</span>${ev.text}</div>`;
                         
                         card.addEventListener('click', () => {
@@ -335,8 +373,8 @@
 
                     new Sortable(leftCol, sortableOptions);
                     new Sortable(rightCol, sortableOptions);
-                }
-            }
+                });
+            });
             setTimeout(renderCurves, 100);
         }
 
@@ -399,7 +437,6 @@
             }
         }
 
-        // 시스템 확인창을 대체하는 커스텀 확인 함수
         function customConfirm(msg, callback) {
             document.getElementById('confirm-msg').innerText = msg;
             openModal('confirmModal');
@@ -418,7 +455,6 @@
         }
         function saveEvent() { const id = state.currentId || String(Date.now()); const data = { id, era: document.getElementById('e-era').value, year: document.getElementById('e-year').value, month: document.getElementById('e-month').value, text: document.getElementById('e-text').value, order: state.currentId ? state.storyboard.find(i=>i.id===id).order : state.storyboard.length, branches: state.currentId ? state.storyboard.find(i=>i.id===id).branches : {} }; db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update(data).then(() => closeModal('eventModal')); }
         
-        // 커스텀 확인 모달 적용
         function deleteCurrentEvent() { 
             customConfirm('삭제하시겠습니까?', () => {
                 db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}`).remove().then(() => closeModal('detailModal')); 
@@ -445,3 +481,4 @@
     </script>
 </body>
 </html>
+
