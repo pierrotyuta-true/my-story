@@ -24,8 +24,8 @@
             background-size: 20px 20px;
             color: var(--text); 
             overflow-x: hidden; 
-            
-            /* ★ [수정] 텍스트 선택 및 기본 검색 팝업(Context Menu) 완전 차단 ★ */
+
+            /* ★ [추가] 구글 검색 및 텍스트 선택 차단 ★ */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -33,7 +33,7 @@
             -webkit-touch-callout: none;
         }
 
-        /* ★ [수정] 입력창(input, textarea, select)은 예외로 두어 타자는 칠 수 있게 허용 ★ */
+        /* ★ [추가] 입력창은 타이핑이 가능해야 하므로 제외 ★ */
         input, textarea, select {
             -webkit-user-select: auto;
             -moz-user-select: auto;
@@ -51,28 +51,12 @@
             color: #4dabf7;
             text-decoration: none;
         }
-        .logo-symbol {
-            font-size: 20px;
-            font-weight: 900;
-        }
-        .logo-text-box {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1; 
-            margin-top: -1px; 
-        }
-        .logo-text-upper {
-            font-size: 9px;
-            font-weight: 300; 
-            letter-spacing: 0.1em;
-            opacity: 0.9;
-        }
-        .logo-text-lower {
-            font-size: 13px;
-            font-weight: 800; 
-            letter-spacing: 0.05em;
-        }
+        .logo-symbol { font-size: 20px; font-weight: 900; }
+        .logo-text-box { display: flex; flex-direction: column; line-height: 1.1; margin-top: -1px; }
+        .logo-text-upper { font-size: 9px; font-weight: 300; letter-spacing: 0.1em; opacity: 0.9; }
+        .logo-text-lower { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; }
 
+        /* ★ [복구] 프로젝트명 테두리 제거 ★ */
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 14px; cursor: pointer; padding: 6px; border-radius: 8px; border: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; margin: 0 10px; }
         
         .icon-btn { cursor: pointer; font-size: 12px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; font-weight: 500; }
@@ -89,6 +73,7 @@
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 10px; }
         .center-line { position: absolute; left: 50%; transform: translateX(-50%); top: 0; bottom: 0; width: 2px; background: var(--line); z-index: 1; }
         
+        /* ★ [복구] 연대 배너 가운데 정렬 (justify-content) ★ */
         .year-banner { display: flex; justify-content: center; margin: 25px 0 10px; width: 100%; position: relative; z-index: 10; }
         .year-text { background: var(--dark); color: white; padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
@@ -158,76 +143,12 @@
         <div id="treats-view" class="view" style="padding: 20px;"><div style="background:white; padding:20px; border-radius:15px;">준비 중...</div></div>
     </main>
 
-    <div id="detailModal" class="modal"><div class="modal-content compact">
-        <div class="top-tabs" id="modal-tab-container"></div>
-        <div class="modal-main-card">
-            <div id="detail-body"></div>
-            <div class="modal-footer-clean" id="detail-footer"></div>
-        </div>
-    </div></div>
-
-    <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:25px; border-radius:18px; width:320px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h4 id="event-title" style="font-size:16px;">기록하기</h4>
-            <button class="icon-btn" style="color:#adb5bd; font-size:16px;" onclick="openModal('eraModal')">⚙</button>
-        </div>
-        <div class="input-row">
-            <select id="e-era"></select>
-            <input type="number" id="e-year" placeholder="년도"> 
-            <input type="number" id="e-month" placeholder="월">
-        </div>
-        <div class="input-row"><textarea id="e-text" rows="5" placeholder="어떤 일이 일어났나요?"></textarea></div>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button style="flex:1; background:var(--primary); color:white; border:none; border-radius:10px; padding:12px; font-weight:bold;" onclick="saveEvent()">저장하기</button>
-            <button style="flex:1; background:#f1f3f5; color:#adb5bd; border:none; border-radius:10px; padding:12px; font-weight:bold;" onclick="closeModal('eventModal')">닫기</button>
-        </div>
-    </div></div>
-
-    <div id="eraModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;">
-        <h4 style="margin-bottom:15px; font-size:14px;">연대 관리</h4>
-        <div id="era-list" style="max-height:150px; overflow-y:auto; margin-bottom:15px;"></div>
-        <div class="input-row" style="margin-bottom:0;"><input type="text" id="new-era-name" placeholder="새 연대 이름" style="flex:1;"><button class="f-btn-text" style="background:var(--primary); color:white; border-radius:8px; padding:0 10px;" onclick="addNewEra()">추가</button></div>
-        <div style="display:flex; justify-content:flex-end; margin-top:15px;"><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('eraModal')">닫기</button></div>
-    </div></div>
-
-    <div id="branchModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;">
-        <h4 style="margin-bottom:15px; font-size:14px;">새로운 가지 추가</h4>
-        <textarea id="b-text" rows="4" placeholder="분기 내용을 입력하세요..."></textarea>
-        <div style="display:flex; gap:10px; margin-top:15px; justify-content:flex-end;">
-            <button class="f-btn-text" onclick="saveBranch()">저장</button>
-            <button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('branchModal')">취소</button>
-        </div>
-    </div></div>
-
-    <div id="confirmModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:260px; text-align:center;">
-        <p id="confirm-msg" style="margin-bottom:20px; font-size:14px; color:#495057;">정말 삭제하시겠습니까?</p>
-        <div style="display:flex; gap:10px;">
-            <button style="flex:1; background:#ff6b6b; color:white; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer;" id="confirm-yes">삭제</button>
-            <button style="flex:1; background:#f1f3f5; color:#868e96; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer;" onclick="closeModal('confirmModal')">취소</button>
-        </div>
-    </div></div>
-
-    <div id="projectModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;">
-        <h4 style="margin-bottom:15px; font-size:14px; text-align:center;">프로젝트 관리</h4>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;">
-                <span style="font-size:13px; font-weight:bold; color:#495057;">이그리에가</span>
-                <div style="display:flex; gap:5px;">
-                    <button class="f-btn-text" style="font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">수정</button>
-                    <button class="f-btn-text" style="color:#ff6b6b; font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">삭제</button>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;">
-                <span style="font-size:13px; font-weight:bold; color:#495057;">기본 프로젝트</span>
-                <div style="display:flex; gap:5px;">
-                    <button class="f-btn-text" style="font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">수정</button>
-                    <button class="f-btn-text" style="color:#ff6b6b; font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">삭제</button>
-                </div>
-            </div>
-        </div>
-        <button style="width:100%; border:none; background:var(--primary); color:white; border-radius:8px; padding:12px; font-size:13px; font-weight:bold; margin-top:15px; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">+ 새 프로젝트 생성</button>
-        <div style="display:flex; justify-content:center; margin-top:15px;"><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('projectModal')">닫기</button></div>
-    </div></div>
+    <div id="detailModal" class="modal"><div class="modal-content compact"><div class="top-tabs" id="modal-tab-container"></div><div class="modal-main-card"><div id="detail-body"></div><div class="modal-footer-clean" id="detail-footer"></div></div></div></div>
+    <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:25px; border-radius:18px; width:320px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;"><h4 id="event-title" style="font-size:16px;">기록하기</h4><button class="icon-btn" style="color:#adb5bd; font-size:16px;" onclick="openModal('eraModal')">⚙</button></div><div class="input-row"><select id="e-era"></select><input type="number" id="e-year" placeholder="년도"> <input type="number" id="e-month" placeholder="월"></div><div class="input-row"><textarea id="e-text" rows="5" placeholder="어떤 일이 일어났나요?"></textarea></div><div style="display:flex; gap:10px; margin-top:20px;"><button style="flex:1; background:var(--primary); color:white; border:none; border-radius:10px; padding:12px; font-weight:bold;" onclick="saveEvent()">저장하기</button><button style="flex:1; background:#f1f3f5; color:#adb5bd; border:none; border-radius:10px; padding:12px; font-weight:bold;" onclick="closeModal('eventModal')">닫기</button></div></div></div>
+    <div id="eraModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;"><h4 style="margin-bottom:15px; font-size:14px;">연대 관리</h4><div id="era-list" style="max-height:150px; overflow-y:auto; margin-bottom:15px;"></div><div class="input-row" style="margin-bottom:0;"><input type="text" id="new-era-name" placeholder="새 연대 이름" style="flex:1;"><button class="f-btn-text" style="background:var(--primary); color:white; border-radius:8px; padding:0 10px;" onclick="addNewEra()">추가</button></div><div style="display:flex; justify-content:flex-end; margin-top:15px;"><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('eraModal')">닫기</button></div></div></div>
+    <div id="branchModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;"><h4 style="margin-bottom:15px; font-size:14px;">새로운 가지 추가</h4><textarea id="b-text" rows="4" placeholder="분기 내용을 입력하세요..."></textarea><div style="display:flex; gap:10px; margin-top:15px; justify-content:flex-end;"><button class="f-btn-text" onclick="saveBranch()">저장</button><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('branchModal')">취소</button></div></div></div>
+    <div id="confirmModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:260px; text-align:center;"><p id="confirm-msg" style="margin-bottom:20px; font-size:14px; color:#495057;">정말 삭제하시겠습니까?</p><div style="display:flex; gap:10px;"><button style="flex:1; background:#ff6b6b; color:white; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer;" id="confirm-yes">삭제</button><button style="flex:1; background:#f1f3f5; color:#868e96; border:none; border-radius:8px; padding:10px; font-weight:bold; cursor:pointer;" onclick="closeModal('confirmModal')">취소</button></div></div></div>
+    <div id="projectModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:280px;"><h4 style="margin-bottom:15px; font-size:14px; text-align:center;">프로젝트 관리</h4><div style="display:flex; flex-direction:column; gap:10px;"><div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;"><span style="font-size:13px; font-weight:bold; color:#495057;">이그리에가</span><div style="display:flex; gap:5px;"><button class="f-btn-text" style="font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">수정</button><button class="f-btn-text" style="color:#ff6b6b; font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">삭제</button></div></div><div style="display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; padding:10px; border-radius:8px;"><span style="font-size:13px; font-weight:bold; color:#495057;">기본 프로젝트</span><div style="display:flex; gap:5px;"><button class="f-btn-text" style="font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">수정</button><button class="f-btn-text" style="color:#ff6b6b; font-size:11px; padding:2px 5px;" onclick="alert('준비 중인 기능입니다.')">삭제</button></div></div></div><button style="width:100%; border:none; background:var(--primary); color:white; border-radius:8px; padding:12px; font-size:13px; font-weight:bold; margin-top:15px; cursor:pointer;" onclick="alert('준비 중인 기능입니다.')">+ 새 프로젝트 생성</button><div style="display:flex; justify-content:center; margin-top:15px;"><button class="f-btn-text" style="color:#adb5bd;" onclick="closeModal('projectModal')">닫기</button></div></div></div>
 
     <div class="fab-wrap"><button class="main-fab" onclick="openAddModal()">+</button></div>
 
@@ -243,7 +164,6 @@
                 if(rawEras) state.eras = rawEras; else db.ref('users/Yuta/projects/기본/settings/eras').set(state.eras);
                 updateEraSelect(); renderEras();
             });
-
             db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
                 const raw = snap.val();
                 if(!raw) { state.storyboard = []; renderTimeline(); return; }
@@ -284,7 +204,6 @@
                 list.appendChild(banner); 
                 const months = Object.keys(grouped[yearKey]).sort((a, b) => parseInt(a) - parseInt(b));
                 months.forEach(month => {
-                    if (grouped[yearKey][month].length === 0) return;
                     const cluster = document.createElement('div'); cluster.className = 'month-cluster';
                     const node = document.createElement('div'); node.className = 'month-node'; cluster.appendChild(node);
                     const grid = document.createElement('div'); grid.className = 'event-grid'; 
@@ -300,16 +219,16 @@
                         if (side === 'left') leftCol.appendChild(card); else rightCol.appendChild(card);
                     });
                     cluster.appendChild(grid); list.appendChild(cluster); 
-                    const sortableOptions = { group: 'timeline', animation: 150, delay: 150, delayOnTouchOnly: true,
-                        onEnd: function(evt) {
-                            const movedId = evt.item.dataset.id; const targetCol = evt.to; const newMonth = targetCol.dataset.month; const parts = targetCol.dataset.yearKey.split(' '); const side = targetCol.dataset.side; 
-                            db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth, era: parts[0], year: parts[1].replace('년', ''), side: side }).then(() => { reorderAll(); setTimeout(renderCurves, 100); });
-                        }
-                    };
-                    new Sortable(leftCol, sortableOptions); new Sortable(rightCol, sortableOptions);
+                    new Sortable(leftCol, { group: 'timeline', animation: 150, delay: 150, delayOnTouchOnly: true, onEnd: (evt) => updatePos(evt, 'left') });
+                    new Sortable(rightCol, { group: 'timeline', animation: 150, delay: 150, delayOnTouchOnly: true, onEnd: (evt) => updatePos(evt, 'right') });
                 });
             });
             setTimeout(renderCurves, 100);
+        }
+
+        function updatePos(evt, side) {
+            const movedId = evt.item.dataset.id; const targetCol = evt.to; const newMonth = targetCol.dataset.month; const parts = targetCol.dataset.yearKey.split(' '); 
+            db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth, era: parts[0], year: parts[1].replace('년', ''), side: targetCol.dataset.side }).then(() => { reorderAll(); setTimeout(renderCurves, 100); });
         }
 
         function renderCurves() {
@@ -317,7 +236,7 @@
                 const node = cluster.querySelector('.month-node'); const grid = cluster.querySelector('.event-grid'); if (!node || !grid) return;
                 const firstCard = grid.querySelector('.timeline-card'); if (!firstCard) return; 
                 const clusterRect = cluster.getBoundingClientRect(); const firstCardRect = firstCard.getBoundingClientRect();
-                const nodeY = firstCardRect.top + firstCardRect.height / 2 - clusterRect.top; node.style.top = `${nodeY}px`;
+                node.style.top = `${firstCardRect.top + firstCardRect.height / 2 - clusterRect.top}px`;
             });
         }
         window.addEventListener('resize', renderCurves); 
@@ -344,7 +263,7 @@
         function updateEraSelect() { const select = document.getElementById('e-era'); select.innerHTML = state.eras.map(e => `<option value="${e}">${e}</option>`).join(''); }
         function renderEras() { const list = document.getElementById('era-list'); list.innerHTML = state.eras.map((era, idx) => `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:12px;"><span style="color:#495057;">${era}</span><div style="display:flex; gap:3px;"><button class="f-btn-text" style="font-size:11px;" onclick="moveEra(${idx}, -1)">▲</button><button class="f-btn-text" style="font-size:11px;" onclick="moveEra(${idx}, 1)">▼</button><button class="f-btn-text" style="color:#ff6b6b; font-size:11px;" onclick="deleteEra(${idx})">삭제</button></div></div>`).join(''); }
         function moveEra(idx, dir) { const newIdx = idx + dir; if (newIdx < 0 || newIdx >= state.eras.length) return; const temp = state.eras[idx]; state.eras[idx] = state.eras[newIdx]; state.eras[newIdx] = temp; db.ref('users/Yuta/projects/기본/settings/eras').set(state.eras); }
-        function deleteEra(idx) { customConfirm('연대를 삭제하면 해당 연대의 모든 사건이 타임라인 끝으로 이동합니다. 삭제할까요?', () => { state.eras.splice(idx, 1); db.ref('users/Yuta/projects/기본/settings/eras').set(state.eras); }); }
+        function deleteEra(idx) { customConfirm('연대를 삭제하면 사건이 타임라인 끝으로 이동합니다. 삭제할까요?', () => { state.eras.splice(idx, 1); db.ref('users/Yuta/projects/기본/settings/eras').set(state.eras); }); }
         function addNewEra() { const name = document.getElementById('new-era-name').value.trim(); if (!name) return; state.eras.push(name); document.getElementById('new-era-name').value = ''; db.ref('users/Yuta/projects/기본/settings/eras').set(state.eras); }
         function saveBranch() { const bid = String(Date.now()); db.ref(`users/Yuta/projects/기본/storyboard/${state.currentId}/branches/${bid}`).set({ id: bid, text: document.getElementById('b-text').value }).then(() => { document.getElementById('b-text').value = ""; closeModal('branchModal'); setTimeout(() => openDetailModal(state.currentId), 100); }); }
         function openModal(id) { document.getElementById(id).classList.add('active'); }
