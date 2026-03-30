@@ -26,7 +26,7 @@
             overflow-x: hidden; 
         }
 
-        /* [상단 네비게이션 & 탭바] */
+        /* 상단 네비게이션 & 탭바 */
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
         .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; }
@@ -39,7 +39,7 @@
         .view { display: none; width: 100%; }
         .view.active { display: block; }
 
-        /* [타임라인 영역] */
+        /* 타임라인 영역 */
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 10px; }
         .center-line { position: absolute; left: 50%; transform: translateX(-50%); top: 0; bottom: 0; width: 2px; background: var(--line); z-index: 1; }
         
@@ -49,11 +49,11 @@
         /* 같은 달의 그룹 묶음 */
         .month-cluster { 
             position: relative; 
-            margin-bottom: 40px; 
-            padding: 10px 0;
+            margin-bottom: 30px; 
+            padding: 15px 0;
         }
 
-        /* [수정] 중앙 모이는 지점에 위치할 노드(점) */
+        /* 중앙 모이는 지점에 위치할 고정 노드 */
         .month-node {
             position: absolute;
             left: 50%;
@@ -66,16 +66,24 @@
             border-radius: 50%;
             z-index: 10;
         }
+
+        /* 동적 곡선을 그릴 SVG 레이어 */
+        .month-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
         
-        /* [수정] 2열 그리드 간격 조절로 벌어짐 해결 */
         .event-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            column-gap: 24px; /* 간격을 좁혀 중앙선에 밀착시킴 */
+            column-gap: 30px; 
             row-gap: 15px;   
             width: 100%; 
             position: relative;
-            min-height: 50px;
+            min-height: 40px;
         }
         
         /* 카드 디자인 */
@@ -84,8 +92,8 @@
             padding: 15px 12px; 
             border-radius: 12px; 
             width: 100%;
-            max-width: 125px; 
-            min-height: 75px; 
+            max-width: 130px; 
+            min-height: 60px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
             border: 1px solid #f1f3f5; 
             position: relative; 
@@ -95,33 +103,14 @@
             z-index: 5;
         }
 
-        /* 왼쪽/오른쪽 클래스에 따라 배치 */
         .timeline-card.left { justify-self: end; }
         .timeline-card.right { justify-self: start; }
 
-        .card-text { font-size: 13px; color: #212529; line-height: 1.5; font-weight: 500; white-space: pre-wrap; width: 100%; pointer-events: none; /* 클릭 이벤트가 카드로 관통되게 함 */ }
+        .card-text { font-size: 13px; color: #212529; line-height: 1.5; font-weight: 500; white-space: pre-wrap; width: 100%; pointer-events: none; }
 
         /* 인덱스 탭 디자인 */
-        .timeline-card.left .branch-tab {
-            position: absolute; left: -6px; top: 12px; width: 6px; height: 16px; background: #ffd43b; border-radius: 3px 0 0 3px;
-        }
-        .timeline-card.right .branch-tab {
-            position: absolute; right: -6px; top: 12px; width: 6px; height: 16px; background: #ffd43b; border-radius: 0 3px 3px 0;
-        }
-
-        /* [수정] 박스에서 나와 중앙 노드로 모이는 '곡선' 연결선 */
-        .timeline-card.left::after {
-            content: ''; position: absolute; 
-            right: -12px; top: 50%;
-            width: 12px; height: 2px;
-            background: var(--line);
-        }
-        .timeline-card.right::after {
-            content: ''; position: absolute; 
-            left: -12px; top: 50%;
-            width: 12px; height: 2px;
-            background: var(--line);
-        }
+        .timeline-card.left .branch-tab { position: absolute; left: -6px; top: 12px; width: 6px; height: 16px; background: #ffd43b; border-radius: 3px 0 0 3px; }
+        .timeline-card.right .branch-tab { position: absolute; right: -6px; top: 12px; width: 6px; height: 16px; background: #ffd43b; border-radius: 0 3px 3px 0; }
 
         /* 모달 및 기타 UI */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
@@ -263,7 +252,6 @@
                     
                     const cluster = document.createElement('div'); cluster.className = 'month-cluster';
                     
-                    // [수정] 같은 달의 묶음 정중앙에 '노드' 추가
                     const node = document.createElement('div');
                     node.className = 'month-node';
                     cluster.appendChild(node);
@@ -295,13 +283,12 @@
                     cluster.appendChild(grid); 
                     list.appendChild(cluster); 
                     
-                    // [수정] 드래그 앤 드롭 터치 감도 조절 (안되던 현상 해결)
+                    // 드래그 앤 드롭 터치 감도 조절 (클릭 먹통 해결)
                     new Sortable(grid, { 
                         group: 'timeline', 
                         animation: 200, 
-                        handle: '.timeline-card',
-                        delay: 0, 
-                        distance: 5, // 5px 이상 밀어야 드래그로 작동 (단순 터치는 클릭이 됨)
+                        delay: 150, // 0.15초 동안 꾹 누르면 드래그 시작 (모바일 스크롤 및 클릭 확보)
+                        delayOnTouchOnly: true,
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
                             const newMonth = evt.to.dataset.month;
@@ -318,12 +305,74 @@
                                 era: parts[0], 
                                 year: parts[1].replace('년', ''),
                                 side: side
-                            }).then(reorderAll);
+                            }).then(() => {
+                                reorderAll();
+                                setTimeout(renderCurves, 100); // 드롭 완료 후 선 다시 그리기
+                            });
                         }
                     });
                 }
             }
+            // 렌더링 완료 후 곡선 생성
+            setTimeout(renderCurves, 100);
         }
+
+        // SVG 곡선을 그려주는 동적 함수
+        function renderCurves() {
+            document.querySelectorAll('.month-cluster').forEach(cluster => {
+                const oldSvg = cluster.querySelector('.month-svg');
+                if (oldSvg) oldSvg.remove();
+                
+                const node = cluster.querySelector('.month-node');
+                const cards = cluster.querySelectorAll('.timeline-card');
+                if (!node || cards.length === 0) return;
+                
+                const clusterRect = cluster.getBoundingClientRect();
+                const nodeRect = node.getBoundingClientRect();
+                
+                const nodeX = nodeRect.left + nodeRect.width / 2 - clusterRect.left;
+                const nodeY = nodeRect.top + nodeRect.height / 2 - clusterRect.top;
+                
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('class', 'month-svg');
+                
+                cards.forEach(card => {
+                    const cardRect = card.getBoundingClientRect();
+                    const isLeft = card.classList.contains('left');
+                    
+                    let cardX, cardY;
+                    cardY = cardRect.top + cardRect.height / 2 - clusterRect.top;
+                    
+                    if (isLeft) {
+                        cardX = cardRect.right - clusterRect.left;
+                    } else {
+                        cardX = cardRect.left - clusterRect.left;
+                    }
+                    
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const dist = Math.abs(nodeX - cardX);
+                    
+                    // Bezier 곡선 컨트롤 포인트 계산 (거리의 40%만큼 부드럽게 꺾임)
+                    const cp1X = isLeft ? cardX + dist * 0.4 : cardX - dist * 0.4;
+                    const cp1Y = cardY;
+                    const cp2X = isLeft ? nodeX - dist * 0.4 : nodeX + dist * 0.4;
+                    const cp2Y = nodeY;
+                    
+                    const d = `M ${cardX} ${cardY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${nodeX} ${nodeY}`;
+                    path.setAttribute('d', d);
+                    path.setAttribute('stroke', '#4dabf7'); // primary 컬러
+                    path.setAttribute('stroke-width', '2');
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('opacity', '0.7');
+                    
+                    svg.appendChild(path);
+                });
+                
+                cluster.appendChild(svg);
+            });
+        }
+
+        window.addEventListener('resize', renderCurves); // 화면 크기 변할 때 곡선 갱신
 
         function reorderAll() { const updates = {}; document.querySelectorAll('.timeline-card').forEach((card, i) => { updates[`${card.dataset.id}/order`] = i; }); db.ref('users/Yuta/projects/기본/storyboard').update(updates); }
 
