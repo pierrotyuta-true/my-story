@@ -26,7 +26,7 @@
             overflow-x: hidden; 
         }
 
-        /* [상단 네비게이션 & 탭바 복구] */
+        /* [상단 네비게이션 & 탭바] */
         .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
         .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
         .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; }
@@ -39,10 +39,8 @@
         .view { display: none; width: 100%; }
         .view.active { display: block; }
 
-        /* [타임라인 영역 - 중앙 정렬 기둥선] */
+        /* [타임라인 영역] */
         .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 10px; }
-        
-        /* 1. 기둥선을 다시 정중앙으로 배치 */
         .center-line { position: absolute; left: 50%; transform: translateX(-50%); top: 0; bottom: 0; width: 2px; background: var(--line); z-index: 1; }
         
         .year-banner { display: flex; justify-content: center; margin: 30px 0 15px; width: 100%; position: relative; z-index: 10; }
@@ -50,61 +48,66 @@
         
         .month-cluster { position: relative; margin-bottom: 40px; }
         
-        /* 2. 격자 그리드 시스템 (왼쪽 -> 오른쪽 -> 아래왼쪽 -> 아래오른쪽) */
+        /* 2열 그리드 */
         .event-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            column-gap: 50px; /* 좌우 카드 사이의 간격 (이 한가운데 기둥선이 지나감) */
-            row-gap: 12px;   /* 같은 월 내부 카드들의 촘촘한 상하 간격 */
+            column-gap: 50px; 
+            row-gap: 12px;   
             width: 100%; 
             position: relative;
+            min-height: 50px;
         }
         
-        /* 3. 짧아진 가로 사이즈의 카드 디자인 */
+        /* [1. 가로가 더 짧아지고 세로가 길어진 카드] */
         .timeline-card { 
             background: #fff; 
-            padding: 12px 14px; 
+            padding: 15px 12px; 
             border-radius: 12px; 
             width: 100%;
-            max-width: 180px; /* 카드를 사진처럼 아담하게 설정 */
+            max-width: 125px; /* 가로 30% 축소 */
+            min-height: 75px; /* 세로 약 10% 증가 */
             box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
             border: 1px solid #f1f3f5; 
             position: relative; 
             cursor: pointer; 
+            display: flex;
+            align-items: center;
         }
 
-        /* 홀수번째 카드는 왼쪽 칸에서 우측 정렬 (기둥선 쪽으로) */
-        .timeline-card:nth-child(odd) { justify-self: end; }
-        /* 짝수번째 카드는 오른쪽 칸에서 좌측 정렬 (기둥선 쪽으로) */
-        .timeline-card:nth-child(even) { justify-self: start; }
+        /* 왼쪽/오른쪽 클래스에 따라 배치 */
+        .timeline-card.left { justify-self: end; }
+        .timeline-card.right { justify-self: start; }
 
-        .card-text { font-size: 13px; color: #212529; line-height: 1.5; font-weight: 500; white-space: pre-wrap; }
+        .card-text { font-size: 13px; color: #212529; line-height: 1.5; font-weight: 500; white-space: pre-wrap; width: 100%; }
 
-        /* 4. 가지가 추가된 경우에만 붙여줄 인덱스 뱃지 */
-        .branch-badge {
+        /* [2. 인덱스 탭 디자인 (왼쪽은 왼쪽, 오른쪽은 오른쪽)] */
+        .timeline-card.left .branch-tab {
             position: absolute;
-            top: -6px;
-            right: -6px;
+            left: -6px; top: 12px;
+            width: 6px; height: 16px;
             background: #ffd43b;
-            color: #212529;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 3px 0 0 3px;
+        }
+        .timeline-card.right .branch-tab {
+            position: absolute;
+            right: -6px; top: 12px;
+            width: 6px; height: 16px;
+            background: #ffd43b;
+            border-radius: 0 3px 3px 0;
         }
 
-        /* 5. 각 카드를 기둥선과 이어주는 짧은 가로선 */
-        .timeline-card:nth-child(odd)::after {
+        /* 기둥선과 이어주는 가로선도 클래스별로 분리 */
+        .timeline-card.left::after {
             content: ''; position: absolute; right: -25px; top: 50%; transform: translateY(-50%);
             width: 25px; height: 2px; background: var(--line);
         }
-        .timeline-card:nth-child(even)::after {
+        .timeline-card.right::after {
             content: ''; position: absolute; left: -25px; top: 50%; transform: translateY(-50%);
             width: 25px; height: 2px; background: var(--line);
         }
 
-        /* 모달 및 기타 버튼 복구 */
+        /* 모달 및 기타 UI */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal.active { display: flex; }
         .modal-content.compact { width: 85%; max-width: 320px; height: 300px; position: relative; }
@@ -119,11 +122,14 @@
         .modal-footer-clean { display: flex; padding: 12px; justify-content: space-around; border-top: 1px solid #f1f3f5; background: #fff; }
         .f-btn-text { background: none; border: none; font-size: 13px; color: var(--primary); font-weight: bold; cursor: pointer; padding: 5px 10px; }
         
-        .input-row { display: flex; gap: 5px; margin-bottom: 12px; width: 100%; }
-        .input-row input, .input-row select { padding: 10px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #f8f9fa; min-width: 0; }
+        /* [3. 연대, 년도, 월이 나란히 들어가는 입력칸] */
+        .input-row { display: flex; gap: 5px; margin-bottom: 12px; width: 100%; align-items: center; }
+        .input-row select { flex: 1.5; min-width: 0; padding: 10px 5px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #f8f9fa; }
+        .input-row input { flex: 1; min-width: 0; padding: 10px 5px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #f8f9fa; }
+        
         textarea { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 14px; background: #f8f9fa; resize: none; outline: none; }
 
-        /* [하단 원형 추가 버튼 복구] */
+        /* 하단 원형 추가 버튼 */
         .fab-wrap { position:fixed; bottom:30px; right:25px; z-index:2001; }
         .main-fab { width:54px; height:54px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:28px; box-shadow:0 5px 15px rgba(77,171,247,0.4); cursor:pointer; }
     </style>
@@ -167,7 +173,7 @@
             <button class="icon-btn" style="color:#adb5bd; font-size:16px;" onclick="openModal('eraModal')">⚙</button>
         </div>
         <div class="input-row">
-            <select id="e-era" style="flex:1.5;"></select>
+            <select id="e-era"></select>
             <input type="number" id="e-year" placeholder="년도"> 
             <input type="number" id="e-month" placeholder="월">
         </div>
@@ -234,7 +240,6 @@
             }, {});
 
             for(const yearKey in grouped) {
-                // 년도 배너
                 const banner = document.createElement('div'); banner.className = 'year-banner'; 
                 banner.innerHTML = `<span class="year-text">${yearKey}</span>`; 
                 list.appendChild(banner); 
@@ -247,34 +252,62 @@
                     grid.dataset.month = month; grid.dataset.yearKey = yearKey;
 
                     grouped[yearKey][month].forEach((ev) => {
+                        // 저장된 side 데이터가 없다면 기본적으로 'left'로 설정
+                        const side = ev.side || 'left';
+                        
                         const card = document.createElement('div'); 
-                        card.className = 'timeline-card'; 
+                        card.className = `timeline-card ${side}`; 
                         card.dataset.id = String(ev.id);
                         
-                        // 가지(분기)가 추가된 경우에만 인덱스 뱃지 노출
-                        let branchBadgeHtml = '';
+                        // [수정] 가지가 있으면 숫자 없이 디자인 사진처럼 인덱스 탭 노출
+                        let indexTabHtml = '';
                         if (ev.branches && Object.keys(ev.branches).length > 0) {
-                            const branchCount = Object.keys(ev.branches).length;
-                            branchBadgeHtml = `<div class="branch-badge">${branchCount}</div>`;
+                            indexTabHtml = `<div class="branch-tab"></div>`;
                         }
 
                         card.innerHTML = `
-                            ${branchBadgeHtml}
-                            <div class="card-text" onclick="openDetailModal('${ev.id}')">${ev.text}</div>
+                            ${indexTabHtml}
+                            <div class="card-text">${ev.text}</div>
                         `;
+                        
+                        // [수정] 상세보기 먹통 문제 해결 (안정적인 JS 이벤트 바인딩)
+                        card.querySelector('.card-text').addEventListener('click', () => {
+                            openDetailModal(ev.id);
+                        });
+
                         grid.appendChild(card);
                     });
                     
                     cluster.appendChild(grid); 
                     list.appendChild(cluster); 
                     
-                    // 드래그 앤 드롭 정렬 기능 유지
-                    new Sortable(grid, { group: 'timeline', animation: 200, handle: '.timeline-card', onEnd: function(evt) {
-                        const movedId = evt.item.dataset.id;
-                        const newMonth = evt.to.dataset.month;
-                        const parts = evt.to.dataset.yearKey.split(' ');
-                        db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ month: newMonth, era: parts[0], year: parts[1].replace('년', '') }).then(reorderAll);
-                    }});
+                    // [수정] 사용자가 드롭한 위치의 X축 좌표에 따라 'left', 'right' 판정
+                    new Sortable(grid, { 
+                        group: 'timeline', 
+                        animation: 200, 
+                        handle: '.timeline-card',
+                        filter: '.card-text', // 텍스트 영역을 누를 때는 드래그 방지 (상세보기 클릭 보장)
+                        preventOnFilter: false,
+                        onEnd: function(evt) {
+                            const movedId = evt.item.dataset.id;
+                            const newMonth = evt.to.dataset.month;
+                            const parts = evt.to.dataset.yearKey.split(' ');
+                            
+                            // 떨어진 아이템의 중심 좌표를 기준으로 정중앙 기둥선의 왼쪽인지 오른쪽인지 판정
+                            const itemRect = evt.item.getBoundingClientRect();
+                            const itemCenterX = itemRect.left + (itemRect.width / 2);
+                            const gridRect = evt.to.getBoundingClientRect();
+                            const gridCenterX = gridRect.left + (gridRect.width / 2);
+                            const side = (itemCenterX > gridCenterX) ? 'right' : 'left';
+                            
+                            db.ref(`users/Yuta/projects/기본/storyboard/${movedId}`).update({ 
+                                month: newMonth, 
+                                era: parts[0], 
+                                year: parts[1].replace('년', ''),
+                                side: side
+                            }).then(reorderAll);
+                        }
+                    });
                 }
             }
         }
