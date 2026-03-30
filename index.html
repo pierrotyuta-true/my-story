@@ -5,208 +5,197 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yuta's Engine</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
         :root { 
-            --primary: #4dabf7; --dark: #343a40; --text: #495057; --node: #74c0fc; --bg: #f8f9fa;
-            --p1: #d0ebff; --p2: #fff9db; --p3: #d3f9d8; --p4: #ffe3e3; 
+            --bg: #f8f9fa;
             --line: #ced4da;
+            --node: #74c0fc;
+            --text-dark: #212529;
+            --text-muted: #495057;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-
-        .app-header { height: 60px; background: var(--dark); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; position: fixed; top:0; width:100%; z-index:2000; }
-        .project-title { flex: 1; text-align: center; font-weight: bold; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        .icon-btn { cursor: pointer; font-size: 18px; background: none; border: none; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; opacity: 0.8; }
-
-        .tab-menu { position:fixed; top:60px; width:100%; display:flex; background:white; z-index:1999; height:45px; border-bottom:1px solid #eee; }
-        .tab-item { flex:1; display:flex; align-items:center; justify-content:center; font-size:14px; color:#adb5bd; cursor:pointer; }
-        .tab-item.active { color:var(--dark); font-weight:bold; border-bottom: 2px solid var(--dark); }
-
-        .content-body { margin-top: 105px; padding-bottom: 120px; }
-        .view { display: none; width: 100%; }
-        .view.active { display: block; }
-
-        /* 💡 이미지 10번 디자인 코어 (곡선 타임라인) */
-        .tl-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 10px; }
-        /* 메인 기둥선 (2px) */
-        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); z-index: 1; }
         
-        .year-banner { display: flex; justify-content: center; margin: 30px 0 15px; width: 100%; position: relative; z-index: 10; }
-        .year-text { background: var(--dark); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        .month-cluster { position: relative; width: 100%; margin-bottom: 40px; padding-top: 15px; }
-        
-        /* 💡 노드 위치 조정: 월 배너와 첫 카드 사이 교차점 */
-        .month-node { position: absolute; left: 50%; top: 30px; transform: translate(-50%, -50%); width: 12px; height: 12px; background: white; border: 3px solid var(--node); border-radius: 50%; z-index: 5; }
-        
-        /* F-형 곡선 연결 구조 */
-        .event-grid { display: flex; flex-direction: column; width: 100%; position: relative; }
-        
-        /* 타임라인 아이템 (카드 + 연결선) */
-        .timeline-item { display: flex; width: 100%; position: relative; align-items: center; margin-bottom: 25px; }
-        .timeline-item:nth-child(odd) { justify-content: flex-start; padding-right: 50%; }
-        .timeline-item:nth-child(even) { justify-content: flex-end; padding-left: 50%; }
-        
-        /* 💡 곡선 연결선 (F-형) */
-        .card-connector { position: absolute; width: calc(50% + 1px); height: 100px; z-index: -1; }
-        /* 왼쪽 카드 연결선 */
-        .timeline-item:nth-child(odd) .card-connector {
-            right: 50%; top: -60px; /* 메인 선에서 뻗어나옴 */
-            border-right: 2px solid var(--line); border-bottom: 2px solid var(--line);
-            border-bottom-right-radius: 20px; /* S자 느낌의 곡선 */
-            height: 95px;
-        }
-        /* 오른쪽 카드 연결선 */
-        .timeline-item:nth-child(even) .card-connector {
-            left: 50%; top: -60px;
-            border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);
-            border-bottom-left-radius: 20px;
-            height: 95px;
+        body { 
+            font-family: 'Pretendard', -apple-system, sans-serif; 
+            /* 1. 캡처본 특유의 은은한 점선 배경 구현 */
+            background-color: var(--bg);
+            background-image: radial-gradient(#dee2e6 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+            color: var(--text-dark);
         }
 
-        /* 💡 카드 디자인 (이미지 10번과 똑같이) */
-        .timeline-card { background: #fff; padding: 15px 18px; border-radius: 12px; width: 100%; max-width: 220px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; cursor: pointer; z-index: 10; border: 1px solid #f1f3f5; }
+        /* 타임라인 전체 감싸기 */
+        .timeline-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px 10px;
+        }
+
+        /* 2. 중앙 메인선 */
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e2e8f0;
+            transform: translateX(-50%);
+        }
+
+        /* 년도 배너 (제국력 589년) */
+        .year-banner {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+        .year-text {
+            background: #343a40;
+            color: white;
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 타임라인 아이템 정렬 */
+        .timeline-item {
+            display: flex;
+            width: 100%;
+            margin-bottom: 25px;
+            position: relative;
+            align-items: center;
+        }
         
-        /* 💡 카드 뒤로 숨는 월 뱃지 (파란색) */
-        .month-badge { position: absolute; top: 12px; width: 40px; height: 20px; background: var(--node); color: white; font-size: 10px; font-weight: bold; border-radius: 4px; display: flex; justify-content: center; align-items: center; z-index: -2; opacity: 0.8; }
-        /* 왼쪽 카드 뱃지 */
-        .timeline-item:nth-child(odd) .month-badge { left: -10px; }
-        /* 오른쪽 카드 뱃지 */
-        .timeline-item:nth-child(even) .month-badge { left: -10px; }
+        /* 왼쪽 카드 배치 */
+        .timeline-item.left { justify-content: flex-start; }
+        /* 오른쪽 카드 배치 */
+        .timeline-item.right { justify-content: flex-end; }
 
-        .card-text { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; margin-top: 5px; }
+        /* 3. 카드 디자인 (캡처본과 똑같이!) */
+        .timeline-card {
+            background: #ffffff;
+            padding: 15px 16px;
+            border-radius: 12px;
+            width: calc(50% - 25px); /* 중앙선 침범하지 않게 조율 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f3f5;
+            position: relative;
+            z-index: 5;
+        }
 
-        /* 모달 및 버튼 (기능 유지) */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        .modal.active { display: flex; }
-        .pop-menu { display: none; position: absolute; bottom: 65px; right: 0; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 150px; overflow: hidden; }
-        .pop-menu.active { display: block; }
-        .pop-item { padding: 12px; font-size: 13px; color: #495057; cursor: pointer; border-bottom: 1px solid #f1f3f5; display: flex; align-items: center; gap: 8px; }
+        /* 4. 원본과 똑같은 위치의 월 뱃지 */
+        .month-badge {
+            display: inline-block;
+            background-color: #e7f5ff;
+            color: #339af0;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
 
-        .input-row { display: flex; gap: 5px; margin-bottom: 12px; width: 100%; }
-        .input-row input, .input-row select, .input-row textarea { padding: 12px; border: 1px solid #f1f3f5; border-radius: 8px; font-size: 14px; background: #f8f9fa; min-width: 0; outline: none; }
+        /* 카드 내부 텍스트 */
+        .card-text {
+            font-size: 13px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            font-weight: 500;
+        }
 
-        .fab-wrap { position:fixed; bottom:30px; right:25px; z-index:2001; }
-        .main-fab { width:54px; height:54px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:28px; box-shadow:0 5px 15px rgba(77,171,247,0.4); cursor:pointer; }
+        /* 5. 중앙 파란 링 노드(동그라미) */
+        .timeline-node {
+            position: absolute;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border: 3px solid var(--node);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* 6. 부드러운 연결선 */
+        .connector {
+            position: absolute;
+            top: 50%;
+            height: 2px;
+            background-color: #e2e8f0;
+            z-index: 1;
+        }
+        
+        /* 왼쪽 카드에서 중앙선으로 가는 선 */
+        .timeline-item.left .connector {
+            right: 50%;
+            left: calc(50% - 25px); /* 카드 끝에서 시작 */
+        }
+        
+        /* 오른쪽 카드에서 중앙선으로 가는 선 */
+        .timeline-item.right .connector {
+            left: 50%;
+            right: calc(50% - 25px);
+        }
+
     </style>
 </head>
 <body>
 
-    <header class="app-header">
-        <div style="width: 50px;"></div>
-        <div class="project-title">이그리에가 ▾</div>
-        <div style="display:flex; gap: 15px;"><button class="icon-btn">✔</button><button class="icon-btn">✔</button></div>
-    </header>
-
-    <nav class="tab-menu">
-        <div class="tab-item active" onclick="showTab('timeline', this)">타임라인</div>
-        <div class="tab-item" onclick="showTab('treats', this)">트리트먼트</div>
-        <div class="tab-item" onclick="showTab('chars', this)">캐릭터도감</div>
-    </nav>
-
-    <main class="content-body">
-        <div id="timeline-view" class="view active">
-            <div class="tl-wrapper"><div class="center-line"></div><div id="tl-list"></div></div>
-        </div>
-        <div id="treats-view" class="view" style="padding: 20px;"><div style="background:white; padding:20px; border-radius:15px;">준비 중...</div></div>
-        <div id="chars-view" class="view" style="padding: 20px;"><div style="background:white; padding:20px; border-radius:15px;">준비 중...</div></div>
-    </main>
-
-    <div id="detailModal" class="modal"><div class="modal-content" style="background:white; padding:25px; border-radius:18px; width:300px;"><p id="detail-body"></p><button class="pop-item" style="margin-top:20px;" onclick="closeModal('detailModal')">닫기</button></div></div>
-
-    <div id="eventModal" class="modal"><div class="modal-content" style="background:white; padding:25px; border-radius:18px; width:320px;">
-        <h4 id="event-title" style="font-size:16px; margin-bottom:20px;">기록하기</h4>
-        <div class="input-row"><select id="e-era"></select><input type="number" id="e-year" placeholder="년도"><input type="number" id="e-month" placeholder="월"></div>
-        <div class="input-row"><textarea id="e-text" rows="5" placeholder="어떤 일이 일어났나요?"></textarea></div>
-        <div style="display:flex; gap:10px; margin-top:20px;"><button style="flex:1; background:var(--primary); color:white; border-radius:10px; padding:12px;" onclick="saveEvent()">저장하기</button><button style="flex:1; background:#f1f3f5; color:#adb5bd; border-radius:10px; padding:12px;" onclick="closeModal('eventModal')">닫기</button></div>
-    </div></div>
-
-    <div class="fab-wrap"><button class="main-fab" onclick="openAddModal()">+</button></div>
-
-    <script>
-        const firebaseConfig = { databaseURL: "https://true-s-default-rtdb.firebaseio.com" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    <div class="timeline-container">
         
-        let state = { storyboard: [], eras: ['제국력', '대한민국'], currentId: null };
+        <div class="year-banner">
+            <span class="year-text">제국력 589년</span>
+        </div>
 
-        function syncData() {
-            db.ref('users/Yuta/projects/기본/settings/eras').on('value', snap => {
-                const rawEras = snap.val(); if(rawEras) state.eras = rawEras; updateEraSelect();
-            });
-            db.ref('users/Yuta/projects/기본/storyboard').on('value', snap => {
-                const raw = snap.val();
-                if(!raw) { state.storyboard = []; renderTimeline(); return; }
-                state.storyboard = Object.keys(raw).map(key => ({...raw[key], id: String(key)})).sort((a,b) => (a.order || 0) - (b.order || 0));
-                renderTimeline();
-            });
-        }
+        <div class="timeline-item left">
+            <div class="timeline-card">
+                <div class="month-badge">3월</div>
+                <div class="card-text">제국에 트립된 혜주</div>
+            </div>
+            <div class="connector"></div>
+            <div class="timeline-node" style="top: 50%;"></div>
+        </div>
 
-        function showTab(tabId, el) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId + '-view').classList.add('active'); el.classList.add('active');
-        }
+        <div class="timeline-item right">
+            <div class="timeline-card">
+                <div class="month-badge">3월</div>
+                <div class="card-text">이그리에가가 공작에게 혜주를 소개받는다. 혜주가 ...</div>
+            </div>
+            <div class="connector"></div>
+        </div>
 
-        // --- 💡 렌더링 (이미지 10번 디자인 이식) ---
-        function renderTimeline() {
-            const list = document.getElementById('tl-list'); list.innerHTML = ''; 
-            const grouped = state.storyboard.reduce((acc, cur) => {
-                const key = `${cur.era} ${cur.year}년`;
-                if(!acc[key]) acc[key] = {};
-                if(!acc[key][cur.month]) acc[key][cur.month] = [];
-                acc[key][cur.month].push(cur); return acc;
-            }, {});
+        <div class="timeline-item left">
+            <div class="timeline-card">
+                <div class="month-badge">3월</div>
+                <div class="card-text">공작의 거처에서 지내게 된 혜주. 공작과 연인사이에...</div>
+            </div>
+            <div class="connector"></div>
+        </div>
 
-            for(const yearKey in grouped) {
-                const banner = document.createElement('div'); banner.className = 'year-banner'; 
-                banner.innerHTML = `<span class="year-text">${yearKey}</span>`; 
-                list.appendChild(banner); 
+        <div class="timeline-item left">
+            <div class="timeline-card">
+                <div class="month-badge">4월</div>
+                <div class="card-text">혜주가 황태자와 이그리에가를 소개받는다. 둘 모두...</div>
+            </div>
+            <div class="connector"></div>
+            <div class="timeline-node" style="top: 50%;"></div>
+        </div>
 
-                for(const month in grouped[yearKey]) {
-                    if (grouped[yearKey][month].length === 0) continue;
-                    const cluster = document.createElement('div'); cluster.className = 'month-cluster';
-                    cluster.innerHTML = `<div class="month-node"></div>`;
-                    
-                    // 💡 flex 기반의 새로운 그리드 구조 (곡선 연결용)
-                    const grid = document.createElement('div'); grid.className = 'event-grid'; 
+        <div class="timeline-item right">
+            <div class="timeline-card">
+                <div class="month-badge">4월</div>
+                <div class="card-text">황태자와 공작의 요구로 혜주에게 마법을 가르치게...</div>
+            </div>
+            <div class="connector"></div>
+        </div>
 
-                    grouped[yearKey][month].forEach((ev) => {
-                        const item = document.createElement('div'); item.className = 'timeline-item'; item.dataset.id = String(ev.id);
-                        
-                        // 💡 이미지 10번처럼 월 뱃지가 카드 뒤로 숨는 구조
-                        item.innerHTML = `
-                            <div class="card-connector"></div>
-                            <div class="month-badge">${ev.month}월</div>
-                            <div class="timeline-card" onclick="openDetailModal('${ev.id}')">
-                                <div class="card-text">${ev.text}</div>
-                            </div>
-                        `;
-                        grid.appendChild(item);
-                    });
-                    cluster.appendChild(grid); list.appendChild(cluster); 
-                    
-                    // 드래그 앤 드롭 기능 유지
-                    new Sortable(grid, { group: 'timeline', animation: 200, handle: '.timeline-card', onEnd: function(evt) {
-                        const updates = {}; document.querySelectorAll('.timeline-item').forEach((card, i) => { updates[`${card.dataset.id}/order`] = i; }); db.ref('users/Yuta/projects/기본/storyboard').update(updates);
-                    }});
-                }
-            }
-        }
+    </div>
 
-        // --- 기능 함수들 (기존 유지) ---
-        function openDetailModal(id) { const ev = state.storyboard.find(i => i.id === id); document.getElementById('detail-body').innerText = ev.text; openModal('detailModal'); }
-        function openAddModal() { document.getElementById('event-title').innerText = "기록하기"; document.getElementById('e-text').value = ""; openModal('eventModal'); }
-        function saveEvent() { const id = String(Date.now()); const data = { id, era: document.getElementById('e-era').value, year: document.getElementById('e-year').value, month: document.getElementById('e-month').value, text: document.getElementById('e-text').value, order: state.storyboard.length }; db.ref(`users/Yuta/projects/기본/storyboard/${id}`).update(data).then(() => closeModal('eventModal')); }
-        function updateEraSelect() { const select = document.getElementById('e-era'); select.innerHTML = state.eras.map(e => `<option value="${e}">${e}</option>`).join(''); }
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        syncData();
-    </script>
 </body>
 </html>
