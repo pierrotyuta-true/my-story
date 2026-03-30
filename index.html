@@ -46,65 +46,81 @@
         .year-banner { display: flex; justify-content: center; margin: 30px 0 15px; width: 100%; position: relative; z-index: 10; }
         .year-text { background: var(--dark); color: white; padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
-        .month-cluster { position: relative; margin-bottom: 40px; }
+        /* 같은 달의 그룹 묶음 */
+        .month-cluster { 
+            position: relative; 
+            margin-bottom: 40px; 
+            padding: 10px 0;
+        }
+
+        /* [수정] 중앙 모이는 지점에 위치할 노드(점) */
+        .month-node {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            z-index: 10;
+        }
         
-        /* 2열 그리드 */
+        /* [수정] 2열 그리드 간격 조절로 벌어짐 해결 */
         .event-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            column-gap: 50px; 
-            row-gap: 12px;   
+            column-gap: 24px; /* 간격을 좁혀 중앙선에 밀착시킴 */
+            row-gap: 15px;   
             width: 100%; 
             position: relative;
             min-height: 50px;
         }
         
-        /* [1. 가로가 더 짧아지고 세로가 길어진 카드] */
+        /* 카드 디자인 */
         .timeline-card { 
             background: #fff; 
             padding: 15px 12px; 
             border-radius: 12px; 
             width: 100%;
-            max-width: 125px; /* 가로 30% 축소 */
-            min-height: 75px; /* 세로 약 10% 증가 */
+            max-width: 125px; 
+            min-height: 75px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
             border: 1px solid #f1f3f5; 
             position: relative; 
             cursor: pointer; 
             display: flex;
             align-items: center;
+            z-index: 5;
         }
 
         /* 왼쪽/오른쪽 클래스에 따라 배치 */
         .timeline-card.left { justify-self: end; }
         .timeline-card.right { justify-self: start; }
 
-        .card-text { font-size: 13px; color: #212529; line-height: 1.5; font-weight: 500; white-space: pre-wrap; width: 100%; }
+        .card-text { font-size: 13px; color: #212529; line-height: 1.5; font-weight: 500; white-space: pre-wrap; width: 100%; pointer-events: none; /* 클릭 이벤트가 카드로 관통되게 함 */ }
 
-        /* [2. 인덱스 탭 디자인 (왼쪽은 왼쪽, 오른쪽은 오른쪽)] */
+        /* 인덱스 탭 디자인 */
         .timeline-card.left .branch-tab {
-            position: absolute;
-            left: -6px; top: 12px;
-            width: 6px; height: 16px;
-            background: #ffd43b;
-            border-radius: 3px 0 0 3px;
+            position: absolute; left: -6px; top: 12px; width: 6px; height: 16px; background: #ffd43b; border-radius: 3px 0 0 3px;
         }
         .timeline-card.right .branch-tab {
-            position: absolute;
-            right: -6px; top: 12px;
-            width: 6px; height: 16px;
-            background: #ffd43b;
-            border-radius: 0 3px 3px 0;
+            position: absolute; right: -6px; top: 12px; width: 6px; height: 16px; background: #ffd43b; border-radius: 0 3px 3px 0;
         }
 
-        /* 기둥선과 이어주는 가로선도 클래스별로 분리 */
+        /* [수정] 박스에서 나와 중앙 노드로 모이는 '곡선' 연결선 */
         .timeline-card.left::after {
-            content: ''; position: absolute; right: -25px; top: 50%; transform: translateY(-50%);
-            width: 25px; height: 2px; background: var(--line);
+            content: ''; position: absolute; 
+            right: -12px; top: 50%;
+            width: 12px; height: 2px;
+            background: var(--line);
         }
         .timeline-card.right::after {
-            content: ''; position: absolute; left: -25px; top: 50%; transform: translateY(-50%);
-            width: 25px; height: 2px; background: var(--line);
+            content: ''; position: absolute; 
+            left: -12px; top: 50%;
+            width: 12px; height: 2px;
+            background: var(--line);
         }
 
         /* 모달 및 기타 UI */
@@ -122,14 +138,12 @@
         .modal-footer-clean { display: flex; padding: 12px; justify-content: space-around; border-top: 1px solid #f1f3f5; background: #fff; }
         .f-btn-text { background: none; border: none; font-size: 13px; color: var(--primary); font-weight: bold; cursor: pointer; padding: 5px 10px; }
         
-        /* [3. 연대, 년도, 월이 나란히 들어가는 입력칸] */
         .input-row { display: flex; gap: 5px; margin-bottom: 12px; width: 100%; align-items: center; }
         .input-row select { flex: 1.5; min-width: 0; padding: 10px 5px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #f8f9fa; }
         .input-row input { flex: 1; min-width: 0; padding: 10px 5px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #f8f9fa; }
         
         textarea { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 14px; background: #f8f9fa; resize: none; outline: none; }
 
-        /* 하단 원형 추가 버튼 */
         .fab-wrap { position:fixed; bottom:30px; right:25px; z-index:2001; }
         .main-fab { width:54px; height:54px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:28px; box-shadow:0 5px 15px rgba(77,171,247,0.4); cursor:pointer; }
     </style>
@@ -248,30 +262,30 @@
                     if (grouped[yearKey][month].length === 0) continue;
                     
                     const cluster = document.createElement('div'); cluster.className = 'month-cluster';
+                    
+                    // [수정] 같은 달의 묶음 정중앙에 '노드' 추가
+                    const node = document.createElement('div');
+                    node.className = 'month-node';
+                    cluster.appendChild(node);
+
                     const grid = document.createElement('div'); grid.className = 'event-grid'; 
                     grid.dataset.month = month; grid.dataset.yearKey = yearKey;
 
                     grouped[yearKey][month].forEach((ev) => {
-                        // 저장된 side 데이터가 없다면 기본적으로 'left'로 설정
                         const side = ev.side || 'left';
-                        
                         const card = document.createElement('div'); 
                         card.className = `timeline-card ${side}`; 
                         card.dataset.id = String(ev.id);
                         
-                        // [수정] 가지가 있으면 숫자 없이 디자인 사진처럼 인덱스 탭 노출
                         let indexTabHtml = '';
                         if (ev.branches && Object.keys(ev.branches).length > 0) {
                             indexTabHtml = `<div class="branch-tab"></div>`;
                         }
 
-                        card.innerHTML = `
-                            ${indexTabHtml}
-                            <div class="card-text">${ev.text}</div>
-                        `;
+                        card.innerHTML = `${indexTabHtml}<div class="card-text">${ev.text}</div>`;
                         
-                        // [수정] 상세보기 먹통 문제 해결 (안정적인 JS 이벤트 바인딩)
-                        card.querySelector('.card-text').addEventListener('click', () => {
+                        // 안정적인 클릭 처리
+                        card.addEventListener('click', () => {
                             openDetailModal(ev.id);
                         });
 
@@ -281,19 +295,18 @@
                     cluster.appendChild(grid); 
                     list.appendChild(cluster); 
                     
-                    // [수정] 사용자가 드롭한 위치의 X축 좌표에 따라 'left', 'right' 판정
+                    // [수정] 드래그 앤 드롭 터치 감도 조절 (안되던 현상 해결)
                     new Sortable(grid, { 
                         group: 'timeline', 
                         animation: 200, 
                         handle: '.timeline-card',
-                        filter: '.card-text', // 텍스트 영역을 누를 때는 드래그 방지 (상세보기 클릭 보장)
-                        preventOnFilter: false,
+                        delay: 0, 
+                        distance: 5, // 5px 이상 밀어야 드래그로 작동 (단순 터치는 클릭이 됨)
                         onEnd: function(evt) {
                             const movedId = evt.item.dataset.id;
                             const newMonth = evt.to.dataset.month;
                             const parts = evt.to.dataset.yearKey.split(' ');
                             
-                            // 떨어진 아이템의 중심 좌표를 기준으로 정중앙 기둥선의 왼쪽인지 오른쪽인지 판정
                             const itemRect = evt.item.getBoundingClientRect();
                             const itemCenterX = itemRect.left + (itemRect.width / 2);
                             const gridRect = evt.to.getBoundingClientRect();
