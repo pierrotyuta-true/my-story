@@ -109,6 +109,28 @@
         .char-card { background: white; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); word-break: break-all; width: 100%; box-sizing: border-box; }
         .char-avatar { width: 60px; height: 60px; border-radius: 50%; background: #e9ecef; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; color: #adb5bd; font-size: 24px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
         .char-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- 추가: 플로팅 바텀 모달창 스타일 --- */
+        .bottom-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none; align-items: flex-end; 
+            justify-content: center; z-index: 3500;
+        }
+        .bottom-modal-overlay.active { display: flex; }
+        .bottom-modal-content {
+            background: white; width: 100%; max-width: 500px;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            padding: 25px 20px 40px 20px; box-sizing: border-box;
+            animation: slideUp 0.3s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .b-modal-title { font-size: 15px; font-weight: bold; text-align: center; margin-bottom: 25px; color: #333; }
+        .b-modal-btn { 
+            width: 100%; padding: 16px; margin-bottom: 12px; border: none; border-radius: 14px; 
+            background: #f1f3f5; font-size: 15px; font-weight: 500; text-align: center; cursor: pointer;
+        }
+        .b-modal-btn.delete { color: #e53935; background: #fff5f5; }
+        .b-modal-cancel { width: 100%; border: none; background: none; color: #adb5bd; font-size: 14px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -159,6 +181,15 @@
         <div class="slide-content" id="slide-list-content"></div>
     </div>
 
+    <div id="docActionModal" class="bottom-modal-overlay" onclick="closeDocActionModal()">
+        <div class="bottom-modal-content" onclick="event.stopPropagation()">
+            <div id="docActionTitle" class="b-modal-title">문서 설정</div>
+            <button class="b-modal-btn" onclick="renameCurrentDoc()">✏️ 이름 변경</button>
+            <button class="b-modal-btn delete" onclick="deleteCurrentDoc()">🗑️ 삭제하기</button>
+            <button class="b-modal-cancel" onclick="closeDocActionModal()">취소</button>
+        </div>
+    </div>
+
     <div class="fab-group">
         <div class="sub-fab" id="sub-fab-1" onclick="handleSubFab1()"></div>
         <div class="sub-fab" id="sub-fab-2" onclick="handleSubFab2()"></div>
@@ -188,12 +219,12 @@
         let state = { storyboard: [], eras: ['제국력', '대한민국'], currentId: null };
         let currentActiveTab = 'timeline';
         
-        // ★ [수정] 기본 문서를 첫 번째로 세팅
         let docList = [{id: 'doc1', title: '기본 문서', content: ''}];
         let currentDocId = 'doc1';
+        let docToEdit = null; // 플로팅 메뉴에서 현재 선택된 문서 보관용
+
         let charList = [{name: '주인공', age: 24, appearance: '검은 생머리', notes: '숨겨진 조력자', img: ''}];
 
-        // 에디터 텍스트 변경 시 현재 문서에 자동 반영 (데이터 유지용)
         document.getElementById('story-editor').addEventListener('input', function(e) {
             const doc = docList.find(d => d.id === currentDocId);
             if(doc) doc.content = e.target.value;
@@ -219,7 +250,6 @@
             if(tabId === 'timeline') {
                 fabGroup.style.display = 'flex'; document.getElementById('sub-fab-1').innerText = "기록하기"; document.getElementById('sub-fab-2').innerText = "연대 관리";
             } else if(tabId === 'treats') {
-                // ★ [수정] 목록보기와 단락 내보내기 버튼 설정
                 fabGroup.style.display = 'flex'; document.getElementById('sub-fab-1').innerText = "목록보기"; document.getElementById('sub-fab-2').innerText = "단락 내보내기"; renderDocList();
             } else if(tabId === 'chars') {
                 fabGroup.style.display = 'flex'; document.getElementById('sub-fab-1').innerText = "캐릭터 추가"; document.getElementById('sub-fab-2').innerText = "관계도"; renderCharList();
@@ -235,24 +265,22 @@
 
         function handleSubFab1() {
             if (currentActiveTab === 'timeline') openAddModal();
-            else if (currentActiveTab === 'treats') toggleSlideMenu(); // 목록보기 (슬라이드 메뉴 열기)
+            else if (currentActiveTab === 'treats') toggleSlideMenu(); 
             else if (currentActiveTab === 'chars') openModal('charModal');
             closeFab();
         }
 
         function handleSubFab2() {
             if (currentActiveTab === 'timeline') openModal('eraModal');
-            else if (currentActiveTab === 'treats') exportSelectedText(); // ★ [수정] 드래그된 텍스트 내보내기 실행
+            else if (currentActiveTab === 'treats') exportSelectedText(); 
             else if (currentActiveTab === 'chars') alert('관계도는 타임라인을 기반으로 자동 생성 준비 중입니다!');
             closeFab();
         }
 
         function toggleSlideMenu() { document.getElementById('slide-menu').classList.toggle('active'); }
 
-        // ★ [추가] 에디터에서 드래그한 텍스트만 추출해서 새 문서 생성
         function exportSelectedText() {
             const editor = document.getElementById('story-editor');
-            // 사용자가 드래그한 영역 텍스트 가져오기
             const selectedText = editor.value.substring(editor.selectionStart, editor.selectionEnd);
             
             if(!selectedText || !selectedText.trim()) {
@@ -267,12 +295,9 @@
             
             alert(`선택하신 텍스트가 '단락 ${nextIndex}' 문서로 추출되었습니다.`); 
             renderDocList();
-            
-            // 내보낸 문서를 즉시 화면에 보여줌
             loadDoc(newDocId);
         }
 
-        // 슬라이드 메뉴 - 내 글 목록 렌더링
         function renderDocList() {
             const listArea = document.getElementById('slide-list-content'); listArea.innerHTML = '';
             const wrap = document.createElement('div'); wrap.id = 'sortable-docs';
@@ -281,7 +306,7 @@
                 const item = document.createElement('div'); item.className = 'folder-item'; item.dataset.id = doc.id;
                 item.innerHTML = `
                     <span onclick="loadDoc('${doc.id}')" style="cursor:pointer; flex:1;">📂 ${doc.title}</span>
-                    <button class="f-btn-text" style="color:#adb5bd; padding:2px 5px;" onclick="editDocMenu('${doc.id}')">=</button>
+                    <button class="f-btn-text" style="color:#adb5bd; padding:2px 5px;" onclick="openDocActionModal('${doc.id}')">=</button>
                 `;
                 wrap.appendChild(item);
             });
@@ -289,29 +314,43 @@
             new Sortable(wrap, { animation: 150, delay: 100, delayOnTouchOnly: true });
         }
 
-        // 슬라이드 목록 - '=' 아이콘 수정/삭제 동작
-        function editDocMenu(id) {
-            const doc = docList.find(d => d.id === id); if (!doc) return;
-            const action = prompt(`'${doc.title}' 문서를 어떻게 할까요?\n1: 이름 변경\n2: 삭제`);
-            
-            if (action === '1') {
-                const newTitle = prompt('새로운 문서 제목을 입력하세요:', doc.title);
-                if (newTitle && newTitle.trim()) {
-                    doc.title = newTitle.trim(); renderDocList();
-                    if (currentDocId === id) document.getElementById('current-doc-title').innerText = doc.title;
-                }
-            } else if (action === '2') {
-                if (confirm('정말 삭제하시겠습니까?')) {
-                    docList = docList.filter(d => d.id !== id); renderDocList();
-                    if(currentDocId === id && docList.length > 0) loadDoc(docList[0].id); // 삭제 시 첫 문서로 이동
-                    else if (docList.length === 0) {
-                        document.getElementById('story-editor').value = ''; document.getElementById('current-doc-title').innerText = '문서 없음';
-                    }
-                }
-            }
+        // --- 수정: 플로팅 메뉴 제어 함수 ---
+        function openDocActionModal(id) {
+            docToEdit = docList.find(d => d.id === id);
+            if (!docToEdit) return;
+            document.getElementById('docActionTitle').innerText = `'${docToEdit.title}' 관리`;
+            document.getElementById('docActionModal').classList.add('active');
         }
 
-        function addNewFolder() { alert('새 폴더가 생성되었습니다.'); }
+        function closeDocActionModal() {
+            document.getElementById('docActionModal').classList.remove('active');
+            docToEdit = null;
+        }
+
+        function renameCurrentDoc() {
+            if (!docToEdit) return;
+            const newTitle = prompt('새로운 문서 제목을 입력하세요:', docToEdit.title);
+            if (newTitle && newTitle.trim()) {
+                docToEdit.title = newTitle.trim();
+                renderDocList();
+                if (currentDocId === docToEdit.id) document.getElementById('current-doc-title').innerText = docToEdit.title;
+            }
+            closeDocActionModal();
+        }
+
+        function deleteCurrentDoc() {
+            if (!docToEdit) return;
+            if (confirm('정말 삭제하시겠습니까?')) {
+                docList = docList.filter(d => d.id !== docToEdit.id);
+                renderDocList();
+                if(currentDocId === docToEdit.id && docList.length > 0) loadDoc(docList[0].id);
+                else if (docList.length === 0) {
+                    document.getElementById('story-editor').value = ''; 
+                    document.getElementById('current-doc-title').innerText = '문서 없음';
+                }
+            }
+            closeDocActionModal();
+        }
 
         function loadDoc(id) {
             currentDocId = id;
@@ -319,7 +358,7 @@
             if(doc) {
                 document.getElementById('current-doc-title').innerText = doc.title;
                 document.getElementById('story-editor').value = doc.content; 
-                document.getElementById('slide-menu').classList.remove('active'); // 선택 시 메뉴 닫기
+                document.getElementById('slide-menu').classList.remove('active');
             }
         }
 
@@ -359,7 +398,6 @@
             });
         }
 
-        /* --- 타임라인 등 기타 기존 로직 --- */
         function renderTimeline() {
             const list = document.getElementById('tl-list'); list.innerHTML = ''; 
             const grouped = state.storyboard.reduce((acc, cur) => {
@@ -422,11 +460,7 @@
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         
-        // 초기 로딩 시 기본 문서 화면에 세팅
-        window.addEventListener('DOMContentLoaded', () => {
-            loadDoc('doc1');
-        });
-
+        window.addEventListener('DOMContentLoaded', () => { loadDoc('doc1'); });
         syncData();
         window.addEventListener('resize', renderCurves);
     </script>
