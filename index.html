@@ -2,145 +2,240 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>ChronoDeck - 스토리 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHRONODECK</title>
     <style>
-        /* 1. 기존 앱 스타일 유지 (배경 및 레이아웃) */
-        body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
+        /* 기본 폰트 및 배경 설정 */
+        body { 
+            margin: 0; 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: #f5f5f5; 
+            color: #333; 
         }
 
-        /* 2. 커스텀 플로팅 모달 스타일 (추가된 부분) */
-        .modal-overlay {
-            position: fixed;
+        /* --- 기존 UI 복구 (상단바, 탭, 리스트) --- */
+        /* 상단바 (헤더) */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background-color: #1a1a24; 
+            color: white; 
+            padding: 12px 20px; 
+        }
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            font-weight: bold; 
+        }
+        .logo-symbol { color: #5b9bd5; font-size: 22px; margin-right: 6px; }
+        .logo-text { line-height: 1.1; font-size: 11px; letter-spacing: 1px; }
+        .header-center { font-size: 16px; font-weight: 500; }
+        .header-right { font-size: 14px; color: #888; }
+        
+        /* 탭 메뉴 */
+        .tabs { 
+            display: flex; 
+            border-bottom: 1px solid #ddd; 
+            background: #e8e8e8; 
+        }
+        .tab { 
+            flex: 1; 
+            text-align: center; 
+            padding: 14px 0; 
+            color: #888; 
+            font-size: 15px; 
+        }
+        .tab.active { 
+            font-weight: bold; 
+            color: #333; 
+            border-bottom: 3px solid #333; 
+            background: #f5f5f5; 
+        }
+
+        /* 내 글 목록 영역 (팝업 느낌) */
+        .document-section {
+            background: white; 
+            border-top-left-radius: 20px; 
+            border-top-right-radius: 20px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            height: 100vh;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); 
+        }
+        .list-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
+        .list-title { font-weight: bold; font-size: 16px; }
+        .list-actions { font-size: 14px; color: #5b9bd5; cursor: pointer; }
+        .list-close { font-size: 14px; color: #888; margin-left: 15px; cursor: pointer; }
+        
+        /* 기본 문서 리스트 아이템 */
+        .list-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #f8f9fa; 
+            padding: 16px; 
+            border-radius: 12px; 
+        }
+        .item-name { display: flex; align-items: center; font-weight: 600; color: #444; }
+        .item-btn { 
+            background: none; 
+            border: none; 
+            font-size: 20px; 
+            color: #aaa; 
+            cursor: pointer; 
+            padding: 0 10px; 
+        }
+
+        /* --- 새로 추가된 커스텀 플로팅 모달 (바텀시트) --- */
+        .action-modal-overlay {
+            position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* 배경 어둡게 */
+            background: rgba(0, 0, 0, 0.5); 
             display: none; /* 기본은 숨김 */
-            align-items: flex-end; /* 아래에서 올라오는 느낌 */
-            justify-content: center;
-            z-index: 1000;
+            align-items: flex-end; /* 화면 아래쪽에 붙게 */
+            justify-content: center; 
+            z-index: 9999;
         }
-
-        .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 400px;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            padding: 20px;
-            box-sizing: border-box;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s ease-out; /* 아래에서 쓱 올라오는 애니메이션 */
+        .action-modal-content {
+            background: white; 
+            width: 100%; 
+            border-top-left-radius: 24px; 
+            border-top-right-radius: 24px;
+            padding: 30px 20px 40px 20px; 
+            box-sizing: border-box; 
+            animation: slideUp 0.3s cubic-bezier(0.1, 0.8, 0.3, 1);
         }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        @keyframes slideUp { 
+            from { transform: translateY(100%); } 
+            to { transform: translateY(0); } 
         }
-
-        .modal-header {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
+        .action-modal-title { 
+            font-size: 16px; 
+            text-align: center; 
+            margin-bottom: 24px; 
+            color: #333; 
+        }
+        
+        /* 모달 안의 버튼 스타일 */
+        .action-btn { 
+            width: 100%; 
+            padding: 16px; 
+            margin-bottom: 12px; 
+            border: none; 
+            border-radius: 14px; 
+            background: #f1f3f5; 
+            font-size: 16px; 
+            font-weight: 500;
+            text-align: center; 
+            cursor: pointer; 
             color: #333;
         }
-
-        /* 버튼 스타일 */
-        .menu-item {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: none;
-            border-radius: 12px;
-            background: #f1f3f5;
-            font-size: 16px;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .action-btn.delete { 
+            color: #e53935; 
+            background: #ffebee; 
         }
-
-        .menu-item:active { background: #e9ecef; }
-        
-        .menu-item.delete {
-            color: #ff4d4d; /* 삭제는 빨간색으로 강조 */
-            background: #fff5f5;
-        }
-
-        .cancel-btn {
-            width: 100%;
-            padding: 15px;
-            margin-top: 5px;
-            border: none;
-            background: transparent;
-            color: #888;
-            font-size: 16px;
-            cursor: pointer;
+        .action-btn-cancel { 
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 8px; 
+            border: none; 
+            background: transparent; 
+            color: #888; 
+            font-size: 16px; 
+            cursor: pointer; 
         }
     </style>
 </head>
 <body>
 
-    <div style="padding: 20px;">
-        <h3>내 글 목록</h3>
-        <div style="display: flex; justify-content: space-between; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            <span>📂 기본 문서</span>
-            <button onclick="openMenu('기본 문서')" style="background:none; border:none; cursor:pointer; font-size: 18px;">≡</button>
+    <div class="header">
+        <div class="header-left">
+            <span class="logo-symbol">✦</span>
+            <div class="logo-text">
+                <div style="color: #5b9bd5;">CHRONO</div>
+                <div style="color: #8ec3e6;">DECK</div>
+            </div>
+        </div>
+        <div class="header-center">이그리에가 ▾</div>
+        <div class="header-right">갱신 &nbsp; 저장</div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab">타임라인</div>
+        <div class="tab active">스토리</div>
+        <div class="tab">캐릭터도감</div>
+    </div>
+
+    <div class="document-section">
+        <div class="list-header">
+            <div class="list-title">내 글 목록</div>
+            <div>
+                <span class="list-actions">+ 새폴더 추가</span>
+                <span class="list-close">닫기</span>
+            </div>
+        </div>
+        
+        <div class="list-item">
+            <div class="item-name">📂 기본 문서</div>
+            <button class="item-btn" onclick="openActionModal('기본 문서')">=</button>
         </div>
     </div>
 
-    <div id="actionModal" class="modal-overlay" onclick="closeMenu()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div id="modalTitle" class="modal-header">문서 관리</div>
+    <div id="customActionModal" class="action-modal-overlay" onclick="closeActionModal()">
+        <div class="action-modal-content" onclick="event.stopPropagation()">
+            <div id="modalDocName" class="action-modal-title">문서 설정</div>
             
-            <button class="menu-item" onclick="renameDoc()">
-                <span>✏️</span> 이름 변경
+            <button class="action-btn" onclick="renameDocument()">
+                이름 변경
+            </button>
+            <button class="action-btn delete" onclick="deleteDocument()">
+                삭제
             </button>
             
-            <button class="menu-item delete" onclick="deleteDoc()">
-                <span>🗑️</span> 삭제하기
-            </button>
-            
-            <button class="cancel-btn" onclick="closeMenu()">취소</button>
+            <button class="action-btn-cancel" onclick="closeActionModal()">취소</button>
         </div>
     </div>
 
     <script>
-        let currentDoc = "";
+        let currentDocName = "";
 
-        // 메뉴 열기
-        function openMenu(docName) {
-            currentDoc = docName;
-            document.getElementById('modalTitle').innerText = `'${docName}' 설정`;
-            document.getElementById('actionModal').style.display = 'flex';
+        // '=' 버튼 클릭 시 모달 열기
+        function openActionModal(docName) {
+            currentDocName = docName;
+            // 모달창 제목을 선택한 문서 이름으로 변경
+            document.getElementById('modalDocName').innerText = `'${docName}' 문서를 어떻게 할까요?`;
+            // 숨겨진 모달창을 화면에 표시
+            document.getElementById('customActionModal').style.display = 'flex';
         }
 
-        // 메뉴 닫기
-        function closeMenu() {
-            document.getElementById('actionModal').style.display = 'none';
+        // '취소' 버튼이나 어두운 배경 클릭 시 모달 닫기
+        function closeActionModal() {
+            document.getElementById('customActionModal').style.display = 'none';
         }
 
-        // 이름 변경 기능
-        function renameDoc() {
-            closeMenu();
-            // 이름 변경은 텍스트 입력이 필요하므로 prompt를 쓰거나, 별도의 입력 모달을 더 만들 수 있습니다.
-            const newName = prompt(`'${currentDoc}'의 새 이름을 입력해주세요.`);
-            if (newName) {
-                alert(`이름이 '${newName}'으로 변경되었습니다.`);
-                // 여기에 실제 DB 저장 로직을 넣으시면 됩니다.
+        // '이름 변경' 버튼 클릭 시
+        function renameDocument() {
+            closeActionModal(); // 창 먼저 닫기
+            // 이름 변경 로직 (현재는 기본 알림창으로 이름 입력받음)
+            const newName = prompt(`'${currentDocName}'의 새 이름을 입력하세요:`, currentDocName);
+            if (newName && newName !== currentDocName) {
+                console.log("이름 변경 완료:", newName);
+                // 추후 이곳에 실제 텍스트가 바뀌는 코드를 연결하시면 됩니다.
             }
         }
 
-        // 삭제 기능
-        function deleteDoc() {
-            closeMenu();
-            if (confirm(`정말로 '${currentDoc}'을 삭제하시겠습니까?`)) {
-                alert("삭제되었습니다.");
-                // 여기에 실제 삭제 처리 로직을 넣으시면 됩니다.
+        // '삭제' 버튼 클릭 시
+        function deleteDocument() {
+            closeActionModal(); // 창 먼저 닫기
+            if (confirm(`정말로 '${currentDocName}'을(를) 삭제하시겠습니까?`)) {
+                console.log("문서 삭제됨:", currentDocName);
+                // 추후 이곳에 실제 문서를 지우는 코드를 연결하시면 됩니다.
             }
         }
     </script>
