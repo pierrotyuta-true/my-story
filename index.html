@@ -66,7 +66,6 @@
         .left-col .timeline-card .branch-tab { position: absolute; left: -8px; top: 6px; width: 8px; height: 16px; background: #adb5bd; border-radius: 3px 0 0 3px; }
         .right-col .timeline-card .branch-tab { position: absolute; right: -8px; top: 6px; width: 8px; height: 16px; background: #adb5bd; border-radius: 0 3px 3px 0; }
 
-        /* ★ [복구] 타임라인 상세보기 탭 스타일 ★ */
         .top-tabs { position: absolute; top: -32px; left: 10px; display: flex; gap: 5px; overflow-x: auto; max-width: 95%; scrollbar-width: none; }
         .top-tab { padding: 8px 14px; background: rgba(255,255,255,0.4); border-radius: 10px 10px 0 0; font-size: 11px; color: #fff; cursor: pointer; white-space: nowrap; transition: 0.2s; }
         .top-tab.active { background: white; color: var(--dark); font-weight: bold; }
@@ -100,15 +99,12 @@
         .slide-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f3f5; }
         .slide-content { flex: 1; overflow-y: auto; padding: 15px; }
         
-        /* ★ [수정] 수정삭제 버튼 = 아이콘 적용 ★ */
         .folder-item { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; font-weight: bold; cursor: move; display: flex; justify-content: space-between; align-items: center; }
-        .doc-item { padding: 8px 10px 8px 25px; font-size: 12px; color: #666; cursor: pointer; border-bottom: 1px solid #f8f9fa; display: flex; justify-content: space-between; align-items: center; }
 
         /* 스토리 뷰 에디터 스타일 */
         .editor-container { background: white; border-radius: 12px; padding: 15px; height: calc(100vh - 200px); display: flex; flex-direction: column; }
-        .editor-textarea { flex: 1; border: none; background: none; font-size: 14px; line-height: 1.8; color: #333; }
+        .editor-textarea { flex: 1; border: none; background: none; font-size: 14px; line-height: 1.8; color: #333; outline: none; resize: none; }
 
-        /* ★ [추가] 캐릭터 창 튀어나감 방지 및 원형 아이콘 스타일 ★ */
         #char-list-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; box-sizing: border-box; }
         .char-card { background: white; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); word-break: break-all; width: 100%; box-sizing: border-box; }
         .char-avatar { width: 60px; height: 60px; border-radius: 50%; background: #e9ecef; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; color: #adb5bd; font-size: 24px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
@@ -140,16 +136,15 @@
         <div id="treats-view" class="view" style="padding: 20px;">
             <div class="editor-container">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h5 id="current-doc-title" style="color:var(--dark);">내 스토리</h5>
-                    <span style="font-size:11px; color:#adb5bd;">내 글 목록에서 문서를 선택하세요.</span>
+                    <h5 id="current-doc-title" style="color:var(--dark);">기본 문서</h5>
+                    <span style="font-size:11px; color:#adb5bd;">텍스트를 드래그한 후 '+' 버튼에서 내보내기를 클릭하세요.</span>
                 </div>
-                <textarea id="story-editor" class="editor-textarea" placeholder="선택한 단락의 내용이 여기 복사됩니다. 자유롭게 편집하여 회차를 완성하세요."></textarea>
+                <textarea id="story-editor" class="editor-textarea" placeholder="여기에 자유롭게 스토리를 작성하세요."></textarea>
             </div>
         </div>
 
         <div id="chars-view" class="view" style="padding: 20px;">
-            <div id="char-list-wrap">
-                </div>
+            <div id="char-list-wrap"></div>
         </div>
     </main>
 
@@ -167,7 +162,7 @@
     <div class="fab-group">
         <div class="sub-fab" id="sub-fab-1" onclick="handleSubFab1()"></div>
         <div class="sub-fab" id="sub-fab-2" onclick="handleSubFab2()"></div>
-        <button class="main-fab" id="main-fab" onclick="handleSubFab1()">+</button>
+        <button class="main-fab" id="main-fab" onclick="toggleFab()">+</button>
     </div>
 
     <div id="detailModal" class="modal"><div class="modal-content compact"><div class="top-tabs" id="modal-tab-container"></div><div class="modal-main-card"><div id="detail-body"></div><div class="modal-footer-clean" id="detail-footer"></div></div></div></div>
@@ -185,12 +180,6 @@
         <div style="display:flex; gap:10px; margin-top: 5px;"><button style="flex:1; background:var(--primary); color:white; border:none; border-radius:10px; padding:12px; font-weight:bold; cursor:pointer;" onclick="saveCharacter()">저장</button><button style="flex:1; background:#f1f3f5; color:#adb5bd; border:none; border-radius:10px; padding:12px; font-weight:bold; cursor:pointer;" onclick="closeModal('charModal')">닫기</button></div>
     </div></div>
 
-    <div id="exportModal" class="modal"><div class="modal-content" style="background:white; padding:20px; border-radius:15px; width:300px;">
-        <h4 style="margin-bottom:15px; font-size:14px;">내보낼 단락 선택</h4>
-        <div id="export-list" style="max-height:200px; overflow-y:auto; margin-bottom:15px; font-size:12px;"></div>
-        <div style="display:flex; gap:10px;"><button style="flex:1; background:var(--primary); color:white; border:none; border-radius:8px; padding:10px; font-weight:bold;" onclick="executeExport()">새 문서로 내보내기</button><button style="flex:1; background:#f1f3f5; color:#adb5bd; border:none; border-radius:8px; padding:10px; font-weight:bold;" onclick="closeModal('exportModal')">취소</button></div>
-    </div></div>
-
     <script>
         const firebaseConfig = { databaseURL: "https://true-s-default-rtdb.firebaseio.com" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -199,9 +188,16 @@
         let state = { storyboard: [], eras: ['제국력', '대한민국'], currentId: null };
         let currentActiveTab = 'timeline';
         
-        // ★ [수정] 기본 이름 '내 스토리'로 지정 ★
-        let docList = [{id: 'doc1', title: '내 스토리', content: '첫 번째로 내보내진 단락의 내용입니다.'}];
+        // ★ [수정] 기본 문서를 첫 번째로 세팅
+        let docList = [{id: 'doc1', title: '기본 문서', content: ''}];
+        let currentDocId = 'doc1';
         let charList = [{name: '주인공', age: 24, appearance: '검은 생머리', notes: '숨겨진 조력자', img: ''}];
+
+        // 에디터 텍스트 변경 시 현재 문서에 자동 반영 (데이터 유지용)
+        document.getElementById('story-editor').addEventListener('input', function(e) {
+            const doc = docList.find(d => d.id === currentDocId);
+            if(doc) doc.content = e.target.value;
+        });
 
         function syncData() {
             db.ref('users/Yuta/projects/기본/settings/eras').on('value', snap => {
@@ -223,7 +219,8 @@
             if(tabId === 'timeline') {
                 fabGroup.style.display = 'flex'; document.getElementById('sub-fab-1').innerText = "기록하기"; document.getElementById('sub-fab-2').innerText = "연대 관리";
             } else if(tabId === 'treats') {
-                fabGroup.style.display = 'flex'; document.getElementById('sub-fab-1').innerText = "내 글 목록"; document.getElementById('sub-fab-2').innerText = "단락 내보내기"; renderDocList();
+                // ★ [수정] 목록보기와 단락 내보내기 버튼 설정
+                fabGroup.style.display = 'flex'; document.getElementById('sub-fab-1').innerText = "목록보기"; document.getElementById('sub-fab-2').innerText = "단락 내보내기"; renderDocList();
             } else if(tabId === 'chars') {
                 fabGroup.style.display = 'flex'; document.getElementById('sub-fab-1').innerText = "캐릭터 추가"; document.getElementById('sub-fab-2').innerText = "관계도"; renderCharList();
             }
@@ -238,21 +235,44 @@
 
         function handleSubFab1() {
             if (currentActiveTab === 'timeline') openAddModal();
-            else if (currentActiveTab === 'treats') toggleSlideMenu();
+            else if (currentActiveTab === 'treats') toggleSlideMenu(); // 목록보기 (슬라이드 메뉴 열기)
             else if (currentActiveTab === 'chars') openModal('charModal');
             closeFab();
         }
 
         function handleSubFab2() {
             if (currentActiveTab === 'timeline') openModal('eraModal');
-            else if (currentActiveTab === 'treats') openExportModal();
+            else if (currentActiveTab === 'treats') exportSelectedText(); // ★ [수정] 드래그된 텍스트 내보내기 실행
             else if (currentActiveTab === 'chars') alert('관계도는 타임라인을 기반으로 자동 생성 준비 중입니다!');
             closeFab();
         }
 
         function toggleSlideMenu() { document.getElementById('slide-menu').classList.toggle('active'); }
 
-        // ★ [수정] 내 글 목록 렌더링에 수정삭제(=) 기능 반영 ★
+        // ★ [추가] 에디터에서 드래그한 텍스트만 추출해서 새 문서 생성
+        function exportSelectedText() {
+            const editor = document.getElementById('story-editor');
+            // 사용자가 드래그한 영역 텍스트 가져오기
+            const selectedText = editor.value.substring(editor.selectionStart, editor.selectionEnd);
+            
+            if(!selectedText || !selectedText.trim()) {
+                alert('에디터에서 내보낼 텍스트를 드래그하여 선택해주세요.');
+                return;
+            }
+            
+            const nextIndex = docList.length + 1;
+            const newDocId = 'doc' + Date.now();
+            const newDoc = { id: newDocId, title: `단락 ${nextIndex}`, content: selectedText.trim() }; 
+            docList.push(newDoc);
+            
+            alert(`선택하신 텍스트가 '단락 ${nextIndex}' 문서로 추출되었습니다.`); 
+            renderDocList();
+            
+            // 내보낸 문서를 즉시 화면에 보여줌
+            loadDoc(newDocId);
+        }
+
+        // 슬라이드 메뉴 - 내 글 목록 렌더링
         function renderDocList() {
             const listArea = document.getElementById('slide-list-content'); listArea.innerHTML = '';
             const wrap = document.createElement('div'); wrap.id = 'sortable-docs';
@@ -260,7 +280,7 @@
             docList.forEach(doc => {
                 const item = document.createElement('div'); item.className = 'folder-item'; item.dataset.id = doc.id;
                 item.innerHTML = `
-                    <span onclick="loadDoc('${doc.id}')" style="cursor:pointer;">📂 ${doc.title}</span>
+                    <span onclick="loadDoc('${doc.id}')" style="cursor:pointer; flex:1;">📂 ${doc.title}</span>
                     <button class="f-btn-text" style="color:#adb5bd; padding:2px 5px;" onclick="editDocMenu('${doc.id}')">=</button>
                 `;
                 wrap.appendChild(item);
@@ -269,23 +289,24 @@
             new Sortable(wrap, { animation: 150, delay: 100, delayOnTouchOnly: true });
         }
 
-        // ★ [추가] 폴더/문서 이름 수정 및 삭제 팝업 (= 버튼 동작) ★
+        // 슬라이드 목록 - '=' 아이콘 수정/삭제 동작
         function editDocMenu(id) {
             const doc = docList.find(d => d.id === id); if (!doc) return;
-            const action = prompt(`'${doc.title}'에 대한 작업을 선택하세요.\n1: 이름 수정, 2: 삭제`);
+            const action = prompt(`'${doc.title}' 문서를 어떻게 할까요?\n1: 이름 변경\n2: 삭제`);
             
             if (action === '1') {
-                const newTitle = prompt('새로운 이름을 입력하세요:', doc.title);
+                const newTitle = prompt('새로운 문서 제목을 입력하세요:', doc.title);
                 if (newTitle && newTitle.trim()) {
                     doc.title = newTitle.trim(); renderDocList();
-                    if (document.getElementById('current-doc-title').innerText === doc.title || document.getElementById('current-doc-title').innerText === '새로운 회차 편집') {
-                        document.getElementById('current-doc-title').innerText = doc.title;
-                    }
+                    if (currentDocId === id) document.getElementById('current-doc-title').innerText = doc.title;
                 }
             } else if (action === '2') {
                 if (confirm('정말 삭제하시겠습니까?')) {
                     docList = docList.filter(d => d.id !== id); renderDocList();
-                    document.getElementById('story-editor').value = ''; document.getElementById('current-doc-title').innerText = '내 스토리';
+                    if(currentDocId === id && docList.length > 0) loadDoc(docList[0].id); // 삭제 시 첫 문서로 이동
+                    else if (docList.length === 0) {
+                        document.getElementById('story-editor').value = ''; document.getElementById('current-doc-title').innerText = '문서 없음';
+                    }
                 }
             }
         }
@@ -293,33 +314,15 @@
         function addNewFolder() { alert('새 폴더가 생성되었습니다.'); }
 
         function loadDoc(id) {
+            currentDocId = id;
             const doc = docList.find(d => d.id === id);
             if(doc) {
                 document.getElementById('current-doc-title').innerText = doc.title;
-                document.getElementById('story-editor').value = doc.content; toggleSlideMenu();
+                document.getElementById('story-editor').value = doc.content; 
+                document.getElementById('slide-menu').classList.remove('active'); // 선택 시 메뉴 닫기
             }
         }
 
-        function openExportModal() {
-            const listArea = document.getElementById('export-list'); listArea.innerHTML = '';
-            state.storyboard.forEach(ev => {
-                listArea.innerHTML += `<label style="display:block; margin-bottom:5px;"><input type="checkbox" value="${ev.text}" class="export-chk"> [${ev.era}] ${ev.text.substring(0, 15)}...</label>`;
-            });
-            openModal('exportModal');
-        }
-
-        function executeExport() {
-            const checks = document.querySelectorAll('.export-chk:checked');
-            if(checks.length === 0) { alert('단락을 하나 이상 선택해주세요.'); return; }
-            let combinedText = ''; checks.forEach(c => combinedText += c.value + '\n\n');
-            
-            const nextIndex = docList.length + 1;
-            const newDoc = { id: 'doc' + Date.now(), title: `단락 ${nextIndex}`, content: combinedText.trim() }; docList.push(newDoc);
-            
-            alert(`단락 ${nextIndex} 가 생성되었습니다. 내 글 목록에서 확인하세요.`); closeModal('exportModal'); renderDocList();
-        }
-
-        // ★ [수정] 캐릭터 사진 데이터 읽어오기 및 저장 ★
         function saveCharacter() {
             const name = document.getElementById('c-name').value; const age = document.getElementById('c-age').value;
             const app = document.getElementById('c-appearance').value; const notes = document.getElementById('c-notes').value;
@@ -342,7 +345,6 @@
             closeModal('charModal');
         }
 
-        // ★ [수정] 원형 프로필 및 그림자 placeholder 구현 ★
         function renderCharList() {
             const wrap = document.getElementById('char-list-wrap'); wrap.innerHTML = '';
             charList.forEach(c => {
@@ -357,7 +359,7 @@
             });
         }
 
-        /* --- 타임라인 및 기존 로직 (건드리지 않고 유지) --- */
+        /* --- 타임라인 등 기타 기존 로직 --- */
         function renderTimeline() {
             const list = document.getElementById('tl-list'); list.innerHTML = ''; 
             const grouped = state.storyboard.reduce((acc, cur) => {
@@ -420,6 +422,11 @@
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         
+        // 초기 로딩 시 기본 문서 화면에 세팅
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDoc('doc1');
+        });
+
         syncData();
         window.addEventListener('resize', renderCurves);
     </script>
